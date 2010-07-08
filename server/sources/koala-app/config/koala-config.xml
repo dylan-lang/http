@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- This is a version of the configuration file that's more suitable for
+     use during development.  -->
+
+<koala>
+
+<log level="copious" />
+
+<debug-server value="on" />
+
+<logfile location="koala.log" />
+
+<port value="8001" />
+
+<server-root location="../.." />
+
+<document-root location="www" />
+
+<directory
+  name="/"
+  follow-symlinks = "yes"
+  allow-directory-listing = "yes"
+  />
+
+<auto-register enabled="no" />
+
+<xml-rpc url="/RPC2" enable="yes" internal-error-fault-code="0" />
+
+<mime-type-map location="mime-type-map.xml" />
+
+<!--
+<virtual-host name = "blackbird">
+  <port value="8001" />
+  <directory
+    name="/"
+    follow-symlinks = "yes"
+    allow-directory-listing = "yes"
+    />
+</virtual-host>
+-->
+
+</koala>
+

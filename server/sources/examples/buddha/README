@@ -1,0 +1,56 @@
+Author: Hannes Mehnert <hannes@mehnert.org>
+
+Installing buddha
+=================
+
+Open Dylan:
+  download latest tarball from
+   http://www.gwydiondylan.org/downloads/opendylan/
+  and follow the instructions in README provided by the tarball.
+
+buddha:
+ check out source code:
+ svn co svn://anonsvn.gwydiondylan.org/scm/svn/dylan/trunk/libraries/
+
+ will check out source to libraries/
+ 
+ export FUNCTIONAL_DEVELOPER_USER_REGISTRIES=`pwd`/libraries/registry
+ or, in tcsh:
+ setenv FUNCTIONAL_DEVELOPER_USER_REGISTRIES `pwd`/libraries/registry
+
+ then run
+  opendylan -build buddha
+ you should end up with a ~/bin/buddha binary
+
+Configuring buddha
+==================
+ first copy and modify the http server config:
+  mkdir config
+  cp libraries/koala/config/koala-config.xml config/
+  edit config/koala-config.xml
+
+At least
+<buddha content-directory = "/home/hannes/dylan/libraries/koala/www/" />
+has to be added.
+
+It is also a good idea to have an absolute path in the
+<server-root location="/absolute_path/to/libraries/koala" />
+element.
+
+Hmm, that's all I'd guess.
+
+
+Running buddha
+==============
+
+run ~/bin/buddha
+there should be a http-listener on the configured port
+
+Security considerations
+=======================
+
+Save/restore: always (when user submits a filename during save,
+and when user chooses a file during restore) converts user input
+to a base64-encoded string
+ -> no directory traversal or other malformed filenames
+-> even malformed GET/POST requests will be base64-encoded

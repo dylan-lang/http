@@ -1,0 +1,25 @@
+BUGS:
+<day/time-duration>
+ -> escape '/' because it is used as delimiter for library/module/symbol
+
+TODO:
+general:
+ * link to specific method in a GF (using argument types)
+ * URL schema: add optional ?project=foo, where project should default to library name
+
+*library: modules which are exported
+*module: names which are exported
+*class: get rid of "complex type"
+*search:
+  display project-name instead of library name!
+  display project, library and module where the symbol was found!
+*constant/variable:
+  value is always #f (because we have no application running?!)
+
+implement dsp and tags for
+ *domain
+ *generic-function
+ *method
+ *simple-function
+
+draw nice graphs! (module/library deps|call deps|class graphs|...)

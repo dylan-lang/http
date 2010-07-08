@@ -1,0 +1,56 @@
+This file seems to be mostly about DSP issues.
+
+* When debugging it could be really useful to have process-template output
+  <!-- begin template foo.dsp --> and <!-- end template foo.dsp --> into
+  the generated page.
+
+* Need a way to define a <page> that's 100% dynamic.  i.e., it requires
+  no template.  This would be useful for creating simple default pages
+  in the code and avoiding complicated packaging problems.  e.g., see
+  the return-to-origin method's default: keyword.  If none supplied it
+  could default to a dynamic error page.
+
+* SQL-ODBC: if you try to insert the empty string into a CHAR(n) column you
+  get an error.  Should check this out.
+
+* The template parser should complain clearly if the %dsp:include
+  directive doesn't have the "url" attribute.  ("uri" should work as a
+  synonym?)
+
+* The error you get for unrecognized tags is pretty bad:
+
+  Dylan error: The system cannot find the file specified.
+  : Can't get attributes of D:\sigue\bug-tracker\btrack\dsp\<!--TAG%20PARSE%20ERROR--> 
+
+  These were in the log:
+
+  2002-09-23 21:09:37 [WARN] In template "D:\\sigue\\bug-tracker\\btrack\\dsp\\home.dsp", the tag "show-messages" was not found.
+  2002-09-23 21:09:37 [WARN] In template "D:\\sigue\\bug-tracker\\btrack\\dsp\\home.dsp", the tag "image" was not found.
+  2002-09-23 21:09:37 [WARN] In template "D:\\sigue\\bug-tracker\\btrack\\dsp\\home.dsp", the tag "current-login" was not found.
+  2002-09-23 21:09:37 [INFO] get /<!--TAG%20PARSE%20ERROR--> http/1.1
+
+  Clearly need to include the tag name in the error message.
+
+* "define page" should expand to some method definition that gets called
+  on startup rather than expanding directly to calls to make.  This
+  would avoid some of the dependency problems, like having to call
+  start-server early.  (How will this problem be affected when Koala
+  loads DLLs at runtime?)
+
+* Will need something like process-html to use in iteration tags.
+
+* In JSP I can put a URL like "recordServlet?id=<bt:some_tag/>" in a page
+  and if recordServlet has to redirect to a login page (for example) then
+  that login page can just forward to the originally requested URL when
+  it's done.  This can be convenient.  In DSP I guess I can just have the
+  recordServlet page store ALL the query values in the session and then
+  do the redirection, but it's worth considering whether it's worth having
+  a way to explicitly forward to a URL and/or page.
+
+* The warning about 'the tag "foo" was not found' should say what taglibs
+  were searched.  (And it would be extra cool to say if a matching tag
+  exists in some other taglib.)
+
+* DSP should warn when a matching close tag isn't found, or if a close
+  tag with an unrecognized taglib name is found.  e.g., I put 
+  <dsp:row>...<bt:row> by accident and it failed to warn.

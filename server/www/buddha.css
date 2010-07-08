@@ -1,0 +1,181 @@
+/*
+ * Much of this file was shamelessly lifted from cliki.net
+ */
+
+#buddha-menu {
+	margin:12px 20px;
+	FONT-SIZE: 11px; 
+	LINE-HEIGHT: normal;
+	FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif;
+        BORDER-STYLE: solid;
+        BORDER-WIDTH: 1px;
+	BORDER-TOP-WIDTH: 4px;
+	BACKGROUND-COLOR: #FFFFFF;
+	BORDER-COLOR: #0066B9;
+	PADDING: 0px;
+}
+
+#buddha-title H1 {
+	FONT-SIZE: 1.4em;
+	FONT-WEIGHT: bold;
+	PADDING: 0px 6px
+}
+
+#buddha-view { PADDING: 0px; BACKGROUND-COLOR: #0066B9; COLOR: #FFF }
+#buddha-edit { PADDING: 0px; }
+
+#buddha-view UL, #buddha-edit UL { PADDING: 4px 6px; MARGIN: 0px }
+
+#buddha-view A:link, #buddha-view A:visited { TEXT-DECORATION: none; COLOR: #FFFFFF }
+#buddha-edit A:link, #buddha-edit A:visited { TEXT-DECORATION: none; COLOR: #0066B9 }
+
+#buddha-view A:hover { TEXT-DECORATION: underline; COLOR: #FFFFFF }
+#buddha-edit A:hover { TEXT-DECORATION: underline; COLOR: #0066B9 }
+
+#buddha-view LI, #buddha-edit LI {
+	MARGIN-RIGHT: 12px;
+	DISPLAY: inline;
+	HEIGHT: 0
+}
+
+body 
+{  
+  background: white;
+  color: black;
+  font-family: serif;
+  margin: 0; padding: 0.5em;
+}
+
+h1, h2, h3, h4, h5
+{ 
+  color: #999;
+  font-family: sans-serif;
+}
+
+hr { border: 0; background: black; height: 1px }
+a.internal { color: #0077bb ; }
+a:visited.internal { color: #004488; } 
+a.hyperspec { font-weight: bold; }
+
+a[href]:hover { background: #ff9 }
+
+table { border-collapse: collapse; border: 1px solid #aaa; }
+th 
+{ 
+  font-family: sans-serif; 
+  background: royalblue;
+  color: white;
+  text-transform: lowercase 
+}
+th, td { padding: 0.2em 0.3em }
+
+.color1
+{ background: #f7ffde }
+
+.color2
+{ background: #bddfbd }
+
+.foo-color1
+{ background: #fff3de }
+.foo-color2
+{ background: #dfd3bd }
+
+.red
+{ color: red }
+
+.green
+{ color: green }
+
+
+ul li { list-style-type: square }
+
+pre
+{
+  background: #cdf; 
+  border: 1px solid #679; 
+  color: #235; 
+  font-size: 90%;
+  padding: 0.3em;
+}
+
+/*
+ * header
+ */
+#header
+{
+  background: steelblue;
+  border: 1px solid black;
+  color: white;
+  margin: 0;  padding: 0.5em 0.5em 1.5em; 
+}
+#header a { color: white; font-weight: normal; text-decoration: none; padding: 0 }
+#header a:hover { background: transparent; color: white }
+#header a:hover.logo { text-decoration: none }
+#header a.logo { font-family: serif; font-weight: bold; font-size: 150%; border-width: 0px }
+#header a.logo .sub 
+{
+  color: #E5794B;
+  font-size: 90%; 
+  position: relative; top: -0.3em; 
+}
+
+.search
+{
+  float: right; 
+  text-align: right;
+  padding:  1em 0 0;
+}
+.search input { border: 1px solid black }
+
+.login
+{
+  padding:  1em 0 0;
+}
+.login input { border: 1px solid black }
+
+#navbar { margin: 1em 0 -0.5em 0 }
+#navbar a 
+{
+  border: 1px solid #E5794B;
+  border-width: 1px 0 1px 0;
+  font-size: 90%;
+  margin: 0 1em; padding: 0 0.2em 
+}
+#navbar a:hover
+{
+  border: 1px solid white;
+  border-width: 1px 0 1px 0;
+}
+
+.lastedit 
+{
+  color: #E5794B;
+  float: right;
+  text-align: right; 
+  text-transform: lowercase;
+  margin: 0; padding: 0
+}
+
+/*
+ * content
+ */
+#content
+{
+  clear: both;
+  margin: 0; padding: 0 1.5em;
+}
+
+/*
+ * footer
+ */
+#footer
+{
+  background: steelblue;
+  color: white;
+  border: 1px solid black;
+  font-family: serif;
+  margin-top: 0.5em; padding: 0.01em;
+}
+#footer a[href] { color: #E5794B; text-decoration: none }
+#footer a[href]:hover { background: transparent; color: #E5794B }
+

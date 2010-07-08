@@ -1,0 +1,199 @@
+Koala To-Do List
+----------------
+
+These are pretty random.  See also the bugzilla list.
+
+* Add command-line option --log so that Koala can be started up
+  without doing any logging to stdout.  This should also be the
+  place we log messages that are related to the server and not
+  any particular vhost.
+
+* http-client: status line needs to be rstripped.
+
+* Add a command-line option to enable/disable different kinds of debugging.
+  --debug [headers,static-files,...]
+  --enable-debug-api could register responders that would allow
+  debugging options to be changed at runtime.  This requires support from
+  the logging library.
+
+* Thread pool.  Can be expensive to allocate/deallocate threads.
+
+* The request-method is case sensivite yet we intern it as a symbol.
+  Probably want to define a class for it just to intern them and to
+  continue to be able to dispatch on them.
+
+* resource-not-found-error is annoying in that it requires converting
+  the url to a string before each call and the argument is untyped so
+  it's not found until runtime.  Maybe add resource-not-found method
+  on <request> that DTRTs.  I still don't like the errors.dylan code.
+  At the very least the macro should generate 'define method' rather
+  than 'define function' so that other methods can be added to the gf.
+
+* Review all uses of as(<symbol>, x) to make sure we're not vulnerable
+  to memory leaks.
+
+* Review all uses of <string> and replace with <byte-string> where
+  appropriate.
+
+* Test whether rcurry does the right thing with keyword args.  Not
+  sure the code in handler-top-level that uses that has actually
+  been exercised.
+
+* Change add-header to default to #"error", but figure out what's currently
+  breaking first.
+
+* Make a combined test suite for all libraries that use http-common (directly
+  or indirectly) so that it's possible to verify in one shot that you didn't
+  break anything when changing http-common.
+
+* Fix security issues...
+
+May 17 14:44:35 <andreas>	Carl: Are you still here?
+May 17 14:44:41 <cgay>	yes, hi
+May 17 14:45:27 <andreas>	Carl: I think you need a generic mechanism to make sure an attacker cannot trick his way through protection mechanisms by using different names for the same file.
+May 17 14:45:38 <andreas>	Are you aware of the poisoned NULL byte?
+May 17 14:45:53 <cgay>	no, but it sounds bad :)
+May 17 14:47:29 <andreas>	Imagine a web server written in a language that keeps explicit track of string lengths. Like Dylan. Running on top of a OS with a system interface inspired by C, such as UNIX oder Windows, where strings are NULL-terminated.
+May 17 14:47:49 <andreas>	Now imagine what happens when you handle a request like foo.exe%00.txt
+May 17 14:49:05 <cgay>	you pass that string to the OS open() and all hell breaks loose?
+May 17 14:49:52 <andreas>	What usually happens is that you map from filename extensions to MIME types, and from there to request handlers.
+May 17 14:50:14 <andreas>	Say that .exe maps to application/cgi-bin, and .txt maps to text/plain.
+May 17 14:50:34 <andreas>	YOu have that CGI there, which of course contains your database passwords.
+May 17 14:51:28 <andreas>	The %00 gets converted into a NULL byte, which is a legal part of the string. SO your code thinks the user requests a txt file, and calls the appropriate handler.
+May 17 14:51:46 <andreas>	Which calls open() on the string it gets, and delivers the contents to the user.
+May 17 14:52:04 <andreas>	Of course, at this moment, the .txt is lost, and your server happily delivers the application binary.
+May 17 14:52:04 <^self>	i see.
+May 17 14:52:18 <cgay>	ah
+May 17 14:53:17 <andreas>	WIndows has a couple more gotchas like that. There once was the problem that you could append $00 to a filename to do some magic, and that $00 was stripped by the OS before opening the file.
+May 17 14:53:42 <andreas>	So you need a generic pathname canonicalization mechanism to protect against this problem in a systematic manner.
+May 17 14:54:06 <andreas>	This needs to be carefully worked out for every platform, including all of these gotchas.
+May 17 14:54:49 <cgay>	i c.  do you have a good source for this info?  otherwise i'll just search for 'poisoned null byte'
+May 17 14:55:33 <cgay>	i wonder if CL-HTTP has already done something like this...
+May 17 14:55:59 <andreas>	I have explained all there is to know about that. The hard part is coming up with a design that allows for central maintenance of platform rules, so the user code doesn't have to worry anymore.
+May 17 14:56:15 <andreas>	You need to fight the whole class of bugs, not just this single instance.
+May 17 14:58:22 <cgay>	yup
+May 17 14:59:49 <andreas>	I've seen that you did well on preventing directory traversal, btw. :)
+May 17 15:00:46 <andreas>	There are web servers you can fool with %2e%2f%2f
+May 17 15:00:58 <andreas>	Err... %2e%2e%2f that is.
+May 17 15:01:20 <cgay>	which must be ../
+May 17 15:02:01 <--	hannes has quit ("-> cccb")
+May 17 15:02:10 <cgay>	I'll make a note of your comments and try to get to that soon
+May 17 15:03:06 <andreas>	Cool. :) Meanwhile, I'll continue to tame MPS for koala on Linux. It's progressing...
+May 17 15:04:29 <cgay>	I almost have virtual hosts working, and a sort of generic directory policy mechanism
+May 17 15:04:59 <andreas>	I mention unification of legacy composite characters in UNICODE as another joyful problem in the same category.
+May 17 15:05:47 <andreas>	Just for your notes, not that we have much of UNICODE support at the moment. :)
+May 17 15:10:44 <andreas>	Regarding the directory policy: do you have a notion of a generic protection policy?
+May 17 15:10:46 <robmyers>	URL-encoding characters used to be good for getting the source to ASP pages. It was particularly bad as they'd already "ficed" the bug by refusing the ASCII that caused the same problem. :-)
+May 17 15:10:53 <robmyers>	"fixed", even.
+May 17 15:16:34 <andreas>	Oh, koala comes with yet another implementation of string-to-float! :)
+May 17 15:16:54 <cgay>	i think i stole it from chris double
+May 17 15:17:50 <cgay>	haven't done much of anything with security yet
+May 17 15:19:01 <andreas>	There's string-to-float and float-to-string in common-dylan. The Gwydion implementation is carefully written to be precise, in the sense that concatenate(string-to-float, float-to-string) and vice versa is the identity function.
+May 17 15:20:16 <cgay>	ok.  i also need to stop using the copies of anaphora, meta, xml-parser, etc that are in the koala dir
+May 17 15:20:54 <andreas>	Probably. Which reminds me taht we need some generic library distribution and installation mechanism.
+May 17 15:21:17 <andreas>	Sooner or later. :)
+May 17 15:22:16 <cgay>	do you mean something like CPAN?
+May 17 15:22:25 <andreas>	Yes.
+May 17 15:22:48 <andreas>	CPAN was a major factor in perl's success.
+May 17 15:23:09 <cgay>	i've used it a lot lately.  it's probably the best thing about perl.  ;-)
+May 17 15:23:48 <andreas>	Oh, it has powerful code obfuscation facilities for job security. :)
+May 17 15:23:48 <--	pritlove has quit (Remote closed the connection)
+May 17 15:24:51 <cgay>	at this point i'd settle for a manually maintained library repository, which could be automated later
+May 17 15:25:00 -->	pritlove (~pritlove@port-212-202-175-14.dynamic.qsc.de) has joined #dylan
+May 17 15:25:14 <andreas>	Yes.
+May 17 15:27:08 <cgay>	does CPAN do dependency tracking?
+May 17 15:27:19 <andreas>	Yes.
+May 17 15:28:08 <cgay>	so it wouldn't install a too-new version...
+May 17 15:28:48 <andreas>	Not sure if they can do that.
+May 17 15:29:43 <andreas>	Something like a too-new version shouldn't happen. If a version breaks backwards compatibility, that is a major version change, which warrants a new, non-conflicting library name, so you can have both versions coexist for old and new code.
+
+* URL cleanups
+  - Make sure that decode-url is used in all the right places to convert
+    from %xx to appropriate characters.
+
+* I believe all URL strings and methods on urls should be typed as <byte-string>,
+  not <string>.
+
+* Sessions - They should be able to work without cookies enabled, either
+  by URL rewriting or ...?
+
+* New config file setting: <server-administrator> (per vhost)
+
+
+Kitchen Sink
+------------
+
+* Ability to specify directories (e.g., CVS, .ssh, etc) that should
+  be excluded when browsing directory structure.
+
+* Ability to specify a URL to be displayed when 404 errors occur.
+  Should be per-directory.
+
+* Search sources for "TODO:" and do them.
+
+* Documentation.
+
+* A facility to generate .html files from .dsp files.  e.g., a way to
+  "play back" all the .dsp doc files into .html.  Will only work for pages
+  that don't require parameters.
+
+* URL cleanups:
+  - Use web locators instead of strings?  Not sure it would buy much.
+    Look at parse-uri and parse-request-uri, which are presently unused.
+  - Have a standard API for writing a URL to the output stream so that
+    it can be used to automatically include the session-id etc.
+
+* DSP
+  - More error checking at template parse time.
+      - Warn when required tag call arguments are not supplied.
+  - Check that tag arguments with no value (e.g., <dsp:cell nowrap>) work.
+    See extract-tag-args.
+  - Provide an API for clearing the output stream contents.  JSP has this
+    and it could be useful for error recovery.
+  - Check what exactly are the rules for using prefix= in the taglib
+    directive.  What happens when two directives use the same prefix?
+    When the same taglib is included twice with different prefixes?
+    Does shadowing work correctly when they use the same prefix?  i.e.,
+    if two taglibs have the same tag and same prefix, is the one in the
+    taglib that was included last used?
+
+* Miscellaneous
+  - Replace some uses of copy-sequence with substring.  They are probably
+    hold-overs from when <substring> was causing problems.
+  - Use the /*exported*/ convention and the make-exports library from
+    Gwydion so it's easier to keep exports up-to-date.  So far only the
+    response.dylan file uses it as an experiment to see how it looked.
+
+* Cleanup server core code.
+  - Server core
+    . Startup/shutdown
+    . Accept connections
+    . Basic request parsing
+    . Connection management
+    . Configuration?
+  - Pluggable request dispatch.  e.g., threaded, processes, async, or
+    even single threaded.
+    . <abstract-server>
+    .   <multi-threaded-server>
+    .   <multi-process-server>
+    .   <async-server>
+    . start-listener(<server>)
+    . stop-listeners(<server>)
+    . prepare-request(<stream>, <request>)  -- read headers, set URL head/tail fields
+    . dispatch-request(<server>, <request>) -- spawn thread, process, etc.
+    . respond-to(<web-resource>, <request>, <response>)
+    . Since <async-server> can't use thread variables, should not depend
+      on them for <multi-*-server> either.
+  - Request handler mapping is way too complex.  I like the Twisted
+    model of having a root resource and letting it manage dispatching
+    to its children, and so on.
+  - Sessions
+  - Virtual hosts
+    . Set of resources
+    . Document root doesn't apply; it's specified per <file-system-resource>.
+    . DSP root doesn't apply; it's specified per <dsp-resource>.
+    . <directory-policy> doesn't apply.  It becomes part of <file-system-resource>
+      which possibly shares a superclass with <dsp-resource>.
+  - Page context.  Only needed for dynamically generated responses.
+    Can mix in a <context-resource-mixin> class?
+  - Logging is too complex.

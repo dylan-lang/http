@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- TODO: 
+     * When koala is a bit more prime-time (e.g., when it has at least one
+       production site using it, possibly opendylan.org) everything in
+       this file should default to the most secure setting.
+  -->
+
+<koala>
+
+<!-- Koala configuration file
+
+     This file must be placed in
+     <koala-executable>/../config/koala-config.xml if you want Koala
+     to find it without using the "config" command-line argument.  For
+     example, when running the koala-app project a copy of this file
+     should be placed in the directory
+     <koala-root>/sources/koala-app/config/
+
+     Anything directly inside the <koala> element in this file affects
+     Koala's global environment or the default virtual host.  Anything
+     inside a <virtual-host> element applies only to that virtual
+     host.
+
+     (Some ideas were stolen from Apache's httpd.conf.)
+
+  -->
+
+
+<!-- If DEBUG-SERVER is on then Koala will not try to gracefully handle errors
+     thrown during the execution of a server request.  Only turn this on when
+     running inside a development environment, or the server will crash.  This
+     should also be near the beginning of the log file if you want to debug
+     config file loading.
+  -->
+<debug-server value="on" />
+
+
+<!-- Controls whether to check template modification dates each time
+     the template is displayed, and reparse if necessary.  Obviously
+     when enabled this will slow down page rendering.  The default is
+     OFF.  -->
+<development-mode enabled="false" />
+
+
+<!-- Log messages come in three types: HTTP requests, errors, and
+     debug/info messages.  Where these log messages are stored is
+     determined by the <request-log>, <error-log> and <debug-log>
+     configuration settings, respectively.  Logging can be configured
+     to send all messages to the same place, or to separate them out
+     into different files.  The request-log messages follow a
+     specific format like that of other web servers which can be
+     parsed by automated tools.  Errors and debug info are more free
+     form.
+
+     Each virtual host has its own request, error, and debug log
+     targets, but by default they all forward their log messages to
+     the log targets set for the default virtual host, which in turn
+     defaults to logging to stdout/stderr.
+
+     The following options are recognized for each of the three
+     logging configuration options:
+
+       name     - Loggers are arranged in a hierarchy based on their
+                  names.  This can be used, along with additivity
+                  (below), to flexibly arrange logging to either
+                  multiple files or just one, and to combine different
+                  types of log messages together or separately.
+
+       additive - Whether the logger should pass log messages on to
+                  its parent logger.  Default is off.
+
+       location - A filename relative to the server root directory.
+                  If not specified, stderr will be used for the error
+                  log and stdout will be used for everything else.
+
+       max-size - The maximum size in bytes before the log is
+                  rotated.  Only useful if location is specified.
+
+       format   - A format control string that determines what each
+                  log line will look like.  The default value is:
+                  "%{date} %-5{level} [%{thread}] %{message}"
+                  Other options are %{millis} and %{pid}.  You get
+                  the idea.
+
+     The logs should be configured near the beginning of this config
+     file so debugging statements emitted during config file parsing
+     can be displayed.
+  -->
+<debug-log
+   name="http.server"
+   location="logs/koala.log"
+   level="trace" />
+
+<!-- log errors to the same place as debug messages -->
+<error-log
+   name="http.server.debug"
+   additive="yes" />
+
+<!-- request lines go to a separate log -->
+<!-- format defaults to "%{message}" for the request log -->
+<request-log
+   name="http.server.requests"
+   additive="no"
+   location="logs/request.log"
+   max-size="20000000" />
+
+
+<!-- SERVER-ROOT is the top of the directory tree under which the
+     server's configuration and log files are kept.  Other pathnames are
+     merged against this one, so if they're relative they will be
+     relative to this.  The server-root pathname is relative to the
+     koala executable.  NOTE: This should be near the top of the config
+     file since later elements will be merged against it.
+  -->
+<server-root location="." />
+
+
+<!-- DOCUMENT-ROOT is the root of the static web documents.
+     It is relative to SERVER-ROOT, so in this case the document root
+     is SERVER-ROOT/www.  If the document root isn't specified for a given
+     virtual host, it defaults to SERVER-ROOT/<vhost-name>.  The name
+     of the default virtual host is "default".
+  -->
+<document-root location="www" />
+
+<!-- DSP-ROOT is the root of all Dylan Server Pages. They won't get
+     served as plain text files.
+     It is relative to SERVER-ROOT, so in this case the document root
+     is SERVER-ROOT/www.  If the document root isn't specified for a given
+     virtual host, it defaults to SERVER-ROOT/<vhost-name>.  The name
+     of the default virtual host is "default".
+  -->
+<dsp-root location="dsp" />
+
+
+<!-- DIRECTORY elements can be used to grant or deny access to
+     specific directories.  For now the url is simply an
+     initial-substring match against the requested URL, so "/" matches
+     all documents.  The order of DIRECTORY elements is significant.
+     If two directory urls match the same request URL, the one
+     specified later in the config file will take precedence.  Note
+     that if follow-symlinks is true then links will be followed even
+     if the target is outside of the document root directory.
+  -->
+<directory url="/"
+	   path="/some/filesystem/path"
+           follow-symlinks="yes"
+           allow-directory-listing="yes"
+           allow-cgi="yes"
+           cgi-extensions="cgi,bat,exe,..."
+           />
+
+<!-- If DEFAULT-VIRTUAL-HOST is enabled then requests that don't match
+     any virtual host will fall back to the default vhost instead.  The
+     default is enabled="yes".
+  -->
+<default-virtual-host enabled="yes"/>
+
+
+<!-- LISTENER elements are used to add an ip-addr/port pair on which
+     to listen for HTTP requests.  Use 0.0.0.0 to listen on all
+     interfaces.  There may be multiple listener specs.  The default
+     is to listen on 0.0.0.0:80 (non-ssl) if not specified.  -->
+<listener address="0.0.0.0" port="80" ssl="no"/>
+
+<!-- Location of the mime-type file.  By default the contents of the
+     file augment Koala's default mime-type map.  If clear is enabled
+     then the defaults will be removed first.-->
+<mime-type-map location="mime-type-map.xml" clear="no" />
+
+
+<!-- unused as yet -->
+<administrator
+   email="you@your.domain"
+   name="yourname" />
+
+
+<!-- XML-RPC server settings.
+     Set enable="yes" to enable, "no" to disable.
+     Set url to the URL on which the server should listen for XML-RPC requests.
+     Set internal-error-fault-code to the fault code that should be returned for
+     any otherwise unhandled errors that are thrown during the execution of an XML-RPC
+     request.  e.g., a badly formed request, or unhandled errors in user code.
+     Set debug="yes" to log the raw XML sent/received for XML-RPC calls.
+  -->
+<xml-rpc
+  url="/RPC2"
+  enable="yes"
+  internal-error-fault-code="0"
+  debug="no"
+  />
+
+
+<!-- The MODULE element loads modules out of the SERVER-ROOT/modules/ directory.
+     The following loads koala-basics.dll.
+     Dynamic module loading is not supported on FunDev/Linux yet.
+  -->
+<!--  Commented out for now.  Run the koala-basics example project instead.
+<module name="koala-basics" />
+  -->
+
+<!-- VIRTUAL-HOST defines a new named virtual host with its own settings.
+     Top-level settings apply to the default virtual host.  Here we define
+     a new vhost for '127.0.0.1' with a different document root.  With this
+     definition in place you will get different document root when you
+     access Koala with http://127.0.0.1/ than when you access it via any
+     other name (e.g. 'localhost').
+  -->
+
+<virtual-host name="127.0.0.1">
+
+    <document-root location="www/127.0.0.1" />
+
+    <directory pattern="/"
+               allow-directory-listing="no" />
+
+    <!-- Add an alias for the current virtual host. -->
+    <host-alias name="alias" />
+
+</virtual-host>
+
+
+<!-- For the web-framework library and its clients, e.g. wiki.
+     Set the content-directory to wherever you want content (e.g.,
+     wiki pages, user database, etc to be stored. -->
+<web-framework content-directory="www/wiki" />
+
+</koala>

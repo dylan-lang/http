@@ -1,0 +1,93 @@
+TEST:
+* reverse zones are hardcoded to be at a /24 boundary,
+   they should be byte-bounded
+
+BUGS:
+* a-records and c-names with same name as any host record
+   -> parent is the list of a-records, not the zone
+* check for length of strings, and elements of the strings
+   (a-record, hostname, vlan-name, mx-name, cname-name, ..)
+* when using "" in vlan description it fails in edit form...
+  => some more escaping needed
+
+FEATURE REQUESTS
+
+*user management:
+ *at least security levels:
+   0 root
+   1 noc (who knows what he is doing), but may not change user rights
+   2 helpdesk (add hosts to some specific subnets,
+                  view everything)
+   3 viewer
+
+   4 participiant (yourname)
+   (5 view (no authentication, may only browse all stuff
+         (apart from entered passwords,
+          list of mac-address and ip, recent changes?))
+ *put obj-tables in user session objects
+
+*aaaa, srv, naptr, txt dns records
+*host-records:
+ foo.vlanx.congress.ccc.de IN MX 10 example.com.
+
+security:
+ -prevent cross-site scripting (escape nearly everything in all input data,
+  maybe enki's framework-stuff andreas implemented in dylan on his laptop)
+
+
+data structure
+==============
+* to solve the a-record and c-name problem: use a central hash table to store
+   all records, or at least a method to iterate over all used names
+* maybe add a description to <host>
+* add a list of comments for each object
+   (each user can remove/edit his comments and add a comment)
+
+user interface
+==============
+* show vlan id of subnet in "add host"
+* user page - only via http, not https (stunnel -> rem_ip = 127.0.0.1)
+  => for something like yourname, having the possibility to enter a
+     host name (static lease, dns a record, ptr record) for a IP
+* maybe add a remove-field to the vlan view
+* add a list of recent changes to each object page
+  (using atom and a category for each web-class, probably, so having
+    gathered recent changes on a list pages)
+* atom/rss feeds of recent changes
+* list of monitoring switch/switchport/subnet/vlan/dhcp-working stuff
+* automatic fill of formular fields (probably with javascript - ajax)
+   *when adding host use ip to fill in subnet-field
+* switch plans (so poc can say which lines they need for their phone stuff)
+    (roh suggested that)
+* when adding host, return to add-host page (or have the possibility to
+   add an add-form on the add-host page... with ajax stuff) or add an add-form
+   on the list-page
+* alias (url) for any page to get a permanent link
+* generic filter for object groups (has-a things?)
+   * so filtering recent changes on networks, subnets,...
+     * and filtering hosts on subnet, zone, etc
+   => ajax would be useful here, too
+* url structure (maybe look what ruby on rails does here..),
+    don't pass too much arguments via ?foo=bar&
+
+*IPv6
+ *subnet, dns (ptr, a)
+ *yourname also needs to know about v6
+
+renumbering of subnets:
+ => automatically change ips of hosts
+ => also dns records (reverse, forward)
+
+autoconfig stuff:
+ *blackhole ip-ranges (on junos?, force)
+  => requested by abuse phone
+ *automatic save of all switch & router configs (need to speak to
+   HP, juniper, cisco (cisco-telnet.dylan), force10, foundry)
+ *autoconfig snippet to configure all vlans
+
+*interface to get the next /XX subnet (or the next subnet with at least Y ips)
+ *javascript chosing of network when adding subnet, dhcp-start, -end, -router
+
+*caching of zones... don't increase serial if nothing changed...
+
+*highlight where an error occured... potentially fix it
