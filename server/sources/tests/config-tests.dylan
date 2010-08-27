@@ -52,7 +52,7 @@ end test listener-config-test;
 
 define test alias-config-test ()
   let server = make-server();
-  add-responder(server, "/abc", echo-responder);
+  add-resource(server, "/abc", make(<echo-resource>));
   let text = "<koala><alias url=\"/def\" target=\"/abc\"/></koala>";
   configure-from-string(server, text);
   with-http-server (server = server)
@@ -85,42 +85,44 @@ define test test-document-root ()
   end;
 end test test-document-root;
 
-define suite directory-policy-test-suite ()
-  test test-directory-policy-default-documents;
+define suite directory-resource-test-suite ()
+  test test-directory-resource-default-documents;
 end;
 
-define test test-directory-policy-default-documents ()
+define test test-directory-resource-default-documents ()
   let server = make-server();
+  let resource = make(<directory-resource>, directory: temp-directory());
   check-equal("Default default documents are index.html and index.htm",
               list(as(<file-locator>, "index.html"),
                    as(<file-locator>, "index.htm")),
-              server.default-virtual-host.root-directory-policy.policy-default-documents);
+              resource.default-documents);
 
   local method configure (default-docs :: <string>)
-          let str = fmt("<directory url=\"/\" default-documents = \"%s\" />", default-docs);
+          let str = fmt("<directory url=\"/\" default-documents = \"%s\" />",
+                        default-docs);
           configure-from-string(server, koala-document(str));
         end;
 
   configure("one");
-  let policy = server.default-virtual-host.directory-policies[0];
+  let resource = find-resource(server, parse-url("/"));
   check-equal("A single default document parses correctly",
               list(as(<file-locator>, "one")),
-              policy.policy-default-documents);
-              
+              resource.default-documents);
+
   configure("one,two");
-  let policy = server.default-virtual-host.directory-policies[0];
+  let resource = find-resource(server, parse-url("/"));
   check-equal("Multiple default documents parse correctly",
               list(as(<file-locator>, "one"),
                    as(<file-locator>, "two")),
-              policy.policy-default-documents);
-end test test-directory-policy-default-documents;
+              resource.default-documents);
+end test test-directory-resource-default-documents;
 
 define suite configuration-test-suite ()
   test basic-config-test;
   test listener-config-test;
   test alias-config-test;
   test test-document-root;
-  suite directory-policy-test-suite;
+  suite directory-resource-test-suite;
 end suite configuration-test-suite;
 
 

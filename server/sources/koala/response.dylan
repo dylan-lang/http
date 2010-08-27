@@ -120,7 +120,7 @@ define method send-chunk
  => (byte-count :: <integer>)
   let socket :: <stream> = response.response-request.request-socket;
   if (~headers-sent?(response))
-    add-header(response, "Transfer-encoding", "chunked", if-exists?: #"ignore");
+    set-header(response, "Transfer-encoding", "chunked", if-exists?: #"ignore");
     send-response-line(response, socket);
     send-headers(response, socket);
   end;
@@ -154,15 +154,9 @@ define method send-response-line
   write(socket, "\r\n");
 end method send-response-line;
 
-// temp backward compat
-define method output-stream
-    (response :: <response>)
-  response
-end;
-
 // Exported
 //
-define method add-header
+define method set-header
     (response :: <response>, header :: <byte-string>, value :: <object>,
      #key if-exists? = #"replace")
   if (headers-sent?(response))
@@ -185,7 +179,7 @@ define method add-header
   else
     next-method()
   end;
-end method add-header;
+end method set-header;
 
 define method send-header
     (socket :: <tcp-socket>, name :: <string>, val :: <pair>)
@@ -206,8 +200,8 @@ end;
 define method send-headers
     (response :: <response>, socket :: <tcp-socket>)
   unless (response.response-request.request-version == #"http/0.9")
-    add-header(response, "Server", *server*.server-header);
-    add-header(response, "Date", as-rfc1123-string(current-date()));
+    set-header(response, "Server", *server*.server-header);
+    set-header(response, "Date", as-rfc1123-string(current-date()));
 
     let headers :: <header-table> = raw-headers(response);
     for (val keyed-by name in headers)
@@ -252,7 +246,7 @@ define method finish-response
     unless (headers-sent?(response) | http-version == #"http/0.9")
       if (send-body?)
         content-length := integer-to-string(response.stream-size);
-        add-header(response, "Content-Length", content-length);
+        set-header(response, "Content-Length", content-length);
       end;
       send-response-line(response, socket);
       send-headers(response, socket);
@@ -268,12 +262,7 @@ define method finish-response
       // TODO: close connection if this is 0.9 (or 1.0?)
     end;
   end if;
-
-  // If sending an error response vhost may be #f, in which case we
-  // have no log target.
-  if (*virtual-host*)
-    log-request(request, response.response-code, content-length);
-  end;
+  log-request(request, response.response-code, content-length);
 end method finish-response;
 
 define inline function log-request
@@ -306,7 +295,7 @@ define inline function log-request
                   " \"", as(<string>, get-header(req, "referer") | "-"),
                   "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
                   "\"");
-  %log-info(request-logger(*virtual-host*), "%s", log-entry);
+  %log-info(*request-logger*, "%s", log-entry);
 end function log-request;
 
 // Exported
@@ -326,7 +315,7 @@ end;
 define method add-cookie
     (response :: <response>, name :: <string>, value :: <string>,
      #key max-age, path, domain, comment)
-  add-header(response, "Set-cookie",
+  set-header(response, "Set-cookie",
              with-output-to-string (s)
                format(s, "%s=%s; Version=%s", name, value, $default-cookie-version);
                max-age & format(s, "; Max-age=%s", max-age);
@@ -340,6 +329,6 @@ end method add-cookie;
 //
 define function output
     (format-string, #rest format-args)
-  apply(format, output-stream(current-response()), format-string, format-args)
+  apply(format, current-response(), format-string, format-args)
 end;
 

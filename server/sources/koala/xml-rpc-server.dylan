@@ -5,6 +5,7 @@ Copyright: Copyright (c) 2001-2002 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
+// TODO: move this to its own library.
 
 // Usage:
 //   define xml-rpc-server $xml-rpc-server ("/RPC2" on http-server)
@@ -15,14 +16,14 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 //   let xml-rpc-server = make(<xml-rpc-server>, ...);
 //   register-xml-rpc-method(xml-rpc-server, "my.method.name", my-method);
 //   ...
-//   add-responder(http-server, "/RPC2", xml-rpc-server);
+//   add-resource(http-server, "/RPC2", xml-rpc-server);
 
 
 // API
 define constant $default-xml-rpc-url :: <string> = "/RPC2";
 
 // API
-define class <xml-rpc-server> (<object>)
+define class <xml-rpc-server> (<resource>)
 
   // API
   // This is the fault code that will be returned to the caller if
@@ -46,21 +47,13 @@ define class <xml-rpc-server> (<object>)
 
 end class <xml-rpc-server>;
 
-define method %add-responder
-    (store :: <string-trie>, url :: <uri>, xml-rpc-server :: <xml-rpc-server>,
-     #key replace?)
-  %add-responder(store, url, curry(respond-to-xml-rpc-request, xml-rpc-server),
-                 replace?: replace?)
-end method %add-responder;
-
-define function respond-to-xml-rpc-request
-    (xml-rpc-server :: <xml-rpc-server>)
+define method respond-to-post
+    (xml-rpc-server :: <xml-rpc-server>, #key)
   let response :: <response> = current-response();
   let request :: <request> = current-request();
-  add-header(response, "Content-Type", "text/xml");
+  set-header(response, "Content-Type", "text/xml");
   // All responses start with a valid XML document header.
-  write(output-stream(response),
-        "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>");
+  write(response, "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>");
   block ()
     let xml = request-content(request);
     when (debugging-enabled?(xml-rpc-server))
@@ -85,7 +78,7 @@ define function respond-to-xml-rpc-request
                      format-arguments: condition-format-arguments(err));
     send-xml-rpc-fault-response(response, error);
   end;
-end function respond-to-xml-rpc-request;
+end method respond-to-post;
 
 define method lookup-xml-rpc-method
     (xml-rpc-server :: <xml-rpc-server>, method-name :: <string>)
@@ -147,27 +140,25 @@ end method register-xml-rpc-method;
 
 define method send-xml-rpc-fault-response
     (response :: <response>, fault :: <xml-rpc-fault>)
-  let stream = output-stream(response);
   let value = make(<table>);
   value["faultCode"] := fault-code(fault);
   value["faultString"] := condition-to-string(fault);
-  write(stream, "<methodResponse><fault><value>");
-  to-xml(value, stream);
-  write(stream, "</value></fault></methodResponse>\r\n");
+  write(response, "<methodResponse><fault><value>");
+  to-xml(value, response);
+  write(response, "</value></fault></methodResponse>\r\n");
 end method send-xml-rpc-fault-response;
 
 define method send-xml-rpc-result
     (xml-rpc-server :: <xml-rpc-server>, response :: <response>, result :: <object>)
-  let stream = output-stream(response);
-  write(stream, "<methodResponse><params><param><value>");
+  write(response, "<methodResponse><params><param><value>");
   let xml = with-output-to-string(s)
               to-xml(result, s);
             end;
   if (debugging-enabled?(xml-rpc-server))
     log-debug("Sending XML: %=", xml);
   end;
-  write(stream, xml);
-  write(stream, "</value></param></params></methodResponse>\r\n");
+  write(response, xml);
+  write(response, "</value></param></params></methodResponse>\r\n");
 end method send-xml-rpc-result;
 
 define method parse-xml-rpc-call
@@ -191,21 +182,16 @@ define method parse-xml-rpc-call
 end method parse-xml-rpc-call;
 
 define macro xml-rpc-server-definer
-  { define xml-rpc-server ?:name (?url:expression on ?store:expression)
-        (?initargs:*)
-      ?the-methods:*
-    end }
-    => { define xml-rpc-server ?name () (?initargs) ?the-methods end;
-         let _xml-rpc-server = ?name;
-         add-responder(?store, ?url, ?name); }
-
-  { define xml-rpc-server ?:name ()
-        (?initargs:*)
+  {
+    define xml-rpc-server ?:name (?options:*)
       ?functions
-    end }
-    => { define constant ?name = make(<xml-rpc-server>, ?initargs);
-         let _xml-rpc-server = ?name;   // ref'd in ?functions too
-         ?functions }
+    end
+  }
+  => {
+        define constant ?name = make(<xml-rpc-server>, ?options);
+        let _xml-rpc-server = ?name;   // ref'd in ?functions too
+        ?functions
+     }
 
   functions:
     { } => { }
@@ -218,7 +204,7 @@ define macro xml-rpc-server-definer
 end macro xml-rpc-server-definer;
 
 /* Example usage
-define xml-rpc-server server ("/RPC2" on foo)
+define xml-rpc-server $my-server
     (error-fault-code: 1)
   "echo" => method (#rest args) args end;
   "ping" => method () "ack" end;

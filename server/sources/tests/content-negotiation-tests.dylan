@@ -45,9 +45,8 @@ define test test-find-multi-view-file ()
             write(stream, content);
           end
         end,
-        method make-policy(#rest args)
-          apply(make, <directory-policy>,
-                url-path: "/foo/bar",
+        method make-directory-resource(#rest args)
+          apply(make, <directory-resource>,
                 directory: test-directory,
                 allow-multi-views?: #t,
                 args)
@@ -55,7 +54,7 @@ define test test-find-multi-view-file ()
   local method multi-view (basename, accept-header)
           dynamic-bind (*server* = make-server())
             find-multi-view-file(
-              make-policy(),
+              make-directory-resource(),
               merge-locators(as(<file-locator>, basename), test-directory),
               mime-type-map: $default-mime-type-map,
               accept-header: parse-header-value(#"accept", accept-header))

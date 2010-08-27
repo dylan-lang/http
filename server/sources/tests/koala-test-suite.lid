@@ -7,4 +7,5 @@ Files: library
        cgi-tests
        content-negotiation-tests
        http-client-tests
+       resources-tests
        koala-test-suite

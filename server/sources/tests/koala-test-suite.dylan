@@ -97,7 +97,7 @@ end suite start-stop-test-suite;
 define test chunked-request-test ()
   // Client requests are chunked if we don't add a Content-Length header.
   with-http-server (server = make-server())
-    add-responder(server, "/echo", echo-responder);
+    add-resource(server, "/echo", make(<echo-resource>));
     with-http-connection(conn = test-url("/echo"),
                          outgoing-chunk-size: 8)
       for (data-size in #(0, 1, 7, 8, 9, 200))
@@ -123,9 +123,9 @@ define suite koala-test-suite
   suite chunking-test-suite;
   suite configuration-test-suite;
   suite xml-rpc-test-suite;
-  suite vhost-test-suite;
   suite cgi-test-suite;
   suite multi-views-test-suite;
+  suite resources-test-suite;
 
   suite http-client-test-suite;
 end suite koala-test-suite;

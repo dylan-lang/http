@@ -1,6 +1,6 @@
 Module:    httpi
 Author:    Carl Gay
-Copyright: Copyright (c) 2001-2008 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2010 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 Synopsis:  Variables and utilities 
@@ -54,21 +54,12 @@ end;
 // Logger used as last resort if no other loggers are defined.
 // This is the initial value used for the *request-logger*, *debug-logger*, and
 // *error-logger* variables, which in turn are used as the default loggers for
-// each <http-server>, which in turn are used as the default loggers for
-// each <virtua-host> on that server.
+// each <http-server>.
 //
 define constant $default-logger
   = make(<logger>,
          name: "http.server",
          targets: list($stdout-log-target));
-
-// These are thread variables for efficiency.  They can be bound once
-// per request rather than figuring out which logger to use each time
-// one of the log-* methods below is called.  That would be slow due
-// to the need for two levels of fallback:
-//   ((*virtual-host* & *virtual-host*.debug-logger)
-//    | (*server* & *server*.default-virtual-host.debug-logger)
-//    | *debug-logger*)
 
 define thread variable *debug-logger* :: <logger> = $default-logger;
 
@@ -76,25 +67,11 @@ define thread variable *error-logger* :: <logger> = $default-logger;
 
 define thread variable *request-logger* :: <logger> = $default-logger;
 
-define method log-trace (format-string, #rest format-args)
-  apply(%log-trace, *debug-logger*, format-string, format-args);
-end;
-
-define method log-debug (format-string, #rest format-args)
-  apply(%log-debug, *debug-logger*, format-string, format-args);
-end;
-
-define method log-info (format-string, #rest format-args)
-  apply(%log-info, *debug-logger*, format-string, format-args);
-end;
-
-define method log-warning (format-string, #rest format-args)
-  apply(%log-warning, *error-logger*, format-string, format-args);
-end;
-
-define method log-error (format-string, #rest format-args)
-  apply(%log-error, *error-logger*,  format-string, format-args);
-end;
+define constant log-trace   = curry(%log-trace, *debug-logger*);
+define constant log-debug   = curry(%log-debug, *debug-logger*);
+define constant log-info    = curry(%log-info, *debug-logger*);
+define constant log-warning = curry(%log-warning, *error-logger*);
+define constant log-error   = curry(%log-error, *error-logger*);
 
 // For debugging only.
 // For logging request and response content data only.
@@ -111,6 +88,21 @@ define variable *log-content?* :: <boolean> = #f;
 define inline method log-content (content)
   log-debug-if(*log-content?*, *content-logger*, "==>%=", content);
 end;
+
+define class <multi-logger-mixin> (<object>)
+  slot request-logger :: <logger>,
+    init-value: *request-logger*,
+    init-keyword: request-logger:;
+
+  slot error-logger :: <logger>,
+    init-value: *error-logger*,
+    init-keyword: error-logger:;
+
+  slot debug-logger :: <logger>,
+    init-value: *debug-logger*,
+    init-keyword: debug-logger:;
+end class <multi-logger-mixin>;
+
 
 // We want media types (with attributes) rather than plain mime types,
 // and we give them all quality values.
@@ -134,4 +126,11 @@ define constant $default-media-type-map
 
       tmap
     end;
+
+define function resource-not-found-error
+    (#rest args, #key url, #all-keys)
+  apply(%resource-not-found-error,
+        url: url | build-path(request-url(current-request())),
+        args)
+end;
 

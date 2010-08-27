@@ -1,12 +1,88 @@
 Module: httpi
 Synopsis:  CGI script handling
 Author:    Carl Gay
-Copyright: Copyright (c) 2009 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2009-2010 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
+// I didn't really decide which one of these to support when I wrote
+// this code.  --cgay
+// CGI 1.1 specification: http://www.rfc-editor.org/rfc/rfc3875.txt
 // CGI 1.2 specification draft: http://ken.coar.org/cgi/cgi-120-00a.html
-// CGI 1.1 "spec": http://hoohoo.ncsa.illinois.edu/cgi/interface.html
+
+define open class <cgi-script-resource> (<resource>)
+  constant slot resource-locator :: <file-system-file-locator>,
+    required-init-keyword: locator:;
+end;
+
+define method respond-to-post
+    (resource :: <cgi-script-resource>, #key)
+  let script = resource.resource-locator;
+  let request = current-request();
+  if (file-exists?(script))
+    let script-name = request.request-url-path-prefix;
+    let path-info = request.request-url-path-suffix;
+    serve-cgi-script(script, script-name, path-info: path-info);
+  else
+    log-info("CGI script %s not found", as(<string>, script));
+    resource-not-found-error();
+  end;
+end method respond-to-post;
+
+define method respond-to-get
+    (resource :: <cgi-script-resource>, #key)
+  respond-to-post(resource);
+end;
+
+// Any file in the given directory that matches the given extensions will
+// be treated as a CGI script.
+//
+define open class <cgi-directory-resource> (<resource>)
+  constant slot resource-locator :: <file-system-directory-locator>,
+    required-init-keyword: locator:;
+  // Acceptable CGI script file extensions.  No other files will be served.
+  constant slot resource-extensions :: <sequence> = #("cgi"),
+    init-keyword: extensions:;
+end;
+
+define method respond-to-post
+    (resource :: <cgi-directory-resource>, #key)
+  let request :: <request> = current-request();
+  let prefix :: <string> = request.request-url-path-prefix;
+  let suffix :: <string> = request.request-url-path-suffix;
+  if (suffix.size = 0)
+    forbidden-error();  // no directory listing allowed
+  else
+    // It would be nice to have a way to avoid the edge-case shenanigans
+    // below, w.r.t. leading slashes.
+    let path = split(iff(suffix[0] = '/',
+                         copy-sequence(suffix, from: 1),
+                         suffix),
+                     '/');
+    let filename = first(path);
+    let path-info = iff(empty?(rest(path)),
+                        "",
+                        // note added leading slash, per spec
+                        join(pair("", rest(path)), "/"));
+    let directory = resource.resource-locator;
+    let script = merge-locators(as(<file-locator>, filename), directory);
+    // The SCRIPT_NAME env var...
+    let script-name = prefix;
+    log-debug("cgi-directory-resource: filename = %=, script-name = %=, "
+              "path-info = %=, script = %=",
+              filename, script-name, path-info, as(<string>, script));
+    if (file-exists?(script))
+      serve-cgi-script(script, script-name, path-info: path-info);
+    else
+      resource-not-found-error();
+    end;
+  end;
+end method respond-to-post;
+
+define method respond-to-get
+    (resource :: <cgi-directory-resource>, #key)
+  respond-to-post(resource);
+end;
 
 // These headers are defined by the CGI spec, not HTTP.  If the CGI script
 // outputs any of these headers then the server must do special processing.
@@ -94,64 +170,6 @@ define function %read-buffered-data
   copy-sequence(chars, end: index)
 end function %read-buffered-data;
 
-// Register this responder for directories containing CGI scripts
-// with add-cgi-directory-responder.
-define function cgi-directory-responder
-    (directory :: <directory-locator>,
-     #key script-name :: <string>, path-info :: false-or(<string>))
-  log-debug("cgi-directory-responder: script-name = %=, path-info = %=",
-            script-name, path-info);
-  let request = current-request();
-  let url = concatenate(request.request-path-prefix, "/", script-name);
-  log-debug("cgi-directory-responder: directory = %s, url = %s",
-            as(<string>, directory), url);
-  let script = merge-locators(as(<file-locator>, script-name), directory);
-  log-debug("cgi-directory-responder: script = %s", as(<string>, script));
-  if (file-exists?(script))
-    serve-cgi-script(script, url, path-info: path-info);
-  else
-    resource-not-found-error(url: url)
-  end;
-end function cgi-directory-responder;
-
-define method add-cgi-directory-responder
-    (store :: type-union(<string-trie>, <http-server>),
-     url :: <string>,
-     directory :: <pathname>,
-     #key request-methods :: false-or(<sequence>))
-  add-responder(store, url,
-                make-responder(list(request-methods | #(get:, post:),
-                                    "^(?P<script-name>[^/]+)(?P<path-info>.*)$",
-                                    curry(cgi-directory-responder,
-                                          as(<directory-locator>, directory)))))
-end;
-
-// This may be registered explicitly for particular CGI scripts
-// with add-cgi-script-responder.
-define function cgi-script-responder
-    (script :: <pathname>, #key path-info :: false-or(<string>))
-  let request = current-request();
-  // Just use the path, not the host, query, or fragment.
-  let url = build-path(request.request-url);
-  if (file-exists?(script))
-    serve-cgi-script(script, url, path-info: path-info);
-  else
-    log-info("CGI script %s not found", url);
-    resource-not-found-error(url: request.request-raw-url-string);  // 404
-  end;
-end function cgi-script-responder;
-
-define method add-cgi-script-responder
-    (store :: type-union(<string-trie>, <http-server>),
-     url :: <string>,
-     script :: <pathname>,
-     #key request-methods :: false-or(<sequence>))
-  add-responder(store, url,
-                make-responder(list(request-methods | #(get:, post:),
-                                    "^(?P<path-info>.*)$",
-                                    curry(cgi-script-responder, script))))
-end;
-
 define method process-cgi-script-output
     (stdout :: <stream>, stderr :: <stream>)
   let request :: <request> = current-request();
@@ -162,7 +180,7 @@ define method process-cgi-script-output
   for (header-value keyed-by header-name in headers)
     if (~member?(header-name, $cgi-header-names, test: string-equal?))
       log-debug("  CGI passing header %s through to client", header-name);
-      add-header(response, header-name, header-value);
+      set-header(response, header-name, header-value);
     end;
   end;
 
@@ -184,7 +202,7 @@ define method process-cgi-script-output
     if (absolute?(target-url))
       redirect-to(target-url);
     else
-      internal-redirect-to(location);
+      internal-redirect-to(target-url);
     end;
   else
     // The CGI script is generating the response body...
@@ -192,17 +210,6 @@ define method process-cgi-script-output
     write(response, read-to-end(stdout));
   end;
 end method process-cgi-script-output;
-
-// Build a new request based on the given URL and the current request,
-// and then invoke it.  (Of general use? Export?)
-//
-define method internal-redirect-to
-    (url :: <string>, #key request-method = #"get")
-  let request :: <request> = current-request();
-  // Set various url-related slots in the request.
-  parse-request-url(*server*, request, url);
-  %invoke-handler(request, current-response());
-end method internal-redirect-to;
 
 define method make-cgi-environment
     (script :: <locator>, script-name :: <string>,
@@ -232,12 +239,11 @@ define method make-cgi-environment
 
   if (path-info & ~empty?(path-info))
     env["PATH_INFO"] := path-info;
-    // This is only correct if there's no responder registered for a
-    // URL for which path-info is a prefix.  Should try to find such
-    // a responder and not set this if one is found.
-    env["PATH_TRANSLATED"]
-      := as(<string>, merge-locators(as(<file-locator>, path-info),
-                                     *virtual-host*.document-root));
+    // PATH_TRANSLATED seems to assume a single document root, which
+    // we no longer support.
+    //env["PATH_TRANSLATED"]
+    //  := as(<string>, merge-locators(as(<file-locator>, path-info),
+    //                                 *virtual-host*.document-root));
   end;
 
   env["REMOTE_HOST"] := request.request-client.client-listener.listener-host;

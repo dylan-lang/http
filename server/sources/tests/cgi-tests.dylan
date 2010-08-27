@@ -129,12 +129,13 @@ end method cgi-emit-environment;
 define test cgi-location-header-test ()
   let server = make-cgi-server(server-root: cgi-directory());
   let redirected? = #f;
-  add-responder(server,
-                "/cgi-location-header-test",
-                method ()
-                  log-debug("Executing responder for /cgi-location-header-test");
-                  redirected? := #t;
-                end);
+  local method responder ()
+          log-debug("Executing responder for /cgi-location-header-test");
+          redirected? := #t;
+        end;
+  add-resource(server,
+               "/cgi-location-header-test",
+               make(<function-resource>, function: responder));
   with-http-server (server = server)
     let url = test-url("/koala-test-suite.exe?cgi=location");
 
@@ -163,9 +164,10 @@ end;
 define test cgi-status-header-test ()
   let server = make-cgi-server(server-root: cgi-directory());
   let expected-content = "Status header worked";
-  add-responder(server,
-                "/cgi-status-header-test",
-                curry(output, expected-content));
+  add-resource(server,
+               "/cgi-status-header-test",
+               make(<function-resource>,
+                    function: curry(output, expected-content)));
   with-http-server (server = server)
     let url = test-url("/koala-test-suite.exe?cgi=status");
 

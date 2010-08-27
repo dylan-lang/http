@@ -1,64 +1,62 @@
 Module:    httpi
 Synopsis:  Serve static files and directory listings
 Author:    Carl Gay
-Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2010 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-define function document-not-found ()
-  resource-not-found-error(url: request-raw-url-string(current-request()));  // 404
-end;
+// Serve static file content from the given directory.
+//
+define open class <directory-resource> (<resource>)
 
+  constant slot resource-directory :: <directory-locator>,
+    required-init-keyword: directory:;
 
-// Merges the given URL against the context parameter and ensures that the
-// resulting locator refers to a (possibly non-existent) document below the
-// context directory.  If not, it signals an error.
-define method locator-from-url
-    (url :: <string>, context :: <directory-locator>)
- => (locator :: false-or(<physical-locator>))
-  block ()
-    let len :: <integer> = size(url);
-    let (bpos, epos) = trim-whitespace(url, 0, len);
-    if (bpos == epos)
-      context
-    else
-      let relative-url = iff(url[bpos] = '/', substring(url, 1, epos), url);
-      if (empty?(relative-url))
-        context
-      else
-        let loctype = iff(relative-url[size(relative-url) - 1] == '/',
-                          <directory-locator>,
-                          <file-locator>);
-        let loc = simplify-locator(merge-locators(as(loctype, relative-url),
-                                                  context));
-        if (locator-name(loc) = "..")
-          loc := locator-directory(locator-directory(loc));
-        end;
-        locator-below-root?(loc, context) & loc
-      end if
-    end if
-  exception (ex :: <locator-error>)
-    log-debug("Locator error in locator-from-url: %=", ex);
-    document-not-found();
-  end block
-end method locator-from-url;
+  // Whether to allow directory listings.
+  // May be overridden for specific directories.
+  // Default is to be secure.
+  constant slot allow-directory-listing? :: <boolean> = #f,
+    init-keyword: allow-directory-listing?:;
 
-define function serve-static-file-or-cgi-script ()
-  let request = current-request();
-  let response = current-response();
-  // Just use the path, not the host, query, or fragment.
-  let url :: <string> = build-path(request.request-url);
-  let policy :: <directory-policy> = directory-policy-matching(*virtual-host*, url);
-  let document :: <locator> = locator-from-url(url, policy.policy-directory);
+  // Whether to allow serving documents that are outside of the directory
+  // and are accessed via a symlink from within the directory.  Default is
+  // to be secure.
+  constant slot follow-symlinks? :: <boolean> = #f,
+    init-keyword: follow-symlinks?:;
 
-  log-debug("static file: url = %s", url);
-  log-debug("static file: policy = %=", policy);
+  // The set of file names that are searched for when a directory URL is
+  // requested.  They are searched in order, and the first match is chosen.
+  // TODO: Probably these shouldn't specify a filename extension, so that
+  //       the media type can be chosen via content negotiation.
+  constant slot default-documents :: <list>
+    = list(as(<file-locator>, "index.html"),
+           as(<file-locator>, "index.htm")),
+    init-keyword: default-documents:;
+
+  // Name taken from Apache.  If #t then when a static file document 'foo'
+  // is requested and doesn't exist, we search for foo.* files instead,
+  // and choose one based on the Accept header.
+  constant slot allow-multi-views? :: <boolean> = #f,
+    init-keyword: allow-multi-views?:;
+
+end class <directory-resource>;
+
+define method respond-to-get
+    (policy :: <directory-resource>, #key)
+  let suffix :: <string> = request-url-path-suffix(current-request());
+  
+  // remove leading slash
+  if (suffix.size > 0 & suffix[0] = '/')
+    suffix := copy-sequence(suffix, from: 1);
+  end;
+
+  let document :: <locator> = locator-from-relative-path(policy, suffix);
   log-debug("static file: document = %s", as(<string>, document));
 
   if (~file-exists?(document))
     document := find-multi-view-file(policy, document)
-                  | document-not-found();
+                  | resource-not-found-error();
     log-debug("static file: multi-view document = %s", as(<string>, document));
   end;
 
@@ -79,43 +77,63 @@ define function serve-static-file-or-cgi-script ()
         // Let the index file be processed like a regular file, below.
         document := index;
       elseif (policy.allow-directory-listing?)
-        serve-directory(document);
+        serve-directory(policy, document);
         return();
       else
-        document-not-found()
+        resource-not-found-error()
       end;
     end;
 
     // It's a regular file...
-    if (policy.allow-cgi?
-          & member?(document.locator-extension, policy.policy-cgi-extensions,
-                    test: string-equal?))  // TODO: should be \= on Unix
-      serve-cgi-script(document, url);
-    elseif (~policy.allow-static?)
-      forbidden-error();
+    let (etag, weak?) = etag(document);
+    let request :: <request> = current-request();
+    let response :: <response> = current-response();
+    set-header(response, iff(weak?, "W/ETag", "ETag"), etag);
+    let client-etag = get-header(request, "If-None-Match");
+    if (etag = client-etag)
+      request.request-method := #"head";
+      not-modified-redirect(headers: response.raw-headers);
     else
-      let (etag, weak?) = etag(document);
-      add-header(response, iff(weak?, "W/ETag", "ETag"), etag);
-      let client-etag = get-header(request, "If-None-Match");
-      if (etag = client-etag)
-        request.request-method := #"head";
-        not-modified-redirect(headers: response.raw-headers);
-      else
-        serve-static-file(policy, document);
-      end;
+      serve-static-file(policy, document);
     end;
   end block;
-end function serve-static-file-or-cgi-script;
+end method respond-to-get;
+
+// Merges the given path against the resource directory and ensures that the
+// resulting locator refers to a (possibly non-existent) document below the
+// resource directory.  If not, it signals an error.
+//
+define function locator-from-relative-path
+    (resource :: <directory-resource>, relative-path :: <string>)
+ => (locator :: <locator>)
+  if (empty?(relative-path))
+    resource.resource-directory
+  else
+    // this is hacky.  really we need to check the file system
+    // to know whether to make a directory locator or not.
+    let class = iff(relative-path[relative-path.size - 1] = '/',
+                    <directory-locator>,
+                    <file-locator>);
+    let locator = merge-locators(as(class, relative-path),
+                                 resource.resource-directory);
+    let locator = simplify-locator(locator);
+    if (locator-below-root?(locator, resource.resource-directory))
+      locator
+    else
+      resource-not-found-error()
+    end
+  end
+end function locator-from-relative-path;
 
 // Follow symlink chain.  If the target is outside the policy directory and
 // the given policy disallows that, signal 404 error.
 //
 define function follow-links
-    (document :: <pathname>, policy :: <directory-policy>)
+    (document :: <pathname>, policy :: <directory-resource>)
  => (target :: <pathname>)
   if ( ~(file-exists?(document)
-           & locator-below-root?(document, policy.policy-directory)))
-    document-not-found();
+           & locator-below-root?(document, policy.resource-directory)))
+    resource-not-found-error();
   elseif (file-type(document) == #"link")
     follow-links(link-target(document), policy)
   else
@@ -124,10 +142,10 @@ define function follow-links
 end function follow-links;
 
 define method find-default-document
-    (policy :: <directory-policy>, locator :: <directory-locator>)
- => (locator :: <physical-locator>)
+    (policy :: <directory-resource>, locator :: <directory-locator>)
+ => (locator :: false-or(<file-locator>))
   block (return)
-    for (default in policy.policy-default-documents)
+    for (default in policy.default-documents)
       let document = merge-locators(default, locator);
       if (~file-exists?(document))
         document := find-multi-view-file(policy, document);
@@ -138,21 +156,9 @@ define method find-default-document
         return(document)
       end;
     end;
-    locator  // found nothing
+    #f
   end
 end method find-default-document;
-
-define method locator-below-document-root? 
-    (locator :: <physical-locator>)
- => (below? :: <boolean>)
-  locator-below-root?(locator, *virtual-host*.document-root)
-end;
-
-define method locator-below-dsp-root?
-    (locator :: <physical-locator>)
- => (below? :: <boolean>)
-  locator-below-root?(locator, *virtual-host*.dsp-root)
-end;
 
 // I can't make any sense of this.  --cgay
 define method locator-below-root?
@@ -174,24 +180,24 @@ define method locator-below-root?
 end method locator-below-root?;
 
 define method locator-media-type
-    (locator :: <locator>, policy :: <directory-policy>)
+    (locator :: <locator>, policy :: <directory-resource>)
  => (media-type :: <media-type>)
   extension-to-mime-type(locator.locator-extension, *server*.server-media-type-map)
-    | policy-default-content-type(policy)
+    | default-content-type(policy)
 end method locator-media-type;
 
 define method serve-static-file
-    (policy :: <directory-policy>, locator :: <locator>)
+    (policy :: <directory-resource>, locator :: <locator>)
   log-debug("Serving static file: %s", as(<string>, locator));
   let response = current-response();
   with-open-file(in-stream = locator, direction: #"input", if-does-not-exist: #f,
                  element-type: <byte>)
-    add-header(response, "Content-Type",
+    set-header(response, "Content-Type",
                mime-name(locator-media-type(locator, policy)));
     let props = file-properties(locator);
-    add-header(response, "Last-Modified",
+    set-header(response, "Last-Modified",
                as-rfc1123-string(props[#"modification-date"]));
-    copy-to-end(in-stream, response.output-stream);
+    copy-to-end(in-stream, response);
   end;
 end method serve-static-file;
 
@@ -236,34 +242,21 @@ define method etag
                      weak);
 end method etag;
 
-define method serve-directory
-    (url :: <string>, directory :: <physical-locator>, policy :: <directory-policy>)
-  // Why require the url to end in '/'?  --cgay
-  if (url[size(url) - 1] = '/')
-    generate-directory-html(policy, directory);
-  else
-    let new-location = concatenate(url, "/");
-    moved-permanently-redirect(location: new-location, // 301
-                               header-name: "Location",
-                               header-value: new-location);
-  end if;
-end method serve-directory;
-
 // Serves up a directory listing as HTML.  The caller has already verified that this
 // locator names a directory, even though it may be a <file-locator>, and that the
 // directory it names is under the document root.
 //---TODO: add image links.  deal with access control.
-define method generate-directory-html
-    (policy :: <directory-policy>, locator :: <locator>)
+define method serve-directory
+    (resource :: <directory-resource>, locator :: <locator>)
   let response :: <response> = current-response();  
   let loc :: <directory-locator>
     = iff(instance?(locator, <directory-locator>),
           locator,
           subdirectory-locator(locator-directory(locator), locator-name(locator)));
   let directory-properties = file-properties(locator);
-  add-header(response, "Last-Modified",
+  set-header(response, "Last-Modified",
              as-rfc1123-string(directory-properties[#"modification-date"]));
-  let stream = output-stream(response);
+  let stream = response;
   local
     method show-file-link (directory, name, type)
       unless (name = ".." | name = ".")
@@ -281,7 +274,7 @@ define method generate-directory-html
         format(stream, "\t\t\t\t<td class=\"name\"><a href=\"%s\">%s</a></td>\n",
                link, link);
         let mime-type = iff(type = #"file",
-                            as(<string>, locator-media-type(locator, policy)),
+                            as(<string>, locator-media-type(locator, resource)),
                             "");
         format(stream, "\t\t\t\t<td class=\"mime-type\">%s</td>\n", mime-type);
         for (key in #[#"size", #"modification-date", #"author"],
@@ -326,7 +319,7 @@ define method generate-directory-html
                  "\t\t\t\t</tr>\n"
                  "\t\t\t</thead>\n");
   write(stream,  "\t\t\t<tbody>\n");
-  let docroot :: <directory-locator> = document-root(*virtual-host*);
+  let docroot :: <directory-locator> = resource.resource-directory;
   unless (loc = docroot
           | (instance?(loc, <file-locator>)
              & locator-directory(loc) = docroot))
@@ -345,7 +338,7 @@ define method generate-directory-html
         "\t\t</table>\n"
         "\t</body>\n"
         "</html>\n");
-end method generate-directory-html;
+end method serve-directory;
 
 define method display-file-property
     (stream, key, property, file-type :: <file-type>) => ()

@@ -70,20 +70,12 @@ define module dsp
     import: { with-xml };
 
   export
-    <page>,
-    <static-page>,
-    respond-to,                  // Implement this for your page to handle a request
-    respond-to-get,              // Convenience.
-    respond-to-post,             // Convenience.
-
     page-source,
-    page-source-setter,
     page-template,
     page-template-setter,
 
     <dylan-server-page>,
     process-template,
-    process-page,
     <taglib>,
     taglib-definer,
     tag-definer,            // Defines a new DSP tag function and registers it with a page

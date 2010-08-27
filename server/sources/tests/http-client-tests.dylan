@@ -17,10 +17,11 @@ tests to write:
 
 define variable *test-server* :: false-or(<http-server>) = #f;
 
-define function register-test-responders
+define function register-test-resources
     (server :: <http-server>)
-  add-responder(server, "/x", x-responder);
-  add-responder(server, "/echo", echo-responder);
+  add-resource(server, "/x", make(<x-resource>));
+  add-resource(server, "/echo", make(<echo-resource>));
+  add-resource(server, "/", make(<echo-resource>));
 end;
 
 define variable *test-suite-initialized?* = #f;
@@ -30,7 +31,7 @@ define function setup-http-client-test-suite
   if (~*test-suite-initialized?*)
     // To debug server errors uncomment debug: #t below.
     *test-server* := make-server(/* debug: #t */);
-    register-test-responders(*test-server*);
+    register-test-resources(*test-server*);
     test-output("Starting server for http-client-test-suite\n");
     start-server(*test-server*, background: #t, wait: #t);
     *test-suite-initialized?* := #t;
@@ -45,7 +46,7 @@ define function cleanup-http-client-test-suite
   end
 end function cleanup-http-client-test-suite;
 
-
+
 /////////////////////////////
 // Tests
 /////////////////////////////
@@ -65,6 +66,19 @@ define test test-http-get-to-string ()
                 response.response-content);
   end;
 end test test-http-get-to-string;
+
+// Verify that getting a URL with no path component is the same
+// as getting the same URL with / as the path.  That is, http://host
+// is the same as http://host/.  This was bug 7462.
+//
+define test test-http-get-no-path ()
+  let no-path-url = test-url("");
+  check-no-condition("GET of a URL with no path gets no error",
+                     http-get(no-path-url));
+  check-equal("GET of a URL with no path same as /",
+              request-content(http-get(root-url())),
+              request-content(http-get(no-path-url)));
+end test test-http-get-no-path;
 
 define test test-http-get-to-stream ()
   for (n-bytes in list(0, 1, 2, 8192 /*, 100000 */))
@@ -215,6 +229,7 @@ define suite http-client-test-suite
 
   test test-http-get-to-string;
   test test-http-get-to-stream;
+  test test-http-get-no-path;
   test test-encode-form-data;
   test test-with-http-connection;
   test test-http-connections;

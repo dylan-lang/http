@@ -201,7 +201,7 @@ define method start-request
       // Host
       // uri-host should return #f, not "". :-(
       if (~get-header(headers, "Host"))
-        add-header(headers, "Host", iff(empty?(uri-host(url)),
+        set-header(headers, "Host", iff(empty?(uri-host(url)),
                                         conn.connection-host,
                                         uri-host(url)));
       end;
@@ -218,7 +218,7 @@ define method start-request
   // Otherwise the transfer is chunked.
   unless (get-header(headers, "Content-Length")
             | chunked-transfer-encoding?(headers))
-    add-header(headers, "Transfer-Encoding", "chunked", if-exists?: #"ignore");
+    set-header(headers, "Transfer-Encoding", "chunked", if-exists?: #"ignore");
   end;
 
   let proxy? = #f;  // TODO: probably in the connection
@@ -253,7 +253,7 @@ define method send-request
   let headers = convert-headers(headers);
   if (~get-header(headers, "Content-Length")
         & ~chunked-transfer-encoding?(headers))
-    add-header(headers, "Content-Length", integer-to-string(content.size));
+    set-header(headers, "Content-Length", integer-to-string(content.size));
   end;
   apply(start-request, conn, request-method, url,
         headers: headers, start-request-args);

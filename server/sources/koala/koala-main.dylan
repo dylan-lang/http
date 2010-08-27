@@ -1,39 +1,52 @@
 Module:    httpi
 Synopsis:  A command-line interface to start Koala as an application.
 Author:    Carl Gay
-Copyright: Copyright (c) 2001-2008 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2010 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 //// Initialization
 
-begin
-  add-option-parser-by-type(*argument-list-parser*,
-                            <repeated-parameter-option-parser>,
-                            description: format-to-string("host:port on which to "
-                                                            "listen.  Option may be "
-                                                            "repeated. "
-                                                            "[default: 0.0.0.0:%d]",
-                                                          $default-http-port),
-                            long-options: #("listen"),
-                            short-options: #("l"));
-  add-option-parser-by-type(*argument-list-parser*,
-                            <parameter-option-parser>,
-                            description: "Location of the koala configuration file.  "
-                                         "[default: None]",
-                            long-options: #("config"),
-                            short-options: #("c"));
-  add-option-parser-by-type(*argument-list-parser*,
-                            <simple-option-parser>,
-                            description: "Display this help message",
-                            long-options: #("help"),
-                            short-options: #("h"));
-  add-option-parser-by-type(*argument-list-parser*,
-                            <simple-option-parser>,
-                            description: "Enable debug mode.  Causes Koala to not handle "
-                                         "most errors during request handling.",
-                            long-options: #("debug"));
-end;
+
+// --listen <interface> ...
+add-option-parser-by-type(*argument-list-parser*,
+                          <repeated-parameter-option-parser>,
+                          description: format-to-string("host:port on which to "
+                                                          "listen.  Option may be "
+                                                          "repeated. "
+                                                          "[default: 0.0.0.0:%d]",
+                                                        $default-http-port),
+                          long-options: #("listen"),
+                          short-options: #("l"));
+
+// --config <file>
+add-option-parser-by-type(*argument-list-parser*,
+                          <parameter-option-parser>,
+                          description: "Location of the koala configuration file.  "
+                                       "[default: None]",
+                          long-options: #("config"),
+                          short-options: #("c"));
+
+// --help
+add-option-parser-by-type(*argument-list-parser*,
+                          <simple-option-parser>,
+                          description: "Display this help message",
+                          long-options: #("help"),
+                          short-options: #("h"));
+
+// --debug
+add-option-parser-by-type(*argument-list-parser*,
+                          <simple-option-parser>,
+                          description: "Enable debug mode.  Causes Koala to not handle "
+                                       "most errors during request handling.",
+                          long-options: #("debug"));
+
+// --working-directory <dir>
+add-option-parser-by-type(*argument-list-parser*,
+                          <parameter-option-parser>,
+                          description: "Working directory to change to upon startup",
+                          long-options: #("working-directory"),
+                          short-options: #("w"));
 
 
 /*
@@ -81,9 +94,17 @@ define function koala-main
             exit-application(1);
           end;
         end;
+
+    let cwd = option-value-by-long-name(parser, "working-directory");
+    if (cwd)
+      log-info("Working directory is %s", cwd);
+      working-directory() := as(<directory-locator>, cwd);
+    end;
+
     // We want to bind *server* early so that log output goes to the
     // right place (the server's default virtual host's logs).
-    dynamic-bind (*server* = server | make(<http-server>))
+    let server = server | make(<http-server>);
+    dynamic-bind (*server* = server)
       *server*.debugging-enabled? := debug?;
       if (*server*.debugging-enabled?)
         log-warning("*** DEBUGGING ENABLED ***  Error conditions will "
@@ -112,6 +133,12 @@ define function koala-main
         for (listener in listeners)
           add!(*server*.server-listeners, make-listener(listener));
         end;
+
+        log-debug("Mapped resources:");
+        do-resource(method (res)
+                      log-debug("  %-25s -- %s", res.resource-url-path, res);
+                    end,
+                    *server*.request-router);
 
         if (empty?(*server*.server-listeners))
           error("No listeners were created.  Exiting.");

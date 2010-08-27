@@ -1,14 +1,14 @@
 Module: koala-test-suite
 Synopsis: XML RPC testing
 
-// Test that we can create a server and add a responder for it.
+// Test that we can create a server and add a resource for it.
 //
 define test xml-rpc-registration-test ()
   with-http-server (http-server = make-server())
     let xml-rpc-server = make(<xml-rpc-server>);
     register-xml-rpc-method(xml-rpc-server, "foo", method () "bar" end);
     let url = test-url("/xml-rpc-registration-test");
-    add-responder(http-server, url, xml-rpc-server);
+    add-resource(http-server, url, xml-rpc-server);
     check-equal("Register and call a simple XML RPC method",
                 xml-rpc-call(url, "foo"),
                 "bar");
@@ -25,7 +25,7 @@ define test xml-rpc-data-types-test ()
     let xml-rpc-server = make(<xml-rpc-server>);
     register-xml-rpc-method(xml-rpc-server, "echo", method (arg) arg end);
     let url = test-url("/xml-rpc-data-types-test");
-    add-responder(http-server, url, xml-rpc-server);
+    add-resource(http-server, url, xml-rpc-server);
     for (val in vector(-1,
                        0,
                        1,
@@ -44,7 +44,7 @@ define test xml-rpc-data-types-test ()
   end with-http-server;
 end test xml-rpc-data-types-test;
 
-define xml-rpc-server $test-server-1 ()
+define xml-rpc-server $test-server-1
     (error-fault-code: 123)
   "echo" => method (#rest args) args end;
   "ping" => method () "ack" end;
@@ -54,7 +54,7 @@ end;
 define test xml-rpc-server-definer-test ()
   with-http-server (http-server = make-server())
     let url = test-url("/xml-rpc-server-definer-test");
-    add-responder(http-server, url, $test-server-1);
+    add-resource(http-server, url, $test-server-1);
     check-equal("xml-rpc-server-definer echo",
                 xml-rpc-call(url, "echo", "foo"),
                 #["foo"]);
@@ -77,7 +77,7 @@ define test xml-rpc-fault-test ()
     let xml-rpc-server = make(<xml-rpc-server>);
     register-xml-rpc-method(xml-rpc-server, "error", xml-rpc-fault);
     let url = test-url("/xml-rpc-fault-test");
-    add-responder(http-server, url, xml-rpc-server);
+    add-resource(http-server, url, xml-rpc-server);
     for (code in #(-1, 0, 1, 123))
       let message = fmt("fault code %d", code);
       check-equal(message,

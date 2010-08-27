@@ -58,17 +58,17 @@ define function read-message-headers
     else
       let (key, data) = split-header(buffer, bpos, epos);
       log-debug(*http-common-log*, "<-- %s: %s", key, data);
-      add-header(headers, key, data);
+      set-header(headers, key, data);
       loop(buffer, epos, peek-ch)
     end if
   end iterate
 end function read-message-headers;
 
-define open generic add-header
+define open generic set-header
     (object :: <object>, header :: <byte-string>, value :: <object>,
      #key if-exists? :: one-of(#"replace", #"append", #"ignore", #"error"));
 
-define method add-header
+define method set-header
     (headers :: <header-table>, header-name :: <byte-string>, value,
      #key if-exists? :: <symbol> = #"replace")
   // todo -- validate the header.  at least check that it doesn't contain CRLF
@@ -91,13 +91,13 @@ define method add-header
     log-debug(*http-common-log*, "Ignoring header %s: %s", header-name, value);
     assert(if-exists? == #"ignore");
   end;
-end method add-header;
+end method set-header;
 
-define method add-header
+define method set-header
     (message :: <message-headers-mixin>, header :: <byte-string>, value :: <object>,
      #key if-exists? = #"replace")
-  add-header(message.raw-headers, header, value, if-exists?: if-exists?)
-end method add-header;
+  set-header(message.raw-headers, header, value, if-exists?: if-exists?)
+end method set-header;
 
 define open generic get-header
     (object :: <object>, header-name :: <byte-string>, #key parsed :: <boolean>)

@@ -13,7 +13,7 @@
       </dsp:if>
     </td>
     <td width="50%" align="right">
-      <a href="<demo:base-url/>/home">Go back to demo home</a>
+      <a href="/home">Go back to demo home</a>
     </td>
   </tr>
 </table>

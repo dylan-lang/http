@@ -12,6 +12,6 @@ files:	library
 	session
 	xml-rpc-server
 	config
-	responders
+	resources
 	modules
 	koala-main

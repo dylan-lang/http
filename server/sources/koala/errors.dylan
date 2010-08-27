@@ -13,3 +13,10 @@ end;
 define open class <koala-api-error> (<koala-error>)
 end;
 
+define function koala-api-error
+    (format-string :: <string>, #rest format-arguments)
+  signal(make(<koala-api-error>,
+              format-string: format-string,
+              format-arguments: format-arguments));
+end;
+

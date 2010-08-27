@@ -207,8 +207,8 @@ define module http-common
   // Headers
   create
     <header-table>,
-    add-header,  // should probably be set-header, for symmetry with get-header.
     get-header,
+    set-header,
     read-message-headers,
     raw-headers,
     parsed-headers,

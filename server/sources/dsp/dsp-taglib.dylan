@@ -41,6 +41,13 @@ end;
 
 //// Tags
 
+define tag url in dsp
+    (page :: <dylan-server-page>)
+    (name :: <string>, include-query :: <boolean>)
+  // TODO: include-query
+  output(generate-url(current-server().request-router, name));
+end;
+
 // This is for comments that you don't want to be seen by the user,
 // whereas HTML comments (<!-- ... -->) will be seen.  
 define body tag comment in dsp
@@ -445,10 +452,9 @@ define body tag table in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
     (generator :: <named-method>)
   let response = current-response();
-  let stream = output-stream(response);
-  write(stream, "<table");
-  show-tag-call-attributes(stream, exclude: #[#"generator"]);
-  write(stream, ">\n");
+  write(response, "<table");
+  show-tag-call-attributes(response, exclude: #[#"generator"]);
+  write(response, ">\n");
   // Generator functions must return rows, but start-index and row-count
   // are optional.
   let (rows, start-index, row-count) = generator(page);
@@ -471,7 +477,7 @@ define body tag table in dsp
       end;
     end;
   end if;
-  write(stream, "</table>");
+  write(response, "</table>");
 end;
 
 define body tag hrow in dsp
@@ -479,7 +485,7 @@ define body tag hrow in dsp
     ()
   when (*table-first-row?*)
     let response = current-response();
-    show-element(output-stream(response), "tr", body: do-body);
+    show-element(response, "tr", body: do-body);
   end;
 end;
 
@@ -487,31 +493,27 @@ define body tag row in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
     ()
   when (*table-has-rows?*)
-    let response = current-response();
-    show-element(output-stream(response), "tr", body: do-body);
+    show-element(current-response(), "tr", body: do-body);
   end;
 end;
 
 define body tag hcell in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
     ()
-  let response = current-response();
-  show-element(output-stream(response), "td", body: do-body);
+  show-element(current-response(), "td", body: do-body);
 end;
 
 define body tag cell in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
     ()
-  let response = current-response();
-  show-element(output-stream(response), "td", body: do-body);
+  show-element(current-response(), "td", body: do-body);
 end;
 
 define body tag no-rows in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
     ()
   when (~ *table-has-rows?*)
-    let response = current-response();
-    show-element(output-stream(response), "tr", body: do-body);
+    show-element(current-response(), "tr", body: do-body);
   end;
 end;
 
@@ -519,7 +521,6 @@ define tag row-number in dsp
     (page :: <dylan-server-page>)
     ()
   when (*table-row-number* >= 0)
-    let response = current-response();
     output("%d", *table-row-number* + 1);
   end;
 end;
@@ -561,7 +562,7 @@ define tag show-date in dsp
     (page :: <dylan-server-page>)
     (date :: <date> = current-date(), format, key, scope)
   //---TODO: Finish this.  For now it can only show the current date.
-  date-to-stream(output-stream(current-response()), date);
+  date-to-stream(current-response(), date);
 end;
 
 //// Form Field Errors

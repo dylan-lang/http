@@ -28,12 +28,21 @@ define variable *test-port* :: <integer> = 8080;
 
 define method test-url
     (path-etc :: <string>) => (url :: <url>)
-  parse-url(fmt("http://localhost:%d%s", *test-port*, path-etc))
+  parse-url(fmt("http://127.0.0.1:%d%s", *test-port*, path-etc))
 end;
 
 define method root-url
     () => (url :: <url>)
   test-url("/")
+end;
+
+define function print-resources
+    (server :: <http-server>)
+  do-resource(method (res)
+                test-output("  %-25s -- %s", res.resource-url-path, res);
+              end,
+              server.request-router);
+  test-output("\n");
 end;
 
 define method make-listener
@@ -51,13 +60,20 @@ define function make-server
         keys)
 end;
 
-define function echo-responder
-    (#key)
+define class <echo-resource> (<resource>)
+end;
+
+define method respond-to-get
+    (resource :: <echo-resource>, #key)
   // should eventually be output(read-to-end(current-request()))
   output(request-content(current-request()));
 end;
 
-define function x-responder (#key)
+define class <x-resource> (<resource>)
+end;
+
+define method respond-to-get
+    (resource :: <x-resource>, #key)
   let n = get-query-value("n", as: <integer>);
   output(make(<byte-string>, size: n, fill: 'x'))
 end;

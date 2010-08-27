@@ -2,102 +2,95 @@ Module:    koala-demo
 Synopsis:  Examples of how to use the Koala HTTP server
 Author:    Carl Gay
 
+// TODO: Separate DSP examples into a dsp-specific library.
+//       Need an example of using a paginator and some other
+//       DSP utilities.
+
 /*
 
-To use this example web application (if I may glorify it with that name),
-compile this library and invoke the executable with --config <filename>.
-You will probably have to fix the config file to make the dsp-root setting
-point at the directory containing the demo .dsp template files:
+To use this example compile this library and invoke the executable with
 
-    libraries/network/koala/www/demo
+    --working-directory <svn>/libraries/network/http/server/www/demo
+
+See --help for other options to the HTTP server.
 
 Each page demonstrates a feature of Koala or Dylan Server Pages.  You should
 be able to find the code corresponding to a particular URL by searching for
 that URL in this file.  Some XML-RPC methods are defined near the bottom.
 
-Note that any URLs registered for dynamic pages hide URLs corresponding to
-files in the document root directory.  i.e., the dynamic URL takes precedence.
-
 */
 
-//// URLs
+//// Low-level Koala API examples
 
-// Using relative URLs in a web application strikes me as asking for trouble
-// in general.  For example, if you register an alias URL "/demo" for a page
-// "/demo/home.dsp" then URLs that appear in the home.dsp template would be
-// relative to / when the page is processed, rather than relative to /demo/.
-// So always use absolute URLs.
+// To respond to a URL, define a subclass of <resource> and define a
+// method on respond or one of the respond-to-{get,post,...} methods:
 
-define constant $demo-base-url :: <byte-string> = "/demo";
-
-
-
-// The lowest level API for responding to a URL is just a function
-// That does output to the response's output stream.  The simplest
-// way to do that is to use the "output" function.  The only thing
-// special about a responder function is that it must accept keyword
-// arguments.  The match: argument is always passed and is always a
-// <regex-match> object.  See the documentation for url-map for 
-// details.
-
-define function responder1 (#key)
-  output("<html><body>This is the output of a simple responder function."
-         "<p>Use your browser's Back button to return to the example."
-         "</body></html>");
-end function responder1;
-
-define function prefix1 (#key)
-  output("<html><body>This is a prefix responder.  The part of the url after "
-         "the prefix was %s."
-         "<p>Use your browser's Back button to return to the example.</p>"
-         "</body></html>",
-         // Note that we could also use "#key match" above and then get the
-         // entire match with match-group(match, 0).
-         current-request().request-path-tail);
-end function prefix1;
-
-
-
-//// Page abstraction
-
-// Slightly higher level than responders.  Gives you the convenience of not
-// having to figure out whether it's a GET, POST, etc, request, and the ability
-// to dispatch on your own page classes.  Just define methods for
-// respond-to* that dispatch on your page class.
-
-// Note that you may override respond-to-get and respond-to-post instead of
-// overriding respond-to(== #"get") and respond-to(== #"post") as a convenience
-// since these are by far the most common request methods.
-
-define class <hello-world-page> (<page>)
+define class <basic-resource-1> (<resource>)
 end;
 
-// Respond to a GET for <hello-world-page>.  Note the use of do-query-values to
-// find all the values passed in the URL (e.g., /hello?foo=1&bar=2).  You can
-// also use get-query-value to get a specific query value, and
-// count-query-values can be used to find out how many there are.
-//
 define method respond-to-get
-    (page :: <hello-world-page>, #key)
-  output("<html>\n<head><title>Hello World</title></head>\n"
-         "<body>Hello there.<p>");
-  output("%s<br>", if (count-query-values() > 0)
-                     "Query values are:"
-                   else
-                     "No query values were passed in the URL."
-                   end);
-  do-query-values(method (key, val)
-                    output("key = %s, val = %s<br>\n", key, val);
-                  end);
-  output("<p>Use your browser's Back button to return to the "
-         "demo.</body></html>");
+    (resource :: <basic-resource-1>, #key)
+  // No need to set the Content-Type header here because the
+  // default is text/html if not otherwise set.
+  output("<html><body>This is the output of respond-to-get(&lt;basic-resource-1&gt;)."
+         "<p>Use your browser's Back button to return to the example.</p>"
+         "</body></html>");
 end method respond-to-get;
 
+define class <basic-resource-2> (<resource>)
+end;
 
-//// Dylan Server Pages
+define method respond
+    (resource :: <basic-resource-2>, #key)
+  if (request-method(current-request()) = #"get")
+    set-header(current-response(), "Content-Type", "text/plain");
+    output("This resource uses the 'respond' method directly.");
+  else
+    next-method();  // don't handle the request
+  end;
+end;
 
-// A DSP is basically just a page that is associated with a top-level
-// template.  When creating a <dylan-server-page> you must pass the
+define class <basic-resource-3> (<resource>)
+end;
+
+define method respond-to-get
+    (resource :: <basic-resource-3>, #key)
+  let request :: <request> = current-request();
+  output("<html><body>"
+         "<p>URL prefix: %s</p>"
+         "<p>URL suffix: %s</p>",
+         request.request-url-path-prefix,
+         request.request-url-path-suffix);
+end;
+
+// Note the use of do-query-values to find all the values passed in
+// the URL (e.g., /hello?foo=1&bar=2).  You can also use get-query-value
+// to get a specific query value, and count-query-values can be used to
+// find out how many there are.
+
+define class <basic-resource-4> (<resource>)
+end;
+
+define method respond-to-get
+    (resource :: <basic-resource-4>, #key)
+  set-header(current-response(), "Content-Type", "text/plain");
+  if (count-query-values() > 0)
+    output("Query values are:");
+  else
+    output("No query values were passed in the URL.");
+  end;
+  do-query-values(method (key, val)
+                    output("\nkey = %s, val = %s", key, val);
+                  end);
+  output("\n\nUse your browser's Back button to return to the demo.");
+end;
+
+
+
+//// Example: Dylan Server Pages
+
+// A DSP is just a resource that is associated with a template
+// When creating a <dylan-server-page> you must pass the
 // source: "foo/my.dsp" argument.
 
 // In general you will define respond-to-get/post methods for your
@@ -110,10 +103,6 @@ end method respond-to-get;
 // Any plain content in the template is output directly to the output
 // stream, and tags invoke the corresponding tag definition.
 
-// Note that the .dsp source file doesn't have to be under Koala's
-// document root directory.  (Does it need to be under the DSP root?
-// Check this. --cgay)
-
 // This defines a class that will be used for all our example pages.
 // It must be a subclass of <dylan-server-page> so that all the
 // template parsing will happen.  If we define all our tags to be
@@ -122,16 +111,14 @@ end method respond-to-get;
 define class <demo-page> (<dylan-server-page>)
 end;
 
-// Define a tag library in which to put all tag definitions.  This
-// isn't strictly necessary; tag defs can go in the existing 'dsp'
-// tag library but then you run the risk of overriding built-in DSP
-// tags or other user-defined tags in the dsp taglib.
+// Define a tag library in which to put all tag definitions.
 //
 define taglib demo ()
 end;
 
 
 // You may also define tags and actions directly in the taglib definition...
+//
 define taglib example ()
   prefix "x";
 
@@ -149,16 +136,6 @@ define taglib example ()
     #("a", "b", "c");
 end taglib example;
 
-
-// <demo:base-url/> tag, so templates don't have to hard-code absolute urls.
-//
-define tag base-url in demo
-    (page :: <demo-page>)
-    ()
-  // output(format-string, format-arg, ...) sends output directly to the
-  // response stream.
-  output($demo-base-url);
-end;
 
 // Defines a tag that looks like <demo:hello/> in the DSP source
 // file.  i.e., it has no body.
@@ -193,7 +170,7 @@ end;
 define class <login-page> (<demo-page>)
 end;
 
-define constant *login-page* = make(<login-page>, source: "demo/login.dsp");
+define constant *login-page* = make(<login-page>, source: "login.dsp");
 
 define class <logout-page> (<demo-page>)
 end;
@@ -251,6 +228,7 @@ define tag current-username in demo
 end;
 
 
+
 //// iterator
 
 define thread variable *repetition-number* = 0;
@@ -283,6 +261,7 @@ define tag display-iteration-number in demo
 end;
 
 
+
 //// table generation
 
 // This method is used as the row-generator function for a dsp:table call.
@@ -333,38 +312,14 @@ define tag row-bgcolor in demo
          end);
 end;
 
-define url-map $demo-url-map ()
-  //prefix "/demo";    ...would be nice
-  url ("/demo", "/demo/home")
-    // Note that when a page just has a template but no special respond-to*
-    // method there's no need to define a new page subclass for it.  You
-    // just make a <dylan-server-page> (or subclass thereof) and specify
-    // the source: for the template.
-    action GET () => make(<demo-page>, source: "demo/home.dsp");
-  url "/demo/responder1"
-    action GET () => responder1;       // regex defaults to "^$"
-  url "/demo/prefix1"
-    action GET (".*") => prefix1;
-  url ("/demo/hello-world", "/demo/hello")
-    action GET () => make(<hello-world-page>);
-  url "/demo/args"
-    action GET () => make(<demo-page>, source: "demo/args.dsp");
-  url "/demo/login"
-    action GET () => *login-page*;
-  url "/demo/logout"
-    action (GET, POST) () => make(<logout-page>, source: "demo/logout.dsp");
-  url "/demo/welcome"
-    action POST () => make(<welcome-page>, source: "demo/welcome.dsp");
-  url "/demo/iterator"
-    action GET () => make(<demo-page>, source: "demo/iterator.dsp");
-  url "/demo/table"
-    action GET () => make(<demo-page>, source: "demo/table.dsp");
-end url-map;
 
-define constant $http-server = make(<http-server>, url-map: $demo-url-map);
+
+//// Example: XML-RPC
 
-//// XML-RPC (use any XML-RPC client to call these)
-define xml-rpc-server $xml-rpc-server ("/RPC2" on $http-server)
+// TODO: move this to its own xml-rpc example  (once xml-rpc code is
+//       moved to its own library.
+
+define xml-rpc-server $xml-rpc-server
     ()
   "test.zero" => method () end;
   "test.one"  => method () 1 end;
@@ -379,14 +334,70 @@ define xml-rpc-server $xml-rpc-server ("/RPC2" on $http-server)
 end xml-rpc-server $xml-rpc-server;
 
 
+
 /// Main
 
-begin
+define function map-resources
+    (server :: <http-server>)
+  // two URLs map to the home page
+  let home = make(<demo-page>, source: "home.dsp");
+  add-resource(server, "/", home);
+  add-resource(server, "/home", home);
+  add-resource(server, "/resource-1", make(<basic-resource-1>));
+  add-resource(server, "/resource-2", make(<basic-resource-2>));
+  add-resource(server, "/resource-3", make(<basic-resource-3>));
+  add-resource(server, "/resource-4", make(<basic-resource-4>));
+  add-resource(server, "/hello", make(<demo-page>, source: "hello.dsp"));
+  add-resource(server, "/args", make(<demo-page>, source: "args.dsp"));
+  add-resource(server, "/login", *login-page*);
+  add-resource(server, "/logout", make(<logout-page>, source: "logout.dsp"));
+  add-resource(server, "/welcome", make(<welcome-page>, source: "welcome.dsp"));
+  add-resource(server, "/iterator", make(<demo-page>, source: "iterator.dsp"));
+  add-resource(server, "/table", make(<demo-page>, source: "table.dsp"));
+end function map-resources;
+
+/*
+
+add-resource(server, "/{controller}/{action}
+
+*/
+
+/*
+define url-map $demo-url-map ()
+  //prefix "/demo";    ...would be nice
+  url ("/", "/home")
+    // Note that when a page just has a template but no special respond-to*
+    // method there's no need to define a new page subclass for it.  You
+    // just make a <dylan-server-page> (or subclass thereof) and specify
+    // the source: for the template.
+    action GET () => make(<demo-page>, source: "home.dsp");
+  url ("/hello-world", "/hello")
+    action GET () => make(<hello-world-page>);
+  url "/args"
+    action GET () => make(<demo-page>, source: "args.dsp");
+  url "/login"
+    action GET () => *login-page*;
+  url "/logout"
+    action (GET, POST) () => make(<logout-page>, source: "logout.dsp");
+  url "/welcome"
+    action POST () => make(<welcome-page>, source: "welcome.dsp");
+  url "/iterator"
+    action GET () => make(<demo-page>, source: "iterator.dsp");
+  url "/table"
+    action GET () => make(<demo-page>, source: "table.dsp");
+end url-map;
+*/
+
+define function main
+    ()
   // If you don't need to add any new command-line arguments you can just
   // call koala-main directly.  It allows you to pass --config <filename>
   // and other args on the command line.  Use --help to see options.
   // start-server can also be used directly if you want to do your own
   // command-line parsing.
-  koala-main(server: $http-server);
-end;
+  koala-main(server: make(<http-server>),
+             before-startup: map-resources);
+end function main;
+
+main();
 

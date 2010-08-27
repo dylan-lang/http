@@ -1,23 +1,17 @@
 Module:    httpi
 Synopsis:  Core HTTP server code
 Author:    Gail Zacharias, Carl Gay
-Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2010 Carl L. Gay.  All rights reserved.
            Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
+
 
 define constant $server-name = "Koala";
 
 define constant $server-version = "0.9";
 
 define constant $server-header-value = concatenate($server-name, "/", $server-version);
-
-define constant $allowed-request-methods :: <list>
-  = #(#"get", #"head", #"options", #"post");
-
-define constant $allowed-request-methods-string :: <byte-string>
-    = join($allowed-request-methods, ", ",
-           key: method (x) as-uppercase(as(<byte-string>, x)) end);
 
 // This is needed to handle sockets shutdown.
 define variable *exiting-application* = #f;
@@ -28,10 +22,56 @@ begin
                                      end);
 end;
 
+
+//// Request Router
+
+// The request router class gives libraries a way to provide alternate
+// ways of routing/mapping URLs to resources if they don't like the default
+// mechanism, by storing a different subclass of <abstract-request-router>
+// in the <http-server>.
+
+define open abstract class <abstract-request-router> (<object>)
+end;
+
+
+// Add a route to a resource.  (Or, map a URL to a resource.)
+// URLs (and more specifically, URL paths) may be represented in various ways,
+// which is why the 'url' parameter is typed as <object>.
+//
+define open generic add-resource
+    (router :: <abstract-request-router>,
+     url :: <object>,
+     resource :: <abstract-resource>,
+     #key, #all-keys);
+
+
+// Find a resource mapped to the given URL, or signal an error.
+// Return the resource, the URL prefix it was mapped to, and the URL
+// suffix that remained.
+//
+// TODO: The return values for this are probably too specific to the
+//       way the default router works.  It's probably a bit more generic
+//       to return (resource, url, bindings) or some such.
+//
+define open generic find-resource
+    (router :: <abstract-request-router>, url :: <object>)
+ => (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>);
+
+
+// Generate a URL from a name and path variables.
+// If the given name doesn't exist signal <koala-api-error>.
+define open generic generate-url
+    (router :: <abstract-request-router>, name :: <string>, #key, #all-keys)
+ => (url);
+
+
+
+//// <http-server>
+
 // The user instantiates this class directly, passing configuration options
 // as init args.
 //
-define open class <http-server> (<object>)
+define open class <http-server> (<multi-logger-mixin>, <abstract-request-router>)
   // Whether the server should run in debug mode or not.  If this is true then
   // errors encountered while servicing HTTP requests will not be handled by the
   // server itself.  Normally the server will handle them and return an "internal
@@ -47,6 +87,9 @@ define open class <http-server> (<object>)
   constant slot server-lock :: <simple-lock>,
     required-init-keyword: lock:;
 
+  slot request-router :: <abstract-request-router>,
+    init-value: make(<resource>),
+    init-keyword: request-router:;
 
   //// Next 6 slots are to support clean server shutdown.
 
@@ -72,40 +115,12 @@ define open class <http-server> (<object>)
   // Allow: field...  Need an API for making sure that happens.
   // RFC 2616, 5.1.1
 
-  // In the url-map trie, each URL path leads to a <responder> object.
-  // The <responder> has a request-method-map that maps request methods
-  // (currently symbols like #"get") to a set of <tail-responder>s each
-  // of which has a regular expression and an object that supports the
-  // invoke-responder method.  (Weeee!)  The leading slash is removed
-  // from URLs because it's easier to use merge-locators that way.
-  // TODO: this should be per vhost
-  constant slot url-map :: <string-trie> = make(<string-trie>, object: #f),
-    init-keyword: url-map:;
-
   //// Statistics
   // TODO: move these elsewhere
 
   slot connections-accepted :: <integer> = 0;
   constant slot user-agent-stats :: <string-table>,
     init-function: curry(make, <string-table>);
-
-  // Maps host names to virtual hosts.
-  constant slot virtual-hosts :: <string-table>,
-    init-function: curry(make, <string-table>);
-
-  // The vhost used if the request host doesn't match any other virtual host.
-  // Note that the document root may be changed when the config file is
-  // processed, so don't use it except during request processing.
-  //
-  slot default-virtual-host :: <virtual-host>,
-    init-keyword: default-virtual-host:;
-
-  // If this is true, then requests directed at hosts that don't match any
-  // explicitly named virtual host (i.e., something created with <virtual-host>
-  // in the config file) will use the default vhost.  If this is #f when such a
-  // request is received, a Bad Request (400) response will be returned.
-  //
-  slot fall-back-to-default-virtual-host? :: <boolean> = #t;
 
   // The top of the directory tree under which the server's configuration, error,
   // and log files are kept.  Other pathnames are merged against this one, so if
@@ -142,20 +157,6 @@ define open class <http-server> (<object>)
     init-value: #f,
     init-keyword: development-mode:;
 
-  //// Logging
-
-  slot request-logger :: <logger>,
-    init-value: *request-logger*,
-    init-keyword: request-logger:;
-
-  slot error-logger :: <logger>,
-    init-value: *error-logger*,
-    init-keyword: error-logger:;
-
-  slot debug-logger :: <logger>,
-    init-value: *debug-logger*,
-    init-keyword: debug-logger:;
-
 end class <http-server>;
 
 // get rid of this eventually.  <http-server> is the new name.
@@ -180,36 +181,9 @@ end method make;
 
 define sealed domain make (subclass(<http-server>));
 
-// API (in the sense that its args are passed directly by the user)
 define method initialize
-    (server :: <http-server>,
-     #rest keys,
-     #key document-root, dsp-root,
-          request-logger: req-log, debug-logger: dbg-log, error-logger: err-log)
-  apply(next-method,
-        server,
-        remove-keys(keys, #"document-root", #"dsp-root"));
-  if (instance?(document-root, <string>))
-    document-root := as(<directory-locator>, document-root);
-  end;
-  if (instance?(dsp-root, <string>))
-    dsp-root := as(<directory-locator>, dsp-root);
-  end;
-  let doc-root = document-root | subdirectory-locator(server.server-root, "static");
-  let dsp-root = dsp-root | subdirectory-locator(server.server-root, "dsp");
-  let vhost-name = "default";
-  let vhost = make(<virtual-host>,
-                   name: vhost-name,
-                   document-root: doc-root,
-                   dsp-root: dsp-root,
-                   request-logger: req-log | server.request-logger,
-                   debug-logger: dbg-log | server.debug-logger,
-                   error-logger: err-log | server.error-logger);
-  default-virtual-host(server) := vhost;
-  add-virtual-host(server, vhost, vhost-name);
-  // Add a spec that matches all urls.
-  add-directory-policy(vhost, root-directory-policy(vhost));
-
+    (server :: <http-server>, #key)
+  next-method();
   // Copy mime type map in, since it may be modified when config loaded.
   if (~slot-initialized?(server, server-media-type-map))
     let tmap :: <mime-type-map> = make(<mime-type-map>);
@@ -446,9 +420,9 @@ define method start-server
   // It means that log messages that don't pertain to a specific vhost
   // go in the default vhost logs.  Maybe have a separate log for the
   // server proper...
-  dynamic-bind (*debug-logger* = server.default-virtual-host.debug-logger,
-                *error-logger* = server.default-virtual-host.error-logger,
-                *request-logger* = server.default-virtual-host.request-logger,
+  dynamic-bind (*debug-logger* = server.debug-logger,
+                *error-logger* = server.error-logger,
+                *request-logger* = server.request-logger,
                 *http-common-log* = *debug-logger*)
     log-info("Starting %s HTTP Server", $server-name);
     ensure-sockets-started();
@@ -482,7 +456,7 @@ define function wait-for-listeners-to-start
       let socket = #f;
       block ()
         let host = listener.listener-host;
-        let conn-host = iff(host = "0.0.0.0", $local-host, host);
+        let conn-host = iff(host = "0.0.0.0", "127.0.0.1", host);
         log-debug("Attempting connection to %s via %s",
                   listener.listener-name, conn-host);
         socket := make(<tcp-socket>,
@@ -611,9 +585,9 @@ define function start-http-listener
           end;
         end;
   local method run-listener-top-level ()
-          dynamic-bind (*debug-logger* = server.default-virtual-host.debug-logger,
-                        *error-logger* = server.default-virtual-host.error-logger,
-                        *request-logger* = server.default-virtual-host.request-logger,
+          dynamic-bind (*debug-logger* = server.debug-logger,
+                        *error-logger* = server.error-logger,
+                        *request-logger* = server.request-logger,
                         *http-common-log* = *debug-logger*)
             with-lock (server-lock) end; // Wait for setup to finish.
             block ()
@@ -741,18 +715,18 @@ define function do-http-listen
   end iterate;
   log-debug("Closing socket for %s", listener);
   close(listener.listener-socket, abort: #t);
-end do-http-listen;
+end function do-http-listen;
 
 define open primary class <request>
     (<chunking-input-stream>, <basic-request>, <base-http-request>)
 
-  // Contains the prefix of the URL that matched the <responder>.
-  // i.e., this is the URL under which the <responder> was registered.
-  slot request-path-prefix :: <string>;
+  // Contains the part of the URL path that matched the <resource>.
+  slot request-url-path-prefix :: <string>;
 
-  // Contains part of the URL path following the prefix URL (above).
-  // This may be the empty string.
-  slot request-path-tail :: <string>;
+  // Contains part of the URL path following the prefix (above).
+  // If the requested URL was /foo/bar/baz and /foo/bar matched the
+  // resource, then this would be "/baz".
+  slot request-url-path-suffix :: <string>;
 
   // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
   slot request-host :: false-or(<string>),
@@ -767,11 +741,6 @@ define open primary class <request>
     init-value: #f;
 
   slot request-session :: false-or(<session>),
-    init-value: #f;
-
-  // TODO: This is only stored in the request for internal modularity
-  //       reasons.  It should be removed.
-  slot request-responder :: false-or(<responder>),
     init-value: #f;
 
 end class <request>;
@@ -807,80 +776,7 @@ define method request-absolute-url
   end
 end method request-absolute-url;
 
-// Making a virtual hosts requires an instantiated server to do some
-// initialization, so use this instead of calling make(<virtual-host>).
-//
-define method make-virtual-host
-    (server :: <server>,
-     #rest args,
-     #key name, document-root, dsp-root,
-          request-logger: req-logger,
-          error-logger: err-logger,
-          debug-logger: dbg-logger,
-     #all-keys)
- => (vhost :: <virtual-host>)
-  let vhost :: <virtual-host>
-    = apply(make, <virtual-host>,
-            document-root:
-              document-root | subdirectory-locator(server.server-root, name),
-            dsp-root:
-              dsp-root | subdirectory-locator(server.server-root, name),
-            request-logger:
-              req-logger | server.default-virtual-host.request-logger,
-            error-logger:
-              err-logger | server.default-virtual-host.error-logger,
-            debug-logger:
-              dbg-logger | server.default-virtual-host.debug-logger,
-            args);
-  // Add a spec that matches all urls.
-  add-directory-policy(vhost, root-directory-policy(vhost));
-  vhost
-end;
-
-define method add-virtual-host
-    (server :: <http-server>, vhost :: <virtual-host>, name :: <string>)
-  let low-name = as-lowercase(name);
-  if (element(server.virtual-hosts, low-name, default: #f))
-    signal(make(<koala-api-error>,
-                format-string: "Virtual host (%s) already exists.",
-                format-arguments: list(low-name)));
-  else
-    server.virtual-hosts[low-name] := vhost;
-  end;
-end method add-virtual-host;
-
-define generic virtual-host
-    (thing :: <object>) => (vhost :: false-or(<virtual-host>));
-
-define method virtual-host
-    (name :: <string>)
- => (vhost :: false-or(<virtual-host>))
-  element(*server*.virtual-hosts, as-lowercase(name), default: #f)
-end;
-
-define method virtual-host
-    (request :: <request>)
- => (vhost :: false-or(<virtual-host>))
-  let host-spec = request-host(request);
-  if (host-spec)
-    let colon = char-position(':', host-spec, 0, size(host-spec));
-    let host = iff(colon, substring(host-spec, 0, colon), host-spec);
-    let vhost = virtual-host(host)
-                  | (*server*.fall-back-to-default-virtual-host?
-                       & *server*.default-virtual-host);
-    if (vhost)
-      vhost
-    else
-      // TODO: see if the spec says what error to return here.
-      resource-not-found-error(url: request.request-url);
-    end;
-  elseif (*server*.fall-back-to-default-virtual-host?)
-    *server*.default-virtual-host
-  else
-    resource-not-found-error(url: request.request-url);
-  end
-end;
-
+
 define thread variable *request* :: false-or(<request>) = #f;
 
 define inline function current-request
@@ -903,10 +799,9 @@ define function handler-top-level
     (client :: <client>)
   dynamic-bind (*request* = #f,
                 *server* = client.client-server,
-                *virtual-host* = #f,  // set after read-request called
-                *debug-logger* = *server*.default-virtual-host.debug-logger,
-                *error-logger* = *server*.default-virtual-host.error-logger,
-                *request-logger* = *server*.default-virtual-host.request-logger,
+                *debug-logger* = *server*.debug-logger,
+                *error-logger* = *server*.error-logger,
+                *request-logger* = *server*.request-logger,
                 *http-common-log* = *debug-logger*)
     block (exit-handler-top-level)
       while (#t)                      // keep alive loop
@@ -933,14 +828,18 @@ define function handler-top-level
                                               decline-if-debugging: #f);
 
             read-request(request);
-
-            *virtual-host* := virtual-host(request);
-            *debug-logger* := *virtual-host*.debug-logger;
-            *error-logger* := *virtual-host*.error-logger;
-            *request-logger* := *virtual-host*.request-logger;
-            *http-common-log* := *debug-logger*;
-
-            invoke-handler(request);
+            let headers = make(<header-table>);
+            if (request.request-keep-alive?)
+              set-header(headers, "Connection", "Keep-Alive");
+            end if;
+            dynamic-bind (*response* = make(<response>,
+                                            request: request,
+                                            headers: headers),
+                          // Bound to a <page-context> when first requested.
+                          *page-context* = #f)
+              route-request(*server*, request);
+              finish-response(*response*);
+            end;
             force-output(request.request-socket);
           end block; // finish-request
           if (~request-keep-alive?(request))
@@ -951,6 +850,50 @@ define function handler-top-level
     end block; // exit-handler-top-level
   end dynamic-bind;
 end function handler-top-level;
+
+// Find a resource for the request and call respond on it.
+// Signal 404 if no resource can be found.
+//
+define method route-request
+    (server :: <http-server>, request :: <request>)
+  // Find a resource or signal an error.
+  let (resource :: <resource>, prefix :: <list>, suffix :: <list>)
+    = find-resource(server.request-router,
+                    request.request-url);
+
+  // Bind loggers for the vhost being used.
+  iterate loop (current = resource, vhost = #f)
+    if (current)
+      loop(current.resource-parent,
+           iff(instance?(current, <virtual-host-resource>),
+               current,
+               vhost))
+    elseif (vhost)
+      *debug-logger* := vhost.debug-logger;
+      *error-logger* := vhost.error-logger;
+      *request-logger* := vhost.request-logger;
+    end;
+  end;
+
+  log-debug("Found resource %s, prefix = %=, suffix = %=",
+            resource, prefix, suffix);
+  request.request-url-path-prefix := join(prefix, "/");
+  request.request-url-path-suffix := join(suffix, "/");
+
+  apply(respond, resource, path-variable-bindings(resource, suffix));
+end method route-request;
+
+// Internally redirect to a different URL.  parse-request-url resets various
+// URL-related slots in the request.  This should only be used before any
+// data has been written to the response.  (Maybe should clear the headers
+// as well?)
+//
+define method internal-redirect-to
+    (url :: <string>)
+  let request :: <request> = current-request();
+  parse-request-url(*server*, request, url);
+  route-request(*server*, request);
+end;
 
 define function htl-error-handler
     (cond :: <condition>, next-handler :: <function>, exit-function :: <function>,
@@ -1043,11 +986,7 @@ define method parse-request-url
     request.request-host := url.uri-host;
   end;
   request.request-url := url;
-  let (responder, tail, prefix) = find-responder(server, request.request-url);
-  request.request-responder := responder;
-  request.request-path-prefix := iff(prefix, join(prefix, "/"), "");
-  request.request-path-tail := iff(tail, join(tail, "/"), "");
-  remove-all-keys!(request.request-query-values);
+  remove-all-keys!(request.request-query-values);  // appears unnecessary
   for (value keyed-by key in url.uri-query)
     request.request-query-values[key] := value;
   end;
@@ -1056,13 +995,15 @@ end method parse-request-url;
 define method validate-request-method
     (request-method :: <byte-string>)
  => (request-method :: <symbol>)
+  // These hard-coded strings will have to do until I revamp the
+  // request method code.  --cgay July 2010
   if (member?(request-method, #["GET", "HEAD", "OPTIONS", "POST"], test: \=))
     // TODO: The request method should be case sensitive, so it shouldn't be a symbol.
     as(<symbol>, request-method)
   else
     not-implemented-error(what: format-to-string("Request method %s", request-method),
                           header-name: "Allow",
-                          header-value: $allowed-request-methods-string);
+                          header-value: "GET, HEAD, OPTIONS, POST");
   end
 end method validate-request-method;
 
@@ -1107,7 +1048,7 @@ define function read-request-content
     end;
   end;
   process-request-content(request, request-content-type(request));
-end read-request-content;
+end function read-request-content;
 
 define inline function request-content-type (request :: <request>)
   let content-type-header = get-header(request, "content-type");
@@ -1121,7 +1062,7 @@ define inline function request-content-type (request :: <request>)
      else
        ""
      end if)
-end;
+end function request-content-type;
 
 
 // Gary, in the trunk sources (1) below should now be fixed.  (read was passing the
@@ -1175,7 +1116,7 @@ define method process-request-content
   // For now this'll have to do.
 end method process-request-content;
 
-/* REWRITE
+/* TODO: REWRITE
 define method process-request-content
     (content-type == #"multipart/form-data",
      request :: <request>,
@@ -1224,7 +1165,7 @@ define method send-error-response-internal
   let one-liner = http-error-message-no-code(err);
   unless (request-method(request) == #"head")
     // TODO: Display a pretty error page.
-    add-header(response, "Content-Type", "text/plain");
+    set-header(response, "Content-Type", "text/plain");
     write(response, one-liner);
     write(response, "\r\n");
     // Don't show internal error messages to the end user unless the server
@@ -1270,166 +1211,16 @@ define method process-incoming-headers (request :: <request>)
   end;
 end method process-incoming-headers;
 
-// Invoke the appropriate handler for the given request URL and method.
-//
-define method invoke-handler
-    (request :: <request>)
-  let headers = make(<header-table>);
-  let response = make(<response>,
-                      request: request,
-                      headers: headers);
-  if (request.request-keep-alive?)
-    add-header(response, "Connection", "Keep-Alive");
-  end if;
-  %invoke-handler(request, response);
-end method invoke-handler;
-
-// Used by internal-redirect-to so that one responder can invoke a different
-// responder completely internally to the server.
-//
-define method %invoke-handler
-    (request :: <request>, response :: <response>)
-  if (request.request-method == #"OPTIONS")
-    if (request.request-raw-url-string = "*")
-      add-header(response, "Allow", $allowed-request-methods-string);
-    elseif (request.request-responder)
-      let methods = find-request-methods(request);
-      if (~empty?(methods))
-        add-header(response, "Allow", join(methods, ", ", key: as-uppercase))
-      end;
-    end;
-  else
-    dynamic-bind (*response* = response,
-                  // This is set to a <page-context> when first requested.
-                  *page-context* = #f)
-      if (request.request-responder)
-        let (action, match) = find-action(request);
-        if (action)
-          // Invoke the action function with keyword arguments matching the names
-          // of the named groups in the first regular expression that matches the
-          // tail of the url, if any.  Also pass the entire match as the match:
-          // argument so unnamed groups and the entire match can be accessed.
-          let arguments = #[];
-          if (match)
-            arguments := make(<deque>);
-            push-last(arguments, match:);
-            push-last(arguments, match);
-            for (group keyed-by name in match.groups-by-name)
-              if (group)
-                // TODO:
-                // as(<symbol>) can be a memory leak.  This one can match
-                // an arbitrary string in the URL, so it's bad.
-                push-last(arguments, as(<symbol>, name));
-                push-last(arguments, group.group-text);
-              end if;
-            end for;
-          end if;
-          block ()
-            invoke-responder(request, action, arguments)
-          exception (ex :: <skip-remaining-responders>)
-            // The idea is that if 'action' is a sequence then one of the
-            // functions therein can signal this exception to say "I handled it."
-            // Not sure how useful this might be in practice.
-          end;
-        else
-          resource-not-found-error(url: request.request-url);
-        end if;
-      else
-        // generates 404 if not found
-        // TODO: static files should be handled through the normal means:
-        //       add-responder(url, curry(serve-static-file, policy))
-        serve-static-file-or-cgi-script();
-      end if;
-    end dynamic-bind;
-  end if;
-  finish-response(response);
-end method %invoke-handler;
-
-define inline function find-action
-    (request :: <request>)
- => (action, match)
-  let rm-map = request.request-responder.request-method-map;
-  let tail-responders = element(rm-map, request.request-method, default: #f);
-  if (tail-responders)
-    block (return)
-      let url-tail = request.request-path-tail;
-      for (tail-responder in tail-responders)
-        let match = regex-search(tail-responder.tail-responder-regex, url-tail);
-        if (match)
-          return(tail-responder.tail-responder-action, match)
-        end if;
-      end for;
-    end block
-  end
-end function find-action;
-
-// Return a list of request methods that apply for the given request's
-// URL and tail URL.  Used for the OPTIONS request method.
-//
-define inline function find-request-methods
-    (request :: <request>)
- => (request-methods :: <sequence>)
-  let rm-map = request.request-responder.request-method-map;
-  let url-tail = request.request-path-tail;
-  let methods = #();
-  for (req-method in $allowed-request-methods)
-    let regex-map = element(rm-map, req-method, default: #());
-    block (exit-loop)
-      for (actions keyed-by regex in regex-map)
-        let match = regex-search(regex, url-tail);
-        if (match)
-          methods := pair(req-method, methods);
-          exit-loop();
-        end if;
-      end for;
-    end block;
-  end for;
-  methods
-end function find-request-methods;
-
-// See %invoke-handler
-define class <skip-remaining-responders> (<condition>)
-end;
-
-// Clients can override this to create other types of responders.
-// 
-define open generic invoke-responder
-    (request :: <request>, action :: <object>, arguments :: <sequence>)
- => ();
-
-// action unknown
-define method invoke-responder
-    (request :: <request>, action :: <object>, arguments :: <sequence>)
- => ()
-  log-error("Unknown action %= in action sequence.", action);
-  // This is less specific than the log message because it may end up
-  // being displayed to the user.
-  application-error(message: "Unknown responder action");
-end;
-
-// action sequence
-// Action functions should signal <skip-remaining-responders> to skip
-// execution of any remaining responders in the sequence.
-define method invoke-responder
-    (request :: <request>, actions :: <collection>, arguments :: <sequence>)
- => ()
-  for (action in actions)
-    invoke-responder(request, action, arguments);
-  end;
-end;
-
-// action function
-define method invoke-responder
-    (request :: <request>, action :: <function>, arguments :: <sequence>)
- => ()
-  apply(action, arguments)
-end;
-
-
 define inline function empty-line?
     (buffer :: <byte-string>, len :: <integer>) => (empty? :: <boolean>)
   len == 1 & buffer[0] == $cr
 end;
+
+/*
+
+// This isn't used in the server, but I see a reference in network/turboblog
+// which also isn't used, as far as I know.  Commenting it out until I have
+// time to assess it.  --cgay
 
 define class <http-file> (<object>)
   constant slot http-file-filename :: <string>,
@@ -1440,7 +1231,6 @@ define class <http-file> (<object>)
     required-init-keyword: mime-type:;
 end;
 
-/* REWRITE
 define method extract-form-data
  (buffer :: <string>, boundary :: <string>, request :: <request>)
   // strip everything after end-boundary
@@ -1487,6 +1277,8 @@ define method extract-form-data
   end for;
 end method extract-form-data;
 */
+
+// Hey look!  More stuff to get rid of or move...
 
 define inline function get-query-value
     (key :: <string>, #key as: as-type :: false-or(<type>))

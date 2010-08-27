@@ -61,7 +61,7 @@ end;
 // current-request() to work.
 //
 define method find-multi-view-file
-    (policy :: <directory-policy>, document :: <file-locator>,
+    (policy :: <directory-resource>, document :: <file-locator>,
      #key accept-header)
  => (locator :: false-or(<file-locator>))
   // Upon entry to this function, 'document' is known not to name

@@ -16,7 +16,7 @@
 
   <dsp:show-page-errors/>
 
-  <form action="<demo:base-url/>/welcome"
+  <form action="/welcome"
         method="post"
         enctype="application/x-www-form-urlencoded">
 

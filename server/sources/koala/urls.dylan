@@ -10,7 +10,7 @@ define open generic redirect-to (object :: <object>);
 
 define method redirect-to (url :: <string>)
   let headers = current-response().raw-headers;
-  add-header(headers, "Location", url);
+  set-header(headers, "Location", url);
   see-other-redirect(headers: headers);
 end method redirect-to;
 
@@ -22,7 +22,7 @@ define open generic redirect-temporarily-to (object :: <object>);
 
 define method redirect-temporarily-to (url :: <string>)
   let headers = current-response().raw-headers;
-  add-header(headers, "Location", url);
+  set-header(headers, "Location", url);
   moved-temporarily-redirect(headers: headers);
 end method redirect-temporarily-to;
 

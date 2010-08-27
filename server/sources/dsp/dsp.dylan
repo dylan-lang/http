@@ -7,6 +7,8 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 // See .../koala/sources/examples/koala-demo/ for example DSP usage.
 
+// TODO: separate out the template parsing so that it's possible to
+//       use different template parsers easily.
 
 define class <dsp-error> (<format-string-condition>, <error>) end;
 
@@ -28,197 +30,60 @@ end;
 
 define class <tag-argument-parse-error> (<dsp-parse-error>) end;
 
-
-
-//// Generic pages
-
-// TODO: Rename this to <resource> and define it in the main server.
-//       (Name stolen from Twisted's Resource.)
-
-define open primary class <page> (<object>)
-end;
-
-// Method on generic defined in server.dylan.  Makes it possible to use
-// DSPs directly in "define url-map" calls.  I.e., a <page> ends up being
-// the "action" passed to invoke-responder in that case.
-// add-responder(<url>, <page>) works too.
-// 
-define method invoke-responder
-    (request :: <request>,
-     action :: <page>,
-     arguments :: <sequence>)
- => ()
-  apply(process-page, action, arguments)
-end method invoke-responder;
   
-// This is the method registered as the response function for all <page>s.
-// Keyword args are the named groups from the URL regex.
-// See add-responder, below.
-define open generic process-page (page :: <page>, #key, #all-keys);
-
-define method process-page (page :: <page>, #rest args, #key)
-  apply(respond-to, current-request().request-method, page, args);
-end process-page;
-
-// The protocol every page needs to support.
-define open generic respond-to
-    (request-method :: <symbol>, page :: <page>, #key, #all-keys);
-
-// Default
-define method respond-to
-    (request-method :: <symbol>, page :: <page>, #key)
-  method-not-allowed-error(request-method: request-method);
-end;
-
-define method respond-to
-    (request-method == #"GET", page :: <page>, #rest args, #key)
-  apply(respond-to-get, page, args);
-end method respond-to;
-
-define method respond-to
-    (request-method == #"POST", page :: <page>, #rest args, #key)
-  apply(respond-to-post, page, args);
-end method respond-to;
-
-// These are by far the most common cases and it's more succinct
-// and readable than respond-to.
 //
-define open generic respond-to-get (page :: <page>, #key, #all-keys);
-define open generic respond-to-post (page :: <page>, #key, #all-keys);
-
-define method respond-to-get
-    (page :: <page>, #key)
-  // TODO: include Allow header in response.
-  method-not-allowed-error(request-method: "GET");
-end method respond-to-get;
-
-// This is a common case and it's more succinct and readable than respond-to.
-define method respond-to-post
-    (page :: <page>, #rest args, #key)
-  apply(respond-to-get, page, args);
-end method respond-to-post;
-
-define method respond-to-get
-    (page :: <dylan-server-page>, #rest args, #key)
-  process-template(page);
-end method respond-to-get;
-
-define method %add-responder
-    (store :: <string-trie>, url :: <uri>, responder :: <page>,
-     #key replace?)
-  %add-responder(store, url, curry(process-page, responder), replace?: replace?)
-end method %add-responder;
-
-//
-// Page mixin classes and related methods
+// Dylan Server Pages
 //
 
-define free class <file-page-mixin> (<expiring-mixin>)
-  // page-source may be a relative locator, in which case the full source
-  // location is determined when the page is requested, based on the document
-  // root of the current virtual host.  This is typed as <pathname> solely
-  // to prevent clients from always having to do as(<file-locator>, ...).
-  // It is converted to <locator> in the initialize method.
-  slot page-source :: <pathname>,
+// The only required init arg for this class is source:, which should
+// be the location of the top-level template.
+//
+define open primary class <dylan-server-page> (<expiring-mixin>, <resource>)
+  // A sequence of strings and functions.  Strings are output directly
+  // to the network stream.  The functions are created by 'define tag'.
+  slot page-template :: false-or(<dsp-template>) = #f;
+
+  // This is merged against the working directory if it is not absolute.
+  // (Note that koala has a --working-directory option.)
+  slot %page-source :: <file-locator>,
     required-init-keyword: #"source";
-  slot contents :: false-or(<string>) = #f;
 end;
 
-define method initialize
-    (page :: <file-page-mixin>, #key source)
-  next-method();
-  if (instance?(page.page-source, <string>))
-    page.page-source := as(<file-locator>, source);
-  end;
+define method make
+    (class :: subclass(<dylan-server-page>), #rest args, #key source :: <pathname>)
+ => (dsp :: <dylan-server-page>)
+  apply(next-method, class,
+        source: as(<file-locator>, source),
+        args)
 end;
 
-
-define generic root-directory
-    (page :: <object>)
- => (root :: <directory-locator>);
-
-define method root-directory
-    (page :: <file-page-mixin>)
- => (root :: <directory-locator>)
-  document-root(virtual-host(current-request()))
+// This is here (rather than in "make" or "initialize") because koala has an
+// option to set the working directory and we want to respect it, and we don't
+// want to depend on file load order.
+define method page-source
+    (page :: <dylan-server-page>) => (source :: <file-locator>)
+  merge-locators(page.%page-source, working-directory())
 end;
 
-define method root-directory
-    (page :: <dylan-server-page>)
- => (root :: <directory-locator>)
-  dsp-root(virtual-host(current-request()))
+define method respond-to-post
+    (page :: <dylan-server-page>, #key)
+  respond-to-get(page);
 end;
 
-
-define generic source-location
-    (x :: <object>)
- => (location :: false-or(<locator>));
-
-define method source-location
-    (page :: <page>)
- => (location :: false-or(<locator>))
-  #f
-end;
-
-define method source-location 
-    (page :: type-union(<file-page-mixin>, <dylan-server-page>))
- => (location :: false-or(<locator>))
-  let loc :: <locator> = page.page-source;
-  if (locator-relative?(loc))
-    let newloc = simplify-locator(merge-locators(loc, root-directory(page)));
-    if (locator-below-root?(newloc, root-directory(page)))
-      newloc
-    else
-      log-warning("Attempt to access a document outside the document root: %s",
-                  as(<string>, newloc));
-      forbidden-error(); // 403
-    end
-  else
-    loc
-  end
-end method source-location;
-
-define method page-directory
-    (page :: type-union(<file-page-mixin>, <dylan-server-page>))
- => (locator :: <directory-locator>)
-  locator-directory(source-location(page))
+define method respond-to-get
+    (page :: <dylan-server-page>, #key)
+  process-template(page);
 end;
 
 define method modified?
-    (page :: <file-page-mixin>) => (modified? :: <boolean>)
+    (page :: <dylan-server-page>)
+ => (modified? :: <boolean>)
   block ()
     ~date-modified(page)
-      | file-property(source-location(page), #"modification-date") > page.date-modified
+      | file-property(page-source(page), #"modification-date") > page.date-modified
   exception (e :: <error>)
     #t  // i figure we want an error to occur if, say, the file was deleted.
   end
-end;
-
-
-//
-// Static pages
-//
-
-// I don't think <expiring-mixin> is really useful.
-// I think it was originally intended to prevent checking the
-// file mod date too often, but that's kind of useless.
-//
-define open primary class <static-page> (<file-page-mixin>, <page>)
-end;
-
-define method respond-to-get
-    (page :: <static-page>, #key)
-  if (modified?(page))
-    page.date-modified := file-property(source-location(page), #"modification-date");
-    page.contents := file-contents(source-location(page));
-  end if;
-  if (page.contents)
-    let stream = output-stream(current-response());
-    write(stream, page.contents);
-    force-output(stream);
-  else
-    resource-not-found-error(url: current-request().request-url);
-  end;
 end;
 
 
@@ -781,21 +646,8 @@ define method modified?
 end method modified?;
   
 
-//
-// Dylan Server Pages
-//
 
-// The only required init arg for this class is source:, which should
-// be the location of the top-level template.
-//
-define open primary class <dylan-server-page> (<file-page-mixin>, <page>)
-  // A sequence of strings and functions.  Strings are output directly
-  // to the network stream.  The functions are created by 'define tag'.
-  slot page-template :: false-or(<dsp-template>) = #f;
-end;
-
-
-// Default method on respond-to processes the DSP template and displays
+// Default method on respond-to-get processes the DSP template and displays
 // the result.  Subclasses can either call this with next-method() or call
 // process-template explicitly.
 //
@@ -805,11 +657,12 @@ end;
 // may also skip template processing by calling some other respond-to
 // method, throwing an exception, etc.
 //
-define open method process-template (page :: <dylan-server-page>)
+define open method process-template
+    (page :: <dylan-server-page>)
   when (~page-template(page)
         | (development-mode?(current-server())
            & (modified?(page) | modified?(page-template(page)))))
-    let source = source-location(page);
+    let source = page.page-source;
     if (page-template(page))
       log-debug("Reparsing modified page %s", source);
     end;
@@ -824,11 +677,10 @@ define method display-template
   if (tmplt.source)
     log-debug("Displaying template %s", tmplt.source);
   end;
-  let stream = current-response().output-stream;
   for (item in tmplt.entries)
     select (item by instance?)
       <string>
-        => write(stream, item);
+        => write(current-response(), item);
       // A subtemplate is created for tag bodies and for the "include" directive.
       <dsp-template>
         => display-template(item, page);
@@ -853,26 +705,26 @@ end;
 
 define method parse-page
     (page :: <dylan-server-page>)
-  pt-debug("Parsing page %s", as(<string>, source-location(page)));
-  let source = source-location(page);
+ => (template :: <dsp-template>)
+  let source = merge-locators(page.page-source, working-directory());
+  pt-debug("Parsing page %s", as(<string>, source));
   let string = file-contents(source);
   if (~string)
-    resource-not-found-error(url: current-request().request-url);
+    resource-not-found-error();
   else
-    page.contents := string;
-    page.date-modified := file-property(source-location(page), #"modification-date");
+    page.date-modified := file-property(page.page-source, #"modification-date");
     let tmplt = make(<dsp-template>,
                      contents: string,
                      content-start: 0,
                      content-end: size(string),
-                     source: source-location(page),
+                     source: page.page-source,
                      date-modified: current-date());
     dynamic-bind (*template-locator* = source)
       parse-template(page, tmplt, initial-taglibs-for-parse-template(), list());
     end;
     tmplt
   end;
-end parse-page;
+end method parse-page;
 
 // @param bpos points directly after a '<' char in buffer.
 // @return tag-prefix and its associated taglib.
@@ -892,8 +744,8 @@ define function parse-tag-prefix
                 parse-prefix(spec-index + 1))
           end
         end;
-  parse-prefix(0);
-end;
+  parse-prefix(0)
+end function parse-tag-prefix;
 
 // Parse a DSP directive (a <%dsp:xxx> tag) and its body.  DSP directives may
 // not follow the simple XML <tag>...body...</tag> format.  e.g., %dsp:if has
@@ -920,7 +772,7 @@ define function parse-include-directive
  => (scan-pos :: <integer>)
   when (has-body?)
     log-warning("Invalid include tag %s in template %s:%d.  ",
-                as(<string>, call), as(<string>, page.source-location), tag-start);
+                as(<string>, call), as(<string>, page.page-source), tag-start);
     log-warning("The include directive doesn't allow a body; it should end in '/>'.");
   end;
   // #"location" is preferred here because URL and URI can be misleading.  This
@@ -930,9 +782,10 @@ define function parse-include-directive
   if (~url)
     parse-error("In template %=, '%%dsp:include' directive must have a "
                   "'location' attribute.",
-                as(<string>, page.source-location));
+                as(<string>, page.page-source));
   end;
-  let source = locator-from-url(url, page-directory(page));
+  let source = merge-locators(as(<file-locator>, url),
+                              page.page-source.locator-directory);
   let contents = source & file-contents(source);
   if (contents)
     let subtemplate = make(<dsp-template>,
@@ -947,7 +800,7 @@ define function parse-include-directive
     add-entry!(tmplt, subtemplate);
   else
     parse-error("In template %=, included file %= not found.",
-                as(<string>, page.source-location), url);
+                as(<string>, page.page-source), url);
   end;
   body-start
 end;
@@ -1002,20 +855,20 @@ define function parse-taglib-directive
     //---*** TODO: fix this to simply include the body in the parent template.
     parse-error("Invalid taglib directive in template %=.  "
                 "The taglib directive can't have a body.",
-                page.source-location);
+                page.page-source);
   end;
   let tlib-name = get-arg(call, #"name");
   let tlib-prefix = get-arg(call, #"prefix");
   if (~tlib-name)
     parse-error("Invalid taglib directive in template %=.  "
                 "You must specify a taglib name with name=\"taglib-name\".",
-                page.source-location);
+                page.page-source);
   else
     let tlib = find-taglib(tlib-name);
     iff(~tlib,
         parse-error("Invalid taglib directive in template %=.  "
                     "The tag library named %= was not found.",
-                    page.source-location, tlib-name),
+                    page.page-source, tlib-name),
         add!(taglibs, pair(tlib-prefix | tlib-name, tlib)));
   end;
   body-start
@@ -1023,6 +876,7 @@ end;
 
 define constant $debugging-templates :: <boolean> = #f;
 
+// this should be replaced with a specialized logger or log category
 define function pt-debug
     (format-string, #rest args)
   when ($debugging-templates)
@@ -1030,7 +884,7 @@ define function pt-debug
   end;
 end;
 
-// @param page is really only passed so page.source-location can be used in error messages.
+// @param page is really only passed so page.page-source can be used in error messages.
 // @param tmplt is the <dsp-template> that is being parsed.  It is side-effected.
 // @param taglibs are the taglibs in effect for the parse.  Each time a %dsp:taglib
 //        directive is encountered the new taglib is added to the end.  Note that the
@@ -1144,7 +998,7 @@ define function parse-start-tag (page :: <dylan-server-page>,
                  else
                    log-warning("In template %=, the tag %= was not found.  "
                                "The active taglibs are %s.",
-                               as(<string>, page.source-location),
+                               as(<string>, page.page-source),
                                name,
                                join(taglibs, ", ",
                                     key: first, conjunction: " and "));
@@ -1160,7 +1014,7 @@ define function parse-start-tag (page :: <dylan-server-page>,
       log-warning("While parsing template %s, at position %=:"
                   " The %s:%s tag call should end with \"/>\" since this tag doesn't "
                   "allow a body.  No body will be processed for this tag.",
-                  as(<string>, page.source-location), bpos, prefix, name);
+                  as(<string>, page.page-source), bpos, prefix, name);
       has-body? := #f;
     end;
     values (tag-call, has-body?, end-index)

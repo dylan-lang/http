@@ -1,7 +1,7 @@
 Module:    httpi
 Synopsis:  For processing the configuration init file, koala-config.xml
 Author:    Carl Gay
-Copyright: Copyright (c) 2001-2004 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2010 Carl L. Gay.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
@@ -13,9 +13,6 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
  *
  * TODO: Should warn when unrecognized attributes are used.
  *       Makes debugging your config file much easier sometimes.
- *
- * TODO: Decide how to configure CGI directories/scripts.  i.e.,
- *       to add cgi-directory-responder via config only.
  */
 
 define constant $koala-config-dir :: <string> = "config";
@@ -23,8 +20,6 @@ define constant $koala-config-dir :: <string> = "config";
 define constant $default-config-filename :: <string> = "koala-config.xml";
 
 define thread variable %server = #f;
-
-define thread variable %dir = #f;
 
 // Holds the current vhost while config elements are being processed.
 define thread variable %vhost = #f;
@@ -81,8 +76,19 @@ define method configure-from-string
      #key filename :: false-or(<string>))
   let xml :: false-or(xml$<document>) = xml$parse-document(text);
   if (xml)
-    dynamic-bind (%vhost = server.default-virtual-host,
-                  %dir = root-directory-policy(server.default-virtual-host))
+    // When loading a configuration file, always set the root resource
+    // to a <virtual-host-map> if it isn't one already so that if we
+    // encounter a <virtual-host/> element in the config we can just
+    // add it in.  The current root resource is lost.
+    if (~instance?(server.request-router, <virtual-host-router>))
+      let n = server.request-router.resource-children.size;
+      if (n > 0)
+        warn("The existing request router, with %d child resources, "
+             "will be discarded.  This probably isn't what you intended.", n);
+      end;
+      server.request-router := make(<virtual-host-router>);
+    end;
+    dynamic-bind (%vhost = server.request-router.default-resource)
       process-config-node(server, xml);
     end;
   else
@@ -209,10 +215,9 @@ define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"virtual-host")
   let name = get-attr(node, #"name");
   if (name)
-    let vhost = make-virtual-host(server, name: trim(name));
-    add-virtual-host(server, vhost, name);
-    dynamic-bind (%vhost = vhost,
-                  %dir = root-directory-policy(vhost))
+    let resource = make(<virtual-host-resource>);
+    add-resource(server, name, resource);
+    dynamic-bind (%vhost = resource)
       for (child in xml$node-children(node))
         process-config-element(server, child, xml$name(child))
       end;
@@ -228,7 +233,7 @@ define method process-config-element
   let name = get-attr(node, #"name");
   if (name)
     block ()
-      add-virtual-host(server, %vhost, name);
+      add-resource(server, name, %vhost);
     exception (err :: <koala-api-error>)
       warn("Invalid <HOST-ALIAS> element.  %s", err);
     end;
@@ -244,9 +249,9 @@ define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"default-virtual-host")
   bind (attr = get-attr(node, #"enabled"))
     when (attr)
-      server.fall-back-to-default-virtual-host? := true-value?(attr)
+      server.request-router.fall-back-to-default? := true-value?(attr)
     end;
-    when (server.fall-back-to-default-virtual-host?)
+    when (server.request-router.fall-back-to-default?)
       log-info("Fallback to the default virtual host is enabled.");
     end;
   end;
@@ -267,7 +272,7 @@ end;
 
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"server-root")
-  if (%vhost == server.default-virtual-host)
+  if (%vhost = server.request-router.default-resource)
     let loc = get-attr(node, #"location");
     if (loc)
       server.server-root
@@ -283,37 +288,6 @@ define method process-config-element
            "It will be ignored.");
   end;
 end;
-
-define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"document-root")
-  bind (loc = get-attr(node, #"location"))
-    if (loc)
-      document-root(%vhost)
-        := merge-locators(as(<directory-locator>, loc), server.server-root);
-      log-info("Document root for virtual host %s: %s",
-               vhost-name(%vhost), document-root(%vhost));
-    else
-      warn("Invalid <DOCUMENT-ROOT> spec.  "
-           "The 'location' attribute must be specified.");
-    end if;
-  end;
-end;
-
-define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"dsp-root")
-  bind (loc = get-attr(node, #"location"))
-    if (loc)
-      %vhost.dsp-root := merge-locators(as(<directory-locator>, loc), 
-                                        server.server-root);
-      log-info("DSP root for virtual host %s: %s",
-               vhost-name(%vhost), dsp-root(%vhost));
-    else
-      warn("Invalid <DSP-ROOT> spec.  "
-           "The 'location' attribute must be specified.");
-    end if;
-  end;
-end;
-
 
 // The main thing this controls right now is whether check template modification
 // dates and reparse them if needed.
@@ -488,6 +462,12 @@ define method process-config-element
   end if;
 end method process-config-element;
 
+// Add an alias that maps all URLs starting with url-path to the target path.
+// For example:
+//   add-alias-responder("/bugs/", "https://foo.com/bugzilla/")
+// will redirect a request for /bugs/123 to https://foo.com/bugzilla/123.
+// The redirection is implemented by issuing a 301 (moved permanently
+// redirect) response.
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"alias")
   let url = get-attr(node, #"url");
@@ -498,96 +478,75 @@ define method process-config-element
   if (~target)
     warn("Invalid alias; the 'target' attribute is required.");
   end;
-  add-alias-responder(server, url, target);
+  let url = parse-url(url);
+  let resource = make(<redirecting-resource>, target: url);
+  add-resource(%vhost, url.uri-path, resource);
 end method process-config-element;
-
-// Add an alias that maps all URLs starting with url-path to the target path.
-// For example:
-//   add-alias-responder("/bugs/", "https://foo.com/bugzilla/")
-// will redirect a request for /bugs/123 to https://foo.com/bugzilla/123.
-// The redirection is implemented by issuing a 301 (moved permanently
-// redirect) response.
-define function add-alias-responder
-    (store :: type-union(<string-trie>, <http-server>),
-     url-path :: <string>, target :: <string>, #key request-methods)
-  add-responder(store, url-path,
-                make-responder(list(request-methods | #(get:, post:),
-                                    "^(?P<tail>.*)$",
-                                    curry(alias-responder, target))));
-end;
-
-define function alias-responder
-    (target :: <string>, #key tail :: <string>)
-  let location = concatenate(target, tail);
-  moved-permanently-redirect(location: location,
-                             header-name: "Location",
-                             header-value: location);
-end function alias-responder;
 
 // <directory  url = "/"
 //             location = "/some/filesystem/path"
+//             allow-multi-view = "yes"
 //             allow-directory-listing = "no"
-//             allow-static = "no"
-//             allow-cgi = "no"
-//             cgi-extensions = "cgi,bat,exe,..."
 //             follow-symlinks = "no"
 //             default-documents = "index.html,index.htm"
+//             default-content-type = "text/html"
 //             />
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"directory")
-  let url = get-attr(node, #"url");
-  if (~url)
-    warn("Invalid <DIRECTORY> spec.  The 'pattern' attribute is required.");
-  else
-    let path = get-attr(node, #"location");
+  let url = get-attr(node, #"url")
+              | warn("Invalid <DIRECTORY> spec.  The 'url' attribute is "
+                     "required.");
+  let location = get-attr(node, #"location")
+                   | warn("Invalid <DIRECTORY> spec.  The 'location' attribute "
+                          "is required.");
+  if (url & location)
+    let location = as(<directory-locator>, get-attr(node, #"location"));
+    let multi? = get-attr(node, #"allow-multi-view");
     let dirlist? = get-attr(node, #"allow-directory-listing");
-    let static? = get-attr(node, #"allow-static");
     let follow? = get-attr(node, #"follow-symlinks");
-    let cgi? = get-attr(node, #"allow-cgi");
-    let cgi-ext = get-attr(node, #"cgi-extensions") | "cgi";
-    cgi-ext := map(trim, split(trim(cgi-ext), ','));
-    let root-policy = root-directory-policy(%vhost);
     let index = get-attr(node, #"default-documents");
     let indexes = iff(index,
                       map(curry(as, <file-locator>), split(index, ",")),
-                      root-policy.policy-default-documents);
-    let default-content-type = get-attr(node, #"default-content-type");
-    default-content-type :=
-      if (default-content-type)
-        string-to-mime-type(default-content-type, class: <media-type>)
-      else
-        root-policy.policy-default-content-type
-      end;
-    // TODO: the default value for these should really
-    //       be taken from the parent policy rather than from root-policy.
-    let policy = make(<directory-policy>,
-                      url-path: url,
-                      directory: iff(path,
-                                     as(<directory-locator>, path),
-                                     apply(subdirectory-locator,
-                                           document-root(%vhost),
-                                           uri-path(parse-url(url)))),
-                      allow-static?: iff(static?,
-                                         true-value?(static?),
-                                         allow-static?(root-policy)),
-                      allow-multi-views?: #t,  // TODO:
-                      follow-symlinks?: iff(follow?,
-                                            true-value?(follow?),
-                                            follow-symlinks?(root-policy)),
-                      allow-directory-listing?: iff(dirlist?,
-                                                    true-value?(dirlist?),
-                                                    allow-directory-listing?(root-policy)),
-                      allow-cgi?: iff(cgi?,
-                                      true-value?(cgi?),
-                                      allow-cgi?(root-policy)),
-                      cgi-extensions: cgi-ext,
+                      #());
+    let default-content-type
+      = string-to-mime-type(get-attr(node, #"default-content-type") | "text/plain",
+                            class: <media-type>);
+    let policy = make(<directory-resource>,
+                      directory: location,
+                      allow-multi-views?: multi? & true-value?(multi?),
+                      follow-symlinks?: follow? & true-value?(follow?),
+                      allow-directory-listing?: dirlist? & true-value?(dirlist?),
                       default-documents: indexes,
                       default-content-type: default-content-type);
-    add-directory-policy(%vhost, policy);
-    dynamic-bind (%dir = policy)
-      for (child in xml$node-children(node))
-        process-config-element(server, child, xml$name(child));
-      end;
+    add-resource(%vhost, parse-url(url), policy);
+    for (child in xml$node-children(node))
+      process-config-element(server, child, xml$name(child));
+    end;
+  end;
+end method process-config-element;
+
+// <cgi-directory
+//      url = "/cgi-bin"
+//      location = "/my/cgi/scripts"
+//      extensions = "cgi,bat,exe,..."
+//      />
+define method process-config-element
+    (server :: <http-server>, node :: xml$<element>, name == #"cgi-directory")
+  let url = get-attr(node, #"url")
+              | warn("Invalid <cgi-directory> spec.  The 'url' attribute is "
+                     "required.");
+  let location = get-attr(node, #"location")
+                   | warn("Invalid <DIRECTORY> spec.  The 'location' attribute "
+                          "is required.");
+  if (url & location)
+    let location = as(<directory-locator>, get-attr(node, #"location"));
+    let extensions = split(get-attr(node, #"extensions") | "cgi", ',');
+    let resource = make(<cgi-directory-resource>,
+                        locator: location,
+                        extensions: extensions);
+    add-resource(%vhost, parse-url(url), resource);
+    for (child in xml$node-children(node))
+      process-config-element(server, child, xml$name(child));
     end;
   end;
 end method process-config-element;

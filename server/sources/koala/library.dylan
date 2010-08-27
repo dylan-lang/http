@@ -49,9 +49,12 @@ define module koala
 
   // Servers
   create
-    default-virtual-host,
+    request-router,
+    request-router-setter,
     current-server,
-    development-mode?;
+    development-mode?,
+    debugging-enabled?,
+    debugging-enabled?-setter;
 
   // Requests
   create
@@ -60,8 +63,8 @@ define module koala
     current-request,             // Returns the active request of the thread.
     request-content-type,
     request-host,
-    request-path-prefix,
-    request-path-tail,
+    request-url-path-prefix,
+    request-url-path-suffix,
     request-absolute-url,
     request-query-values,        // get the keys/vals from the current GET or POST request
       get-query-value,           // Get a query value that was passed in a URL or a form
@@ -74,42 +77,51 @@ define module koala
                                  //   i.e., essentially within the dynamic scope of
                                  //   respond-to-get/post/etc
 
-  // Responder mechanism
+  // Resource protocol
   create
-    <responder>,
-      request-method-map,
-    <tail-responder>,
-      tail-responder-regex,
-      tail-responder-action,
-    make-responder,
-    add-responder,       // call this
-    %add-responder,      // extend this
-    add-tail-responder,
-    remove-responder,
-    find-responder,
-    invoke-responder,
-    <skip-remaining-responders>,
-    url-map-definer,
-    add-urls;
+    <abstract-resource>,
+      default-content-type,
+      respond,
+      respond-to-get,
+      respond-to-head,
+      respond-to-post,
+      respond-to-options,
+      respond-to-put,
+      respond-to-delete,
+      respond-to-trace,
+      respond-to-connect;
 
-  // Responder utilities
+  // Resource implementations
   create
-    cgi-directory-responder,
-    cgi-script-responder,
-    alias-responder,
-    add-cgi-directory-responder,
-    add-cgi-script-responder,
-    add-alias-responder;
+    <resource>,
+      <directory-resource>,
+        default-documents,
+      <cgi-script-resource>,
+      <cgi-directory-resource>,
+      <function-resource>,
+      <redirecting-resource>,
+      <virtual-host-router>,
+      <virtual-host-resource>,
+      add-resource-name,
+      do-resource,
+      function-resource;
+
+  // Request routing
+  create
+    <abstract-request-router>,
+    route-request,
+    add-resource,
+    find-resource,
+    generate-url;
 
   // Virtual hosts
   create
-    <virtual-host>,
-    virtual-host,                // Return virtual host of current request.
-    document-root,
-    dsp-root,
-    vhost-name,
-    locator-below-document-root?,
-    locator-below-dsp-root?,
+    <virtual-host-router>,
+      default-resource,
+      default-resource-setter,
+      fall-back-to-default?,
+    <virtual-host-resource>,
+       
     locator-below-root?;
 
   // Responses
@@ -118,7 +130,6 @@ define module koala
     // See also: methods on <base-http-response> in common-dylan.
     current-response,            // Returns the active response of the thread.
     output,
-    output-stream,
     add-cookie;
 
   // Sessions
@@ -156,19 +167,13 @@ define module koala
     <xml-rpc-server>,
     error-fault-code,
     error-fault-code-setter,
-    debugging-enabled?,
-    debugging-enabled?-setter,
     register-xml-rpc-method,
-    respond-to-xml-rpc-request,
     $default-xml-rpc-url;
 
   // Documents
   create
-    serve-static-file-or-cgi-script,
     serve-static-file,
     serve-cgi-script,
-    locator-from-url,
-    document-root,
     file-contents;
 
   // Errors
@@ -176,32 +181,18 @@ define module koala
     <koala-api-error>,
     <configuration-error>;
 
-  create
-    <http-file>,
-    http-file-filename,
-    http-file-content,
-    http-file-mime-type;
-
 end module koala;
 
 // Additional interface for unit tests.
 define module koala-unit
-  // directory policies
-  create
-    <directory-policy>,
-    policy-default-documents;
-
-  // vhost
-  create
-    directory-policies,
-    root-directory-policy;
-
-  // other
   create
     *server*,
     configure-from-string,
+    find-multi-view-file,
     media-type-from-header,
-    find-multi-view-file;
+    resource-parent,
+    resource-path-variables,
+    resource-url-path;
 end module koala-unit;
 
 define module httpi                             // http internals
@@ -222,7 +213,8 @@ define module httpi                             // http internals
               };
   use file-system;             // from system lib
   use format;
-  use http-common;
+  use http-common,
+    rename: { resource-not-found-error => %resource-not-found-error };
   use koala;
   use koala-unit;
   use locators,
