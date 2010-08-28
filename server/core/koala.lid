@@ -1,8 +1,6 @@
 library: koala
 files:	library
-	variables
-	errors
-	urls
+	utilities
 	vhost
 	response
 	content-negotiation

@@ -134,3 +134,52 @@ define function resource-not-found-error
         args)
 end;
 
+
+
+
+//// Errors
+
+define class <koala-error> (<format-string-condition>, <error>)
+end;
+
+// Signalled when a library uses the Koala API incorrectly. i.e., user
+// errors such as registering a page that has already been registered.
+// Not for errors that will be reported to the HTTP client.
+//
+define open class <koala-api-error> (<koala-error>)
+end;
+
+define function koala-api-error
+    (format-string :: <string>, #rest format-arguments)
+  signal(make(<koala-api-error>,
+              format-string: format-string,
+              format-arguments: format-arguments));
+end;
+
+
+
+//// URLs
+
+define open generic redirect-to (object :: <object>);
+
+define method redirect-to (url :: <string>)
+  let headers = current-response().raw-headers;
+  set-header(headers, "Location", url);
+  see-other-redirect(headers: headers);
+end method redirect-to;
+
+define method redirect-to (url :: <url>)
+  redirect-to(build-uri(url));
+end;
+
+define open generic redirect-temporarily-to (object :: <object>);
+
+define method redirect-temporarily-to (url :: <string>)
+  let headers = current-response().raw-headers;
+  set-header(headers, "Location", url);
+  moved-temporarily-redirect(headers: headers);
+end method redirect-temporarily-to;
+
+define method redirect-temporarily-to (url :: <url>)
+  redirect-temporarily-to(build-uri(url));
+end;
