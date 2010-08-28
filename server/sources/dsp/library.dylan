@@ -12,20 +12,12 @@ define library dsp
   use http-common;
   use io;
   use logging;
-  use memory-manager;
-  use mime;
-  use network,
-    import: { sockets };
-  use regular-expressions;
-  //use ssl-network;         // adds sideways methods to network lib
   use strings;
   use system,
     import: { date, file-system, locators, operating-system };
   use uncommon-dylan;
   use uri;
   use xml-parser;
-  use xml-rpc-common;
-
   use koala;
 
   export dsp;
