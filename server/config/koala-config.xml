@@ -1,29 +1,16 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- TODO: 
-     * When koala is a bit more prime-time (e.g., when it has at least one
-       production site using it, possibly opendylan.org) everything in
-       this file should default to the most secure setting.
-  -->
-
 <koala>
 
 <!-- Koala configuration file
 
-     This file must be placed in
-     <koala-executable>/../config/koala-config.xml if you want Koala
-     to find it without using the "config" command-line argument.  For
-     example, when running the koala-app project a copy of this file
-     should be placed in the directory
-     <koala-root>/sources/koala-app/config/
+     Pass this file to the koala executable with the "config"
+     command-line option.
 
      Anything directly inside the <koala> element in this file affects
      Koala's global environment or the default virtual host.  Anything
      inside a <virtual-host> element applies only to that virtual
      host.
-
-     (Some ideas were stolen from Apache's httpd.conf.)
-
   -->
 
 
@@ -116,44 +103,22 @@
 <server-root location="." />
 
 
-<!-- DOCUMENT-ROOT is the root of the static web documents.
-     It is relative to SERVER-ROOT, so in this case the document root
-     is SERVER-ROOT/www.  If the document root isn't specified for a given
-     virtual host, it defaults to SERVER-ROOT/<vhost-name>.  The name
-     of the default virtual host is "default".
+<!-- DIRECTORY elements make file-system directories available at a
+     given URL.  Note that if follow-symlinks is true then links will
+     be followed even if the target is outside of the specified
+     "location".
   -->
-<document-root location="www" />
+<directory  url = "/"
+            location = "/some/filesystem/path"
+            allow-multi-view = "yes"
+            allow-directory-listing = "no"
+            follow-symlinks = "no"
+            default-documents = "index.html,index.htm"
+            default-content-type = "text/html"
+            />
 
-<!-- DSP-ROOT is the root of all Dylan Server Pages. They won't get
-     served as plain text files.
-     It is relative to SERVER-ROOT, so in this case the document root
-     is SERVER-ROOT/www.  If the document root isn't specified for a given
-     virtual host, it defaults to SERVER-ROOT/<vhost-name>.  The name
-     of the default virtual host is "default".
-  -->
-<dsp-root location="dsp" />
-
-
-<!-- DIRECTORY elements can be used to grant or deny access to
-     specific directories.  For now the url is simply an
-     initial-substring match against the requested URL, so "/" matches
-     all documents.  The order of DIRECTORY elements is significant.
-     If two directory urls match the same request URL, the one
-     specified later in the config file will take precedence.  Note
-     that if follow-symlinks is true then links will be followed even
-     if the target is outside of the document root directory.
-  -->
-<directory url="/"
-	   path="/some/filesystem/path"
-           follow-symlinks="yes"
-           allow-directory-listing="yes"
-           allow-cgi="yes"
-           cgi-extensions="cgi,bat,exe,..."
-           />
-
-<!-- If DEFAULT-VIRTUAL-HOST is enabled then requests that don't match
-     any virtual host will fall back to the default vhost instead.  The
-     default is enabled="yes".
+<!-- This determines whether or not to fall back to the default
+     virtual host if no virtual host matches the request.
   -->
 <default-virtual-host enabled="yes"/>
 
@@ -192,14 +157,6 @@
   />
 
 
-<!-- The MODULE element loads modules out of the SERVER-ROOT/modules/ directory.
-     The following loads koala-basics.dll.
-     Dynamic module loading is not supported on FunDev/Linux yet.
-  -->
-<!--  Commented out for now.  Run the koala-basics example project instead.
-<module name="koala-basics" />
-  -->
-
 <!-- VIRTUAL-HOST defines a new named virtual host with its own settings.
      Top-level settings apply to the default virtual host.  Here we define
      a new vhost for '127.0.0.1' with a different document root.  With this
@@ -210,9 +167,8 @@
 
 <virtual-host name="127.0.0.1">
 
-    <document-root location="www/127.0.0.1" />
-
-    <directory pattern="/"
+    <directory url="/"
+	       location="/my/seekret/documents"
                allow-directory-listing="no" />
 
     <!-- Add an alias for the current virtual host. -->

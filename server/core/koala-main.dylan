@@ -65,8 +65,6 @@ config file settings
 command-line args
 */
 
-// This is defined here rather than in koala-app because wiki needs it too.
-//
 define function koala-main
     (#key server :: false-or(<http-server>),
           description :: false-or(<string>),
