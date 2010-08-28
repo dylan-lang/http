@@ -1,18 +1,16 @@
 Module:    koala-demo
-Synopsis:  Examples of how to use the Koala HTTP server
+Synopsis:  Examples of how to use the Koala HTTP server and DSP
 Author:    Carl Gay
 
-// TODO: Separate DSP examples into a dsp-specific library.
-//       Need an example of using a paginator and some other
-//       DSP utilities.
+// TODO: Need an example of using a paginator and some other DSP utilities.
 
 /*
 
 To use this example compile this library and invoke the executable with
 
-    --working-directory <svn>/libraries/network/http/server/www/demo
+    --working-directory <svn>/libraries/network/http/server/examples/koala-demo/dsp
 
-See --help for other options to the HTTP server.
+Point your browser at http://127.0.0.1/ to view the demo pages.
 
 Each page demonstrates a feature of Koala or Dylan Server Pages.  You should
 be able to find the code corresponding to a particular URL by searching for
