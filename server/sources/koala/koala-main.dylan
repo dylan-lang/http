@@ -152,3 +152,12 @@ define function koala-main
   end if;
 end function koala-main;
 
+begin
+  let filename = locator-name(as(<file-locator>, application-name()));
+  if (split(filename, ".")[0] = "koala")
+    koala-main();
+    // Work around bug in new-io.  It should force-output before the
+    // application exits.
+    force-output(*standard-output*);
+  end;
+end;
