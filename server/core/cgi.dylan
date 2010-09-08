@@ -38,45 +38,70 @@ end;
 // be treated as a CGI script.
 //
 define open class <cgi-directory-resource> (<resource>)
-  constant slot resource-locator :: <file-system-directory-locator>,
+  constant slot resource-locator :: <directory-locator>,
     required-init-keyword: locator:;
   // Acceptable CGI script file extensions.  No other files will be served.
   constant slot resource-extensions :: <sequence> = #("cgi"),
     init-keyword: extensions:;
 end;
 
+// For convenience, convert the location: init arg to <directory-locator>
+//
+define method make
+    (class :: subclass(<cgi-directory-resource>), #rest args, #key locator)
+ => (resource :: <directory-resource>)
+  apply(next-method, class,
+        locator: as(<directory-locator>, locator),
+        args)
+end;
+
 define method respond-to-post
     (resource :: <cgi-directory-resource>, #key)
   let request :: <request> = current-request();
-  let prefix :: <string> = request.request-url-path-prefix;
   let suffix :: <string> = request.request-url-path-suffix;
+  if (suffix.size > 0 & suffix[0] = '/')
+    suffix := copy-sequence(suffix, start: 1);
+  end;
   if (suffix.size = 0)
     forbidden-error();  // no directory listing allowed
   else
-    // It would be nice to have a way to avoid the edge-case shenanigans
-    // below, w.r.t. leading slashes.
-    let path = split(iff(suffix[0] = '/',
-                         copy-sequence(suffix, from: 1),
-                         suffix),
-                     '/');
-    let filename = first(path);
-    let path-info = iff(empty?(rest(path)),
-                        "",
-                        // note added leading slash, per spec
-                        join(pair("", rest(path)), "/"));
-    let directory = resource.resource-locator;
-    let script = merge-locators(as(<file-locator>, filename), directory);
-    // The SCRIPT_NAME env var...
-    let script-name = prefix;
-    log-debug("cgi-directory-resource: filename = %=, script-name = %=, "
-              "path-info = %=, script = %=",
-              filename, script-name, path-info, as(<string>, script));
-    if (file-exists?(script))
-      serve-cgi-script(script, script-name, path-info: path-info);
-    else
+    block (return)
+      // Find the script, possibly in a subdirectory.  (TODO: Should be configurable.)
+      iterate loop (seen = #(),
+                    remainder = split(suffix, '/'),
+                    directory = resource.resource-locator)
+        log-debug("loop(%=, %=, %=)", seen, remainder, as(<string>, directory));
+        if (~empty?(remainder))
+          let filename = first(remainder);
+          let script = merge-locators(as(<file-locator>, filename), directory);
+          if (file-exists?(script))
+            select (script.file-type)
+              #"file" =>
+                let path-info = iff(empty?(rest(remainder)),
+                                    "",
+                                    // note added leading slash, per spec
+                                    join(pair("", rest(remainder)), "/"));
+                // The SCRIPT_NAME env var...
+                let script-name = join(concatenate(list(request.request-url-path-prefix),
+                                                   reverse!(seen),
+                                                   list(filename)),
+                                       "/");
+                log-debug("cgi-directory-resource: filename = %=, script-name = %=, "
+                          "path-info = %=, script = %=",
+                          filename, script-name, path-info, as(<string>, script));
+                serve-cgi-script(script, script-name, path-info: path-info);
+                return();
+              #"directory" =>
+                loop(pair(filename, seen),
+                     rest(remainder),
+                     subdirectory-locator(directory, filename));
+            end select;
+          end;
+        end;
+      end iterate;
       resource-not-found-error();
-    end;
-  end;
+    end block;
+  end if;
 end method respond-to-post;
 
 define method respond-to-get

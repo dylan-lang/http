@@ -32,19 +32,19 @@ define open generic respond-to-trace (resource :: <abstract-resource>, #key, #al
 define open generic respond-to-connect (resource :: <abstract-resource>, #key, #all-keys);
 
 // The content type that will be sent in the HTTP response if no
-// Content-Type header is set by the respond* method.  For convenience,
-// a string such as "text/plain" may be returned rather than a <mime-type>.
+// Content-Type header is set by the respond* method.
 //
 define open generic default-content-type
     (resource :: <abstract-resource>)
- => (content-type :: type-union(<string>, <mime-type>));
+ => (content-type :: <mime-type>);
 
-// If no other content type is set, it seems reasonable to assume it is
-// text/html, doesn't it?
+define constant application/octet-stream :: <mime-type>
+  = make(<mime-type>, type: "application", subtype: "octet-stream");
+
 define method default-content-type
     (resource :: <abstract-resource>)
- => (content-type :: <string>)
-  "text/html"
+ => (content-type :: <mime-type>)
+  application/octet-stream
 end;
 
 

@@ -48,6 +48,17 @@ add-option-parser-by-type(*argument-list-parser*,
                           long-options: #("working-directory"),
                           short-options: #("w"));
 
+// --directory <static-dir>
+add-option-parser-by-type(*argument-list-parser*,
+                          <parameter-option-parser>,
+                          description: "Serve static content from the given directory.",
+                          long-options: #("directory"));
+
+// --cgi <cgi-dir>
+add-option-parser-by-type(*argument-list-parser*,
+                          <parameter-option-parser>,
+                          description: "Serve CGI scripts from the given directory.",
+                          long-options: #("cgi"));
 
 /*
 This is the precedence order (lowest to highest) in which initialization
@@ -115,6 +126,25 @@ define function koala-main
 	if (config-file)
 	  configure-server(*server*, config-file);
 	end;
+
+        // If --directory is specified, map it to / on the server.
+        // This is a special case to make serving a directory super-easy.
+        let directory = option-value-by-long-name(parser, "directory");
+        if (directory)
+          add-resource(*server*, "/", make(<directory-resource>,
+                                           directory: directory,
+                                           allow-directory-listing?: #t,
+                                           follow-symlinks?: #f));
+        end;
+
+        // If --cgi is specified, map it to /cgi-bin on the server.
+        // This is a special case to make serving a directory super-easy.
+        let cgi = option-value-by-long-name(parser, "cgi");
+        if (cgi)
+          add-resource(*server*, "/cgi-bin", make(<cgi-directory-resource>,
+                                                  locator: cgi,
+                                                  extensions: #("cgi", "bat")));
+        end;
 
 	// Gives callers a chance to do things after the server has been
 	// configured.  e.g., the wiki wants to add responders after a

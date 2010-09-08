@@ -42,6 +42,16 @@ define open class <directory-resource> (<resource>)
 
 end class <directory-resource>;
 
+// For convenience, convert the directory: init arg to <directory-locator>
+//
+define method make
+    (class :: subclass(<directory-resource>), #rest args, #key directory)
+ => (resource :: <directory-resource>)
+  apply(next-method, class,
+        directory: as(<directory-locator>, directory),
+        args)
+end;
+
 define method respond-to-get
     (policy :: <directory-resource>, #key)
   let suffix :: <string> = request-url-path-suffix(current-request());
@@ -183,7 +193,12 @@ define method locator-media-type
     (locator :: <locator>, policy :: <directory-resource>)
  => (media-type :: <media-type>)
   extension-to-mime-type(locator.locator-extension, *server*.server-media-type-map)
-    | default-content-type(policy)
+    | begin
+        let mtype :: <mime-type> = default-content-type(policy);
+        make(<media-type>,
+             type: mtype.mime-type,
+             subtype: mtype.mime-subtype)
+      end
 end method locator-media-type;
 
 define method serve-static-file
@@ -274,7 +289,7 @@ define method serve-directory
         format(stream, "\t\t\t\t<td class=\"name\"><a href=\"%s\">%s</a></td>\n",
                link, link);
         let mime-type = iff(type = #"file",
-                            as(<string>, locator-media-type(locator, resource)),
+                            mime-name(locator-media-type(locator, resource)),
                             "");
         format(stream, "\t\t\t\t<td class=\"mime-type\">%s</td>\n", mime-type);
         for (key in #[#"size", #"modification-date", #"author"],
