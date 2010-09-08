@@ -12,4 +12,4 @@ files:	library
 	config
 	resources
 	modules
-	koala-main
+	command-line
