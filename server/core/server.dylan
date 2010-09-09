@@ -427,19 +427,23 @@ define method start-server
     log-info("Starting %s HTTP Server", $server-name);
     ensure-sockets-started();
     log-info("Server root directory is %s", server-root(server));
-    for (listener in server.server-listeners)
-      start-http-listener(server, listener)
-    end;
-    if (wait)
-      // Connect to each listener or signal error.
-      wait-for-listeners-to-start(server.server-listeners);
-      log-info("%s %s ready for service", $server-name, $server-version);
-    end;
-    if (~background)
-      // Apparently when the main thread dies in an Open Dylan application
-      // the application exits without waiting for spawned threads to die,
-      // so join-listeners keeps the main thread alive until all listeners die.
-      join-listeners(server);
+    if (empty?(server.server-listeners))
+      log-error("No listeners were configured; start-up aborting.")
+    else
+      for (listener in server.server-listeners)
+        start-http-listener(server, listener)
+      end;
+      if (wait)
+        // Connect to each listener or signal error.
+        wait-for-listeners-to-start(server.server-listeners);
+        log-info("%s %s ready for service", $server-name, $server-version);
+      end;
+      if (~background)
+        // Apparently when the main thread dies in an Open Dylan application
+        // the application exits without waiting for spawned threads to die,
+        // so join-listeners keeps the main thread alive until all listeners die.
+        join-listeners(server);
+      end;
     end;
   end dynamic-bind;
   #t
