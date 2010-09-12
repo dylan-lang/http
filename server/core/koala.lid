@@ -3,13 +3,13 @@ files:	library
 	utilities
 	vhost
 	response
-	content-negotiation
-	static-files
-	cgi
 	server
-	session
-	xml-rpc-server
-	config
 	resources
+	session
+	config
 	modules
+	static-files
+	content-negotiation
+	cgi
+	xml-rpc-server
 	command-line

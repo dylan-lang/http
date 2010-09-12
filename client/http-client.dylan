@@ -7,7 +7,7 @@ to-do list:
 
 * Request pipelining.
 * See todos in code below.
-* (optional?) strict mode in which reads/writes signal an error if the
+* Optional strict mode in which reads/writes signal an error if the
   chunk size is wrong or content length is wrong.  give the user a way
   to recover from the error.
 * This code isn't currently designed to support an HTTP over anything

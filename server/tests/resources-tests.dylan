@@ -82,14 +82,14 @@ define test test-add-resource-parent ()
               root,
               child.resource-parent);
   check-equal("generated url path uses first child added?",
-              "/foo",
+              "foo",
               child.resource-url-path);
   add-resource(root, "bar", child);
   check-equal("parent is unchanged when second child added?",
               root,
               child.resource-parent);
   check-equal("generated url path unchanged after second child added?",
-              "/foo",
+              "foo",
               child.resource-url-path);
 end test test-add-resource-parent;
 

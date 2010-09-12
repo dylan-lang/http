@@ -18,7 +18,14 @@ define open abstract class <abstract-resource> (<object>)
 end;
 
 // Respond to a request for the given resource.
-define open generic respond (resource :: <abstract-resource>, #key, #all-keys);
+define open generic respond
+    (resource :: <abstract-resource>, #key, #all-keys);
+
+// Is it okay to add child resources via an absolute URL path?
+// This is needed for <virtual-host-resource>, which has a
+// parent resource but allows absolute paths for its children.
+define open generic root-resource?
+    (resource :: <abstract-resource>) => (root? :: <boolean>);
 
 // Pre-defined request methods each have a specific generic...
 
@@ -51,10 +58,10 @@ end;
 
 //// <resource> -- the default resource implementation
 
-// Because they effectively route requests to their children, <resource>s are
-// <abstract-request-router>s.  That is, there are methods for add-resource
-// and find-resource.
-define open class <resource> (<abstract-resource>, <abstract-request-router>)
+// <resource>s are <abstract-router>s because they route requests to
+// their children.  That is, there are methods for add-resource and
+// find-resource.
+define open class <resource> (<abstract-resource>, <abstract-router>)
   constant slot resource-children :: <string-table> = make(<string-table>);
 
   // This holds the child names (the keys of resource-children) in the order
@@ -80,6 +87,11 @@ define open class <resource> (<abstract-resource>, <abstract-request-router>)
   //
   slot resource-path-variables :: <sequence> = #();
 end class <resource>;
+
+define method root-resource?
+    (resource :: <resource>) => (root? :: <boolean>)
+  ~resource.resource-parent
+end;
 
 // Used for internal book-keeping.
 define class <placeholder-resource> (<resource>)
@@ -109,22 +121,18 @@ end;
 
 // convert <uri> to <sequence>
 define method add-resource
-    (container :: <resource>, url :: <uri>, child :: <resource>,
-     #key url-name :: <string>, trailing-slash)
-  log-debug("add-resource(%=, %=, %=)", container, url, child);
-  add-resource(container, url.uri-path, child,
-               url-name: url-name,
-               trailing-slash: trailing-slash);
+    (router :: <resource>, url :: <uri>, child :: <abstract-resource>,
+     #rest args, #key)
+  log-debug("add-resource(%=, %=, %=)", router, url, child);
+  apply(add-resource, router, url.uri-path, child, args)
 end;
 
-// convert <http-server> to <resource>
+// convert <http-server> to <abstract-router>
 define method add-resource
-    (server :: <http-server>, url :: <object>, resource :: <resource>,
-     #key url-name, trailing-slash)
+    (server :: <http-server>, url :: <object>, resource :: <abstract-resource>,
+     #rest args, #key)
   log-debug("add-resource(%=, %=, %=)", server, url, resource);
-  add-resource(server.request-router, url, resource,
-               url-name: url-name,
-               trailing-slash: trailing-slash);
+  apply(add-resource, server.request-router, url, resource, args);
 end;
 
 // "url" is either a single path element or a full URL path.
@@ -185,7 +193,7 @@ define method add-resource
   log-debug("add-resource(%=, %=, %=)", parent, path, resource);
   if (empty?(path))
     koala-api-error("Empty sequence, %=, passed to add-resource.", path);
-  elseif (path[0] = "" & parent.resource-parent)
+  elseif (path[0] = "" & ~parent.root-resource?)
     koala-api-error("Attempt to add resource %= to non-root resource"
                     " %= using a URL with a leading slash %=.  This"
                     " will result in an unreachable URL path.",
@@ -278,43 +286,51 @@ end function do-resource;
 
 //// find-resource
 
+// convert <request> to <uri>
+define method find-resource
+    (router :: <abstract-router>, request :: <request>)
+ => (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
+  log-debug("find-resource(%=, %=)", router, request);
+  find-resource(router, request.request-url)
+end;
+
 // convert <http-server> to <resource>
 define method find-resource
     (server :: <http-server>, path :: <object>)
- => (resource :: <resource>, prefix :: <list>, suffix :: <list>)
+ => (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
   log-debug("find-resource(%=, %=)", server, path);
   find-resource(server.request-router, path)
 end;
 
 // convert <uri> to <sequence>
 define method find-resource
-    (container :: <resource>, uri :: <uri>)
+    (router :: <resource>, uri :: <uri>)
  => (resource :: <resource>, prefix :: <list>, suffix :: <list>)
-  log-debug("find-resource(%=, %=)", container, uri);
+  log-debug("find-resource(%=, %=)", router, uri);
   // Special case the root path, "/", which is both a leading and
   // trailing slash, which doesn't match our resource tree structure.
   // There's a similar special case for add-resource.
   let path = iff(uri.uri-path = #("", ""), list(""), uri.uri-path);
-  find-resource(container, path)
+  find-resource(router, path)
 end;
 
 // convert <string> to <sequence>
 define method find-resource
-    (container :: <resource>, path :: <string>)
+    (router :: <resource>, path :: <string>)
  => (resource :: <resource>, prefix :: <list>, suffix :: <list>)
-  log-debug("find-resource(%=, %=)", container, path);
-  find-resource(container, split(path, '/'))
+  log-debug("find-resource(%=, %=)", router, path);
+  find-resource(router, split(path, '/'))
 end;
 
 // The base method.  Deeper (more specific) resources are preferred.
 define method find-resource
-    (container :: <resource>, path :: <sequence>)
+    (router :: <resource>, path :: <sequence>)
  => (resource :: <resource>, prefix :: <list>, suffix :: <list>)
-  log-debug("find-resource(%=, %=)", container, path);
+  log-debug("find-resource(%=, %=)", router, path);
   let resource = #f;
   let prefix = #();
   let suffix = #();
-  iterate loop (parent = container, path = as(<list>, path), seen = #())
+  iterate loop (parent = router, path = as(<list>, path), seen = #())
     if (~empty?(path))
       let key = first(path);
       let child = element(parent.resource-children, key, default: #f);
@@ -394,7 +410,7 @@ end function resource-url-path;
 
 
 define method respond-to-options
-    (resource :: <resource>, #key)
+    (resource :: <abstract-resource>, #key)
   let request :: <request> = current-request();
   if (request.request-raw-url-string = "*")
     set-header(current-response(),
@@ -418,37 +434,37 @@ define inline function %method-not-allowed
 end;
 
 define method respond-to-get
-    (resource :: <resource>, #key)
+    (resource :: <abstract-resource>, #key)
   %method-not-allowed();
 end;
 
 define method respond-to-head
-    (resource :: <resource>, #key)
+    (resource :: <abstract-resource>, #key)
   %method-not-allowed()
 end;
 
 define method respond-to-post
-    (resource :: <resource>, #key)
+    (resource :: <abstract-resource>, #key)
   %method-not-allowed()
 end;
 
 define method respond-to-put
-    (resource :: <resource>, #key)
+    (resource :: <abstract-resource>, #key)
   %method-not-allowed()
 end;
 
 define method respond-to-delete
-    (resource :: <resource>, #key)
+    (resource :: <abstract-resource>, #key)
   %method-not-allowed()
 end;
 
 define method respond-to-trace
-    (resource :: <resource>, #key)
+    (resource :: <abstract-resource>, #key)
   %method-not-allowed()
 end;
 
 define method respond-to-connect
-    (resource :: <resource>, #key)
+    (resource :: <abstract-resource>, #key)
   %method-not-allowed()
 end;
 
@@ -472,7 +488,7 @@ end;
 
 // Default method dispatches to respond-to-<request-method> functions.
 define method respond
-    (resource :: <resource>, #rest args, #key)
+    (resource :: <abstract-resource>, #rest args, #key)
   let request :: <request> = current-request();
   let function = element($request-method-table, request.request-method,
                          default: #f);
@@ -486,7 +502,7 @@ define method respond
 end;
 
 define method find-request-methods
-    (resource :: <resource>) => (methods :: <collection>)
+    (resource :: <abstract-resource>) => (methods :: <collection>)
   #()  // TODO: determine request methods for OPTIONS request
 end;
 
@@ -613,7 +629,7 @@ end macro add-urls;
 // /x/y, then the request is redirected to /x/y/c/d.  The redirection
 // is implemented by issuing a 301 (moved permanently redirect) response.
 //
-define class <redirecting-resource> (<resource>)
+define class <redirecting-resource> (<abstract-resource>)
   constant slot resource-target :: <uri>,
     required-init-keyword: target:;
 end;

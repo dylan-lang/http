@@ -88,7 +88,7 @@ define method configure-from-string
       end;
       server.request-router := make(<virtual-host-router>);
     end;
-    dynamic-bind (%vhost = server.request-router.default-resource)
+    dynamic-bind (%vhost = server.request-router.default-virtual-host)
       process-config-node(server, xml);
     end;
   else
@@ -215,7 +215,7 @@ define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"virtual-host")
   let name = get-attr(node, #"name");
   if (name)
-    let resource = make(<virtual-host-resource>);
+    let resource = make(<virtual-host>);
     add-resource(server, name, resource);
     dynamic-bind (%vhost = resource)
       for (child in xml$node-children(node))
@@ -272,7 +272,7 @@ end;
 
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"server-root")
-  if (%vhost = server.request-router.default-resource)
+  if (%vhost = server.request-router.default-virtual-host)
     let loc = get-attr(node, #"location");
     if (loc)
       server.server-root

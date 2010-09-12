@@ -6,34 +6,68 @@ License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-// A <virtual-host-map> is a <resource> that routes a request to the
-// appropriate child <resource> based on the Host: header.  The child
-// resource is passed only the request URL path.
-//
-define class <virtual-host-router> (<resource>)
+// A <virtual-host-router> routes requests to the appropriate child resource
+// based on the Host: header.
+define class <virtual-host-router> (<abstract-router>)
+
+  // fqdn -> <virtual-host>
+  constant slot virtual-hosts :: <string-table> = make(<string-table>),
+    init-keyword: virtual-hosts:;
 
   // Use this resource if no virtual host matches the Host header or URL
   // and fall-back-to-default? is true.
-  slot default-resource :: <abstract-resource> = make(<resource>),
-    init-keyword: default-resource:;
+  slot default-virtual-host :: <virtual-host> = make(<virtual-host>),
+    init-keyword: default:;
 
   // If true, use the default-host if the given host isn't found.
   slot fall-back-to-default? :: <boolean> = #t,
-    init-keyword: fall-back-to-default:;
+    init-keyword: fall-back-to-default?:;
 
 end class <virtual-host-router>;
 
+// Add a virtual host by name, as a direct child.
+//
 define method add-resource
     (router :: <virtual-host-router>,
      fqdn :: <string>,
-     resource :: <virtual-host-resource>, #rest args, #key)
-  log-debug("add-resource(%=, %=, %=)", router, fqdn, resource);
+     vhost :: <virtual-host>, #rest args, #key)
+  log-debug("add-resource(%=, %=, %=)", router, fqdn, vhost);
   // Lowercase the host name and give a more specific error message.
   let fqdn = as-lowercase(fqdn);
-  if (element(router.resource-children, fqdn, default: #f))
+  if (member?('/', fqdn))
+    koala-api-error("Virtual host names (%=) may not contain '/'.", fqdn);
+  elseif (element(router.virtual-hosts, fqdn, default: #f))
     koala-api-error("Attempt to add virtual host %=, which already exists.", fqdn);
   else
-    apply(next-method, router, fqdn, resource, args)
+    router.virtual-hosts[fqdn] := vhost;
+  end;
+end method add-resource;
+
+// Add a resource under the virtual host corresponding to the host in
+// the given URL.
+define method add-resource
+    (router :: <virtual-host-router>,
+     url :: <uri>,
+     resource :: <abstract-resource>, #key)
+  log-debug("add-resource(%=, %=, %=)", router, url, resource);
+  let host = as-lowercase(url.uri-host);
+  if (empty?(host))
+    if (router.fall-back-to-default?)
+      add-resource(router.default-virtual-host, url.uri-path, resource);
+    else
+      koala-api-error("Attempt to add a resource (%=) to a virtual host"
+                      " router with URL %s, which has no host component"
+                      " and fall-back to the default virtual host is disabled."
+                      " Specify a host or enable fall-back.",
+                      resource, url);
+    end;
+  elseif (element(router.virtual-hosts, host, default: #f))
+    add-resource(router.virtual-hosts[host], url.uri-path, resource);
+  else
+    log-info("New virtual host: %=", host);
+    let vhost = make(<virtual-host>);
+    add-resource(router, host, vhost);
+    add-resource(vhost, url.uri-path, resource);
   end;
 end method add-resource;
 
@@ -41,24 +75,69 @@ define method find-resource
     (router :: <virtual-host-router>, request :: <request>)
  => (resource :: <resource>, prefix :: <list>, suffix :: <list>)
   log-debug("find-resource(%=, %=)", router, request);
-  let fqdn = get-header(request, "Host", parsed: #t)
-               | request.request-url.uri-host;
-  let resource = (fqdn
-                   & ~empty?(fqdn)
-                   & element(router.resource-children, fqdn, default: #f))
-                 | (router.fall-back-to-default? & router.default-resource);
-  if (resource)
-    find-resource(resource, request.request-url)
-  else
-    resource-not-found-error();
-  end
+  let host+port = get-header(request, "Host", parsed: #t);
+  let host = iff(host+port,
+                 first(host+port),
+                 request.request-url.uri-host);
+  find-resource(find-resource(router, host),
+                request.request-url)
 end method find-resource;
 
-// A <virtual-host> is a normal resource for which the standard logs may
-// be redirected to different targets.  That is, you probably want different
+define method find-resource
+    (router :: <virtual-host-router>, url :: <uri>)
+ => (resource :: <resource>, prefix :: <list>, suffix :: <list>)
+  log-debug("find-resource(%=, %=)", router, url);
+  find-resource(find-resource(router, url.uri-host),
+                url)
+end method find-resource;
 
-// logs for each virtual host.
+define method find-resource
+    (router :: <virtual-host-router>, fqdn :: <string>)
+ => (vhost :: <virtual-host>, prefix :: <list>, suffix :: <list>)
+  log-debug("find-resource(%=, %=)", router, fqdn);
+  values(element(router.virtual-hosts, fqdn, default: #f)
+           | (router.fall-back-to-default?
+                & router.default-virtual-host)
+           | resource-not-found-error(),
+         #(),
+         #())
+end method find-resource;
+
+
+
+// A virtual host simply delegates to the router in its virtual-host-router
+// slot and provides for separate logging from other virtual hosts.  (It
+// uses delegation rather than inheritence so that the user can supply
+// a different kind of router when making a <virtual-host>.)
 //
-define class <virtual-host-resource> (<multi-logger-mixin>, <resource>)
-end class <virtual-host-resource>;
+define class <virtual-host>
+    (<multi-logger-mixin>, <abstract-router>, <abstract-resource>)
+
+  constant slot virtual-host-router :: <abstract-router> = make(<resource>),
+    init-keyword: router:;
+end;
+
+define method add-resource
+    (vhost :: <virtual-host>, url :: <object>, resource :: <abstract-resource>,
+     #rest args, #key)
+  apply(add-resource, vhost.virtual-host-router, url, resource, args)
+end;
+
+define method find-resource
+    (vhost :: <virtual-host>, url :: <object>)
+ => (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
+  log-debug("find-resource(%=, %=)", vhost, url);
+  find-resource(vhost.virtual-host-router, url)
+end;
+
+define method generate-url
+    (vhost :: <virtual-host>, name :: <string>, #rest args, #key)
+ => (url)
+  apply(generate-url, vhost, name, args)
+end;
+
+define method root-resource?
+    (vhost :: <virtual-host>) => (root? :: <boolean>)
+  #t
+end;
 

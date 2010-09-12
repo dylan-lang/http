@@ -126,6 +126,7 @@ define suite koala-test-suite
   suite cgi-test-suite;
   suite multi-views-test-suite;
   suite resources-test-suite;
+  suite virtual-host-test-suite;
 
   suite http-client-test-suite;
 end suite koala-test-suite;

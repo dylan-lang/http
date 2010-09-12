@@ -89,7 +89,8 @@ define module koala
       respond-to-put,
       respond-to-delete,
       respond-to-trace,
-      respond-to-connect;
+      respond-to-connect,
+      root-resource?;
 
   // Resource implementations
   create
@@ -101,28 +102,21 @@ define module koala
       <function-resource>,
       <redirecting-resource>,
       <virtual-host-router>,
-      <virtual-host-resource>,
+        default-virtual-host,
+        default-virtual-host-setter,
+        fall-back-to-default?,
+      <virtual-host>,
       add-resource-name,
       do-resource,
       function-resource;
 
   // Request routing
   create
-    <abstract-request-router>,
+    <abstract-router>,
     route-request,
     add-resource,
     find-resource,
     generate-url;
-
-  // Virtual hosts
-  create
-    <virtual-host-router>,
-      default-resource,
-      default-resource-setter,
-      fall-back-to-default?,
-    <virtual-host-resource>,
-       
-    locator-below-root?;
 
   // Responses
   create

@@ -1,5 +1,80 @@
 Module: koala-test-suite
 
-// There's not much TO <virtual-host>s anymore, but this remains here to
-// show that there are no tests whatsoever.
+define suite virtual-host-test-suite ()
+    test test-vhost-add-resource;
+    //test test-vhost-find-resource;
+end;
 
+define test test-vhost-add-resource ()
+  let router = make(<virtual-host-router>, fall-back-to-default?: #t);
+  let resource = make(<resource>);
+  let url = parse-url("http://127.0.0.1/a/b/c");
+  check-no-errors("add-resource with fully-qualified URL doesn't err?",
+                  add-resource(router, url, resource));
+  check-true("a <virtual-host-resource> was added for 127.0.0.1?",
+             instance?(find-resource(router, "127.0.0.1"),
+                       <virtual-host>));
+  check-equal("find-resource uses URL host to find correct virtual host?",
+              resource,
+              find-resource(router, url));
+
+  // Make sure requests are routed to the correct virtual host.
+  // Need to fire up a server for this test because it's very difficult
+  // to make a <request> without creating clients, listeners, sockets, etc.
+  let router = make(<virtual-host-router>);
+  let value = #f;
+  let resource-1 = make(<function-resource>,
+                        function: method () value := 1 end);
+  let resource-2 = make(<function-resource>,
+                        function: method () value := 2 end);
+  with-http-server (server = make-server(request-router: make(<virtual-host-router>)))
+    add-resource(server, parse-url("http://127.0.0.1/x"), resource-1);
+    add-resource(server, parse-url("http://localhost/x"), resource-2);
+    http-get(test-url("/x", host: "127.0.0.1"));
+    check-equal("find-resource(router, <request>) uses correct virtual host - #1",
+                1, value);
+    http-get(test-url("/x", host: "localhost"));
+    check-equal("find-resource(router, <request>) uses correct virtual host - #2",
+                2, value);
+  end;
+end test test-vhost-add-resource;
+
+/*
+// Verify that find-resource(vhost-router, request) finds the correct
+// resource based on the Host: header of the request.
+//
+define test test-vhost-find-resource ()
+  let router = make(<virtual-host-router>, fall-back-to-default?: #f);
+  let vhost-1 = make(<virtual-host-resource>);
+  let vhost-2 = make(<virtual-host-resource>);
+  add-resource(router, "127.0.0.1", vhost-1);
+  add-resource(router, "localhost", vhost-2);
+
+  let resource-1 = make(<resource>);
+  let resource-2 = make(<resource>);
+  add-resource(vhost-1, "/one", resource-1);
+  add-resource(vhost-1, "/two", resource-2);
+  add-resource(vhost-2, "/one", resource-1);
+  add-resource(vhost-2, "/two", resource-2);
+
+  let data = #(#("http://127.0.0.1/one", resource-1),
+               #("http://127.0.0.1/two", resource-2),
+               #("http://localhost/one", resource-1),
+               #("http://localhost/two", resource-2));
+
+  for (item in data)
+  check-equal("http://127.0.0.1/one finds resource-1?",
+              resource-1,
+              find-resource(router, build-request("127.0.0.1", "/one")));
+
+  check-condition("http://127.0.0.1/two errs because fall-back disabled?",
+                  
+              find-resource(router, build-request("127.0.0.1", "/one")));
+
+  check-equal("http://127.0.0.1/one finds resource-1?",
+              resource-1,
+              find-resource(router, build-request("127.0.0.1", "/one")));
+
+
+note: verify that fall-back doesn't occur if the vhost IS found but the URL path ISN'T.
+*/

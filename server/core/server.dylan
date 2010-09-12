@@ -27,10 +27,10 @@ end;
 
 // The request router class gives libraries a way to provide alternate
 // ways of routing/mapping URLs to resources if they don't like the default
-// mechanism, by storing a different subclass of <abstract-request-router>
+// mechanism, by storing a different subclass of <abstract-router>
 // in the <http-server>.
 
-define open abstract class <abstract-request-router> (<object>)
+define open abstract class <abstract-router> (<object>)
 end;
 
 
@@ -39,7 +39,7 @@ end;
 // which is why the 'url' parameter is typed as <object>.
 //
 define open generic add-resource
-    (router :: <abstract-request-router>,
+    (router :: <abstract-router>,
      url :: <object>,
      resource :: <abstract-resource>,
      #key, #all-keys);
@@ -54,14 +54,14 @@ define open generic add-resource
 //       to return (resource, url, bindings) or some such.
 //
 define open generic find-resource
-    (router :: <abstract-request-router>, url :: <object>)
+    (router :: <abstract-router>, url :: <object>)
  => (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>);
 
 
 // Generate a URL from a name and path variables.
 // If the given name doesn't exist signal <koala-api-error>.
 define open generic generate-url
-    (router :: <abstract-request-router>, name :: <string>, #key, #all-keys)
+    (router :: <abstract-router>, name :: <string>, #key, #all-keys)
  => (url);
 
 
@@ -71,7 +71,7 @@ define open generic generate-url
 // The user instantiates this class directly, passing configuration options
 // as init args.
 //
-define open class <http-server> (<multi-logger-mixin>, <abstract-request-router>)
+define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   // Whether the server should run in debug mode or not.  If this is true then
   // errors encountered while servicing HTTP requests will not be handled by the
   // server itself.  Normally the server will handle them and return an "internal
@@ -87,7 +87,7 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-request-router>
   constant slot server-lock :: <simple-lock>,
     required-init-keyword: lock:;
 
-  slot request-router :: <abstract-request-router>,
+  slot request-router :: <abstract-router>,
     init-value: make(<resource>),
     init-keyword: request-router:;
 
@@ -861,15 +861,15 @@ end function handler-top-level;
 define method route-request
     (server :: <http-server>, request :: <request>)
   // Find a resource or signal an error.
-  let (resource :: <resource>, prefix :: <list>, suffix :: <list>)
-    = find-resource(server.request-router,
-                    request.request-url);
+  let (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
+    = find-resource(server, request);
 
   // Bind loggers for the vhost being used.
+  // TODO: This assumes <resource> but should only assume <abstract-resource>.
   iterate loop (current = resource, vhost = #f)
     if (current)
       loop(current.resource-parent,
-           iff(instance?(current, <virtual-host-resource>),
+           iff(instance?(current, <virtual-host>),
                current,
                vhost))
     elseif (vhost)

@@ -27,8 +27,8 @@ define constant fmt = format-to-string;
 define variable *test-port* :: <integer> = 8080;
 
 define method test-url
-    (path-etc :: <string>) => (url :: <url>)
-  parse-url(fmt("http://127.0.0.1:%d%s", *test-port*, path-etc))
+    (path-etc :: <string>, #key host, port) => (url :: <url>)
+  parse-url(fmt("http://%s:%d%s", host | "127.0.0.1", *test-port*, path-etc))
 end;
 
 define method root-url
@@ -82,5 +82,4 @@ define function make-x-url
     (n :: <integer>) => (url :: <url>)
   test-url(format-to-string("/x?n=%d", n))
 end;
-
 
