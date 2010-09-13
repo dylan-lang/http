@@ -354,38 +354,6 @@ define function map-resources
   add-resource(server, "/table", make(<demo-page>, source: "table.dsp"));
 end function map-resources;
 
-/*
-
-add-resource(server, "/{controller}/{action}
-
-*/
-
-/*
-define url-map $demo-url-map ()
-  //prefix "/demo";    ...would be nice
-  url ("/", "/home")
-    // Note that when a page just has a template but no special respond-to*
-    // method there's no need to define a new page subclass for it.  You
-    // just make a <dylan-server-page> (or subclass thereof) and specify
-    // the source: for the template.
-    action GET () => make(<demo-page>, source: "home.dsp");
-  url ("/hello-world", "/hello")
-    action GET () => make(<hello-world-page>);
-  url "/args"
-    action GET () => make(<demo-page>, source: "args.dsp");
-  url "/login"
-    action GET () => *login-page*;
-  url "/logout"
-    action (GET, POST) () => make(<logout-page>, source: "logout.dsp");
-  url "/welcome"
-    action POST () => make(<welcome-page>, source: "welcome.dsp");
-  url "/iterator"
-    action GET () => make(<demo-page>, source: "iterator.dsp");
-  url "/table"
-    action GET () => make(<demo-page>, source: "table.dsp");
-end url-map;
-*/
-
 define function main
     ()
   // If you don't need to add any new command-line arguments you can just
