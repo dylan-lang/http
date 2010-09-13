@@ -1,6 +1,10 @@
 Serving Static Content
 ======================
 
+`Next: Serving Dynamic Content <dynamic-content.html>`_
+
+`Back to top <00-index.html>`_
+
 This example will show you how to use the Dylan web server (koala) to
 serve static content from the file-system.  First I'll go through the
 process line by line and then will show the complete code.
@@ -95,5 +99,7 @@ itself, so if that's all you want to do this will accomplish the same
 thing::
 
     koala --listen 0.0.0.0:8888 --directory /tmp
+
+`Next: Serving Dynamic Content <dynamic-content.html>`_
 
 `Back to top <00-index.html>`_

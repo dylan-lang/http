@@ -13,3 +13,6 @@ verbose than Python, so I expect these examples to be longer than
 their Twisted Python counterparts, but the extra few lines for a
 simple example quickly comes out in the wash as your program gets
 larger.
+
+1. `Serving Static Content <static-content.html>`_
+2. `Serving Dynamic Content <dynamic-content.html>`_
