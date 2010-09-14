@@ -3,6 +3,55 @@ Koala To-Do List
 
 These are pretty random.  See also the bugzilla list.
 
+* Add tests for static file serving.
+* Add tests for <redirecting-resource> (and config <alias/>)
+* Add tests for new config stuff (#"directory", #"cgi-directory", #"alias")
+* Need a way to specify that "if this resource is chosen there must be
+  no URL path suffix".  e.g., in koala-demo ANY UNRECOGNIZED URL currently
+  takes you to /.  leaf?
+* url-map-definer or site-definer
+* resource-not-found-error blows up if there's no active request.
+  Make test suite always pass the url: argument.  Maybe pass an
+  internal "original-url:" keyword argument, starting with the
+  find-resource method on <uri>.
+* virtual hosts
+  . fix resource tree display in koala-main
+  . restore per-host logging
+* Re-evaluate <abstract-request-router>.  Does it do its job?
+* Rename server.request-router to root-resource?
+* remove log-debug messages
+* any place that uses loc.directory-locator needs to deal with #f.
+
+* Wiki /page/versions and diffs are probably broken
+* Can resources.dylan be moved before server.dylan and the generics for
+  add-resource etc moved to resources.dylan?
+* Add an option to redirect-permanently-to and redirect-temporarily-to
+  for whether to include the GET parameters in the target URL.
+  Maybe redirect-to(<object>, #key temporary, include-query-values)
+* generate-url
+  . <dsp:url name=n var1=named-var1 var2=named-var2> ?
+  . pass path variable bindings to add-resource?  e.g., title = get-current-title
+    so that if there are no bindings those functions can be used.
+  . generate-url needs to generate the full url, not just the path
+* <directory-resource>'s directory: initarg should probably be locator: or location:?
+* #rest path variables: /foo/bar/{x...}
+* Store the log target(s) in the request (which can be done inside
+  find-resource(<virtual-host-map>)) since the current scheme of logging
+  based on virtual host will no longer work.  this should be cleaner anyway.
+* Implement prom's idea of passing path variables either in the URL path
+  (i.e., positional) OR in the query values (keyword args).
+* does default-content-type actuall get used for anything other than
+  <directory-locator>?
+* move static-files.dylan out of server core (or just to its own module)
+* put dsp parser into its own file
+* move form and query value related code to a different file?
+* rename variables.dylan to utilities.dylan
+* Provide a way to register a resource to handle 404 errors.
+* If the port is in use on startup, it still says "Koala 0.9 ready for service"
+* get rid of koala-main's before-startup parameter.  subclass <http-server>
+  and override a method instead.
+* The xml-rpc config file option has gone missing.
+
 * Add command-line option --log so that Koala can be started up
   without doing any logging to stdout.  This should also be the
   place we log messages that are related to the server and not
