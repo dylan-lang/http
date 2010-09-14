@@ -30,7 +30,6 @@ define library koala
   use uncommon-dylan;
   use uri;
   use xml-parser;
-  use xml-rpc-common;
 
   export koala-unit;
   export koala;
@@ -155,15 +154,6 @@ define module koala
     server-root,
     get-attr;
 
-  // XML RPC
-  create
-    xml-rpc-server-definer,
-    <xml-rpc-server>,
-    error-fault-code,
-    error-fault-code-setter,
-    register-xml-rpc-method,
-    $default-xml-rpc-url;
-
   // Documents
   create
     serve-static-file,
@@ -239,6 +229,5 @@ define module httpi                             // http internals
   use uri;
   use xml-parser,
     prefix: "xml$";
-  use xml-rpc-common;
 end module httpi;
 

@@ -11,5 +11,4 @@ files:	library
 	static-files
 	content-negotiation
 	cgi
-	xml-rpc-server
 	command-line
