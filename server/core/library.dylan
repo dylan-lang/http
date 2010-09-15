@@ -106,7 +106,7 @@ define module koala
         fall-back-to-default?,
       <virtual-host>,
       add-resource-name,
-      do-resource,
+      do-resources,
       function-resource;
 
   // Request routing

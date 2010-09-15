@@ -29,19 +29,41 @@ end class <virtual-host-router>;
 //
 define method add-resource
     (router :: <virtual-host-router>,
-     fqdn :: <string>,
-     vhost :: <virtual-host>, #rest args, #key)
-  log-debug("add-resource(%=, %=, %=)", router, fqdn, vhost);
+     url :: <string>,
+     resource :: <abstract-resource>, #rest args, #key)
+  log-debug("add-resource(%=, %=, %=)", router, url, resource);
   // Lowercase the host name and give a more specific error message.
-  let fqdn = as-lowercase(fqdn);
-  if (member?('/', fqdn))
-    koala-api-error("Virtual host names (%=) may not contain '/'.", fqdn);
-  elseif (element(router.virtual-hosts, fqdn, default: #f))
-    koala-api-error("Attempt to add virtual host %=, which already exists.", fqdn);
+  let fqdn = as-lowercase(url);
+  if (member?('/', url))
+    add-resource(router, parse-url(url), resource);
   else
-    router.virtual-hosts[fqdn] := vhost;
+    let fqdn = as-lowercase(url);
+    let vhost = resource;
+    if (instance?(vhost, <virtual-host>))
+      if (element(router.virtual-hosts, fqdn, default: #f))
+        koala-api-error("Attempt to add virtual host %=, which already exists.", fqdn);
+      else
+        router.virtual-hosts[fqdn] := vhost;
+      end;
+    else
+      koala-api-error("Attempt to add resource %= to a <virtual-host-router> but"
+                        " only <virtual-host> resources are allowed here.",
+                      resource);
+    end;
   end;
 end method add-resource;
+
+define method do-resources
+    (router :: <virtual-host-router>, function :: <function>,
+     #key seen :: <list> = #())
+  if (~member?(router, seen))
+    do-resources(router.default-virtual-host, function, seen: pair(router, seen));
+    for (vhost in router.virtual-hosts)
+      do-resources(vhost, function, seen: pair(router, seen));
+    end;
+  end;
+end method do-resources;
+    
 
 // Add a resource under the virtual host corresponding to the host in
 // the given URL.
@@ -53,7 +75,7 @@ define method add-resource
   let host = as-lowercase(url.uri-host);
   if (empty?(host))
     if (router.fall-back-to-default?)
-      add-resource(router.default-virtual-host, url.uri-path, resource);
+      add-resource(router.default-virtual-host, url, resource);
     else
       koala-api-error("Attempt to add a resource (%=) to a virtual host"
                       " router with URL %s, which has no host component"
@@ -62,12 +84,12 @@ define method add-resource
                       resource, url);
     end;
   elseif (element(router.virtual-hosts, host, default: #f))
-    add-resource(router.virtual-hosts[host], url.uri-path, resource);
+    add-resource(router.virtual-hosts[host], url, resource);
   else
     log-info("New virtual host: %=", host);
     let vhost = make(<virtual-host>);
     add-resource(router, host, vhost);
-    add-resource(vhost, url.uri-path, resource);
+    add-resource(vhost, url, resource);
   end;
 end method add-resource;
 
@@ -117,9 +139,18 @@ define class <virtual-host>
     init-keyword: router:;
 end;
 
+define method do-resources
+    (router :: <virtual-host>, function :: <function>,
+     #key seen :: <list> = #())
+  if (~member?(router, seen))
+    do-resources(router.virtual-host-router, function, seen: pair(router, seen));
+  end;
+end method do-resources;
+
 define method add-resource
     (vhost :: <virtual-host>, url :: <object>, resource :: <abstract-resource>,
      #rest args, #key)
+  log-debug("add-resource(%=, %=, %=)", vhost, url, resource);
   apply(add-resource, vhost.virtual-host-router, url, resource, args)
 end;
 

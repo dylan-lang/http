@@ -472,15 +472,13 @@ define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"alias")
   let url = get-attr(node, #"url");
   let target = get-attr(node, #"target");
-  if (~url)
-    warn("Invalid alias; the 'url' attribute is required.");
+  if (~(url & target))
+    warn("Invalid alias; the 'url' and 'target' attributes are required.");
+  else
+    let resource = make(<redirecting-resource>,
+                        target: parse-url(target));
+    add-resource(%vhost, parse-url(url), resource);
   end;
-  if (~target)
-    warn("Invalid alias; the 'target' attribute is required.");
-  end;
-  let url = parse-url(url);
-  let resource = make(<redirecting-resource>, target: url);
-  add-resource(%vhost, url.uri-path, resource);
 end method process-config-element;
 
 // <directory  url = "/"
@@ -500,6 +498,7 @@ define method process-config-element
                    | warn("Invalid <DIRECTORY> spec.  The 'location' attribute "
                           "is required.");
   if (url & location)
+    log-info("Static directory %s added at URL %s", location, url);
     let location = as(<directory-locator>, get-attr(node, #"location"));
     let multi? = get-attr(node, #"allow-multi-view");
     let dirlist? = get-attr(node, #"allow-directory-listing");
@@ -539,6 +538,7 @@ define method process-config-element
                    | warn("Invalid <DIRECTORY> spec.  The 'location' attribute "
                           "is required.");
   if (url & location)
+    log-info("CGI directory %s added at URL %s", location, url);
     let location = as(<directory-locator>, get-attr(node, #"location"));
     let extensions = split(get-attr(node, #"extensions") | "cgi", ',');
     let resource = make(<cgi-directory-resource>,

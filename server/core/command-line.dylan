@@ -163,10 +163,10 @@ define function koala-main
         end;
 
         log-debug("Mapped resources:");
-        do-resource(method (res)
-                      log-debug("  %-25s -- %s", res.resource-url-path, res);
-                    end,
-                    *server*.request-router);
+        do-resources(*server*.request-router,
+                     method (res)
+                       log-debug("  %-25s -- %s", res.resource-url-path, res);
+                     end);
 
         if (empty?(*server*.server-listeners))
           error("No listeners were created.  Exiting.");

@@ -124,7 +124,11 @@ define method add-resource
     (router :: <resource>, url :: <uri>, child :: <abstract-resource>,
      #rest args, #key)
   log-debug("add-resource(%=, %=, %=)", router, url, child);
-  apply(add-resource, router, url.uri-path, child, args)
+  // The root URL, "/", is a special case because it is both a leading
+  // and trailing slash, which doesn't match our resource tree structure.
+  // There is a corresponding hack in find-resource.
+  let path = url.uri-path;
+  apply(add-resource, router, iff(path = #("", ""), #(""), path), child, args)
 end;
 
 // convert <http-server> to <abstract-router>
@@ -163,9 +167,9 @@ define method add-resource
           add-resource(child, kid-name, kid, trailing-slash: #f);
         end;
       else
-        koala-api-error("A child resource named %= already exists "
-                        "at this URL path (%s).",
-                        name, existing-child.resource-url-path);
+        koala-api-error("A child resource, %=, is already mapped "
+                        "to this URL: %s",
+                        existing-child, existing-child.resource-url-path);
       end;
     else
       parent.resource-children[name] := child;
@@ -265,23 +269,24 @@ define method path-variable-bindings
   bindings
 end method path-variable-bindings;
 
-define function do-resource
-    (fn :: <function>, resource :: <resource>)
-  local method do-resource-1 (fn, rsrc, seen)
-          // It's perfectly normal to add a resource in multiple places
-          // so just skip the ones we've seen before.
-          if (~member?(rsrc, seen))
-            add!(seen, rsrc);
-            if (~instance?(rsrc, <placeholder-resource>))
-              fn(rsrc);
-            end;
-            for (child in rsrc.resource-children)
-              do-resource-1(fn, child, seen);
-            end;
-          end;
-        end;
-  do-resource-1(fn, resource, make(<stretchy-vector>));
-end function do-resource;
+
+define open generic do-resources
+    (router :: <abstract-router>, function :: <function>, #key seen);
+
+define method do-resources
+    (router :: <resource>, function :: <function>,
+     #key seen :: <list> = #())
+  // It's perfectly normal to add a resource in multiple places
+  // so just skip the ones we've seen before.
+  if (~member?(router, seen))
+    if (~instance?(router, <placeholder-resource>))
+      function(router);
+    end;
+    for (child in router.resource-children)
+      do-resources(child, function, seen: pair(router, seen));
+    end;
+  end;
+end method do-resources;
 
 
 //// find-resource
