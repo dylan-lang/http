@@ -51,7 +51,6 @@ define module koala
     request-router,
     request-router-setter,
     current-server,
-    development-mode?,
     debugging-enabled?,
     debugging-enabled?-setter;
 
@@ -89,7 +88,9 @@ define module koala
       respond-to-delete,
       respond-to-trace,
       respond-to-connect,
-      root-resource?;
+      root-resource?,
+      handle-unmatched-path-elements,
+      handle-unbound-path-variables;
 
   // Resource implementations
   create
@@ -174,6 +175,7 @@ define module koala-unit
     configure-from-string,
     find-multi-view-file,
     media-type-from-header,
+    parse-path-variable,
     resource-parent,
     resource-path-variables,
     resource-url-path;

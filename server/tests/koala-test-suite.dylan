@@ -50,6 +50,25 @@ define test repeated-start-stop-test ()
   end;
 end test repeated-start-stop-test;
 
+// The same as repeated-start-stop-test, but make a connection to the
+// listener each time the server is started.
+define test test-repeated-start-stop-with-connection ()
+  for (i from 1 to 5)
+    let server = make-server(debug: #t);
+    add-resource(server, "/", function-resource(method ()
+                                                  output("hi there");
+                                                end));
+    block ()
+      check-equal(fmt("repeated-start-stop-test check #%d", i),
+                  start-server(server, background: #t, wait: #t),
+                  #t);
+      check-no-errors("connect", http-get(test-url("/")));
+    cleanup
+      stop-server(server);
+    end;
+  end;
+end test test-repeated-start-stop-with-connection;
+
 define test conflicting-listener-ips-test ()
   let server = make-server(listeners: list($listener-127, $listener-127));
   block ()
@@ -87,6 +106,7 @@ end test bind-interface-test;
 define suite start-stop-test-suite ()
   test start-stop-basic-test;
   test repeated-start-stop-test;
+  test test-repeated-start-stop-with-connection;
   test bind-interface-test;
   test conflicting-listener-ips-test;
 end suite start-stop-test-suite;
@@ -116,9 +136,7 @@ define suite chunking-test-suite ()
   test chunked-request-test;
 end;
 
-// exported
-define suite koala-test-suite
-    (setup-function: start-sockets)
+define suite http-server-test-suite ()
   suite start-stop-test-suite;
   suite chunking-test-suite;
   suite configuration-test-suite;
@@ -127,7 +145,12 @@ define suite koala-test-suite
   suite multi-views-test-suite;
   suite resources-test-suite;
   suite virtual-host-test-suite;
+end;
 
+// exported
+define suite koala-test-suite
+    (setup-function: start-sockets)
+  suite http-server-test-suite;
   suite http-client-test-suite;
 end suite koala-test-suite;
 

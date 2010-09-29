@@ -11,23 +11,39 @@
      Koala's global environment or the default virtual host.  Anything
      inside a <virtual-host> element applies only to that virtual
      host.
+
+     All settings shown in this file use the default values.
   -->
 
 
-<!-- If DEBUG-SERVER is on then Koala will not try to gracefully handle errors
-     thrown during the execution of a server request.  Only turn this on when
-     running inside a development environment, or the server will crash.  This
-     should also be near the beginning of the log file if you want to debug
-     config file loading.
-  -->
-<debug-server value="on" />
+<!-- <server> controls settings that apply to the server itself:
+     root - The root of the directory tree under which the server's
+            configuration and log files are kept.  Other pathnames are
+            merged against this one, so if they're relative they will be
+            relative to this.
+
+     debug - Enabling this will make Koala not try to handle errors
+             thrown during the execution of a server request.  Only
+             turn this on when running inside a development environment,
+             or the server will crash.  This should also be near the
+             beginning of the log file if you want to debug config file
+             loading.
+     use-default-virtual-host
+           - Whether to lookup URLs using the default virtual host if
+             no host matching the request's Host header or URL host
+             can be found.
+     -->
+<server root="."
+        debug="no"
+        use-default-virtual-host="yes"
+        />
 
 
 <!-- Controls whether to check template modification dates each time
      the template is displayed, and reparse if necessary.  Obviously
      when enabled this will slow down page rendering.  The default is
-     OFF.  -->
-<development-mode enabled="false" />
+     no.  -->
+<dsp reparse-templates="no" />
 
 
 <!-- Log messages come in three types: HTTP requests, errors, and
@@ -93,16 +109,6 @@
    max-size="20000000" />
 
 
-<!-- SERVER-ROOT is the top of the directory tree under which the
-     server's configuration and log files are kept.  Other pathnames are
-     merged against this one, so if they're relative they will be
-     relative to this.  The server-root pathname is relative to the
-     koala executable.  NOTE: This should be near the top of the config
-     file since later elements will be merged against it.
-  -->
-<server-root location="." />
-
-
 <!-- DIRECTORY elements make file-system directories available at a
      given URL.  Note that if follow-symlinks is true then links will
      be followed even if the target is outside of the specified
@@ -116,12 +122,6 @@
             default-documents = "index.html,index.htm"
             default-content-type = "text/html"
             />
-
-<!-- This determines whether or not to fall back to the default
-     virtual host if no virtual host matches the request.
-  -->
-<default-virtual-host enabled="yes"/>
-
 
 <!-- LISTENER elements are used to add an ip-addr/port pair on which
      to listen for HTTP requests.  Use 0.0.0.0 to listen on all
@@ -139,22 +139,6 @@
 <administrator
    email="you@your.domain"
    name="yourname" />
-
-
-<!-- XML-RPC server settings.
-     Set enable="yes" to enable, "no" to disable.
-     Set url to the URL on which the server should listen for XML-RPC requests.
-     Set internal-error-fault-code to the fault code that should be returned for
-     any otherwise unhandled errors that are thrown during the execution of an XML-RPC
-     request.  e.g., a badly formed request, or unhandled errors in user code.
-     Set debug="yes" to log the raw XML sent/received for XML-RPC calls.
-  -->
-<xml-rpc
-  url="/RPC2"
-  enable="yes"
-  internal-error-fault-code="0"
-  debug="no"
-  />
 
 
 <!-- VIRTUAL-HOST defines a new named virtual host with its own settings.

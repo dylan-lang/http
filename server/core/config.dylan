@@ -242,65 +242,35 @@ define method process-config-element
   end;
 end;
 
-// I considered making this and debug-server be attributes on the
-// top-level <koala> element, but then it's impossible to turn on
-// logging first in a general way.
-define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"default-virtual-host")
-  bind (attr = get-attr(node, #"enabled"))
-    when (attr)
-      server.request-router.fall-back-to-default? := true-value?(attr)
-    end;
-    when (server.request-router.fall-back-to-default?)
-      log-info("Fallback to the default virtual host is enabled.");
-    end;
-  end;
-end;
-
-define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"debug-server")
-  bind (attr = get-attr(node, #"value"))
-    when (attr)
-      server.debugging-enabled? := true-value?(attr);
-    end;
-    when (server.debugging-enabled?)
-      warn("Server debugging is enabled.  "
-           "Server may crash if not run inside an IDE!");
-    end;
-  end;
-end;
-
-define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"server-root")
-  if (%vhost = server.request-router.default-virtual-host)
-    let loc = get-attr(node, #"location");
-    if (loc)
-      server.server-root
-        := merge-locators(as(<directory-locator>, loc), server.server-root);
-      log-info("Server root set to %s", loc);
-    else
-      config-error("Invalid <SERVER-ROOT> spec.  "
-                   "The 'location' attribute must be specified.");
-    end;
-  else
-    warn("The <SERVER-ROOT> element is only valid at top-level "
-           "(inside the <KOALA> element) in the koala config file.  "
-           "It will be ignored.");
-  end;
-end;
-
-// The main thing this controls right now is whether check template modification
-// dates and reparse them if needed.
+// There's a separate <server> element (rather than putting these
+// settings in the <koala> element) so that it's possible for logging
+// to be initialized before these settings are processed.
 //
 define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"development-mode")
-  let enabled? = get-attr(node, #"enabled");
-  let enabled? = enabled? & true-value?(enabled?);
-  server.development-mode? := enabled?;
-  log-warning("Development mode is %s.",
-              if (enabled?) "on" else "off" end);
-end method process-config-element;
+    (server :: <http-server>, node :: xml$<element>, name == #"server")
+  // use-default-virtual-host
+  let attr = get-attr(node, #"use-default-virtual-host");
+  let value = true-value?(attr | "yes");
+  server.request-router.fall-back-to-default? := value;
+  log-info("Fallback to the default virtual host is %s.",
+           iff(value, "enabled", "disabled"));
 
+  // debug
+  let value = true-value?(get-attr(node, #"debug") | "yes");
+  server.debugging-enabled? := value;
+  log-info("Server debugging is %s",
+           iff(value,
+               "enabled.  Server may crash if not run inside the IDE!",
+               "disabled."));
+
+  // root
+  let loc = get-attr(node, #"root");
+  if (loc)
+    server.server-root := merge-locators(as(<directory-locator>, loc),
+                                         server.server-root);
+  end;
+  log-info("Server root: %s", as(<string>, server.server-root));
+end method process-config-element;
 
 // TODO: There is currently no way to configure (for example) the
 //       "http.common.headers" logger.  We should really just have one

@@ -10,6 +10,8 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // TODO: separate out the template parsing so that it's possible to
 //       use different template parsers easily.
 
+define variable *reparse-templates?* :: <boolean> = #f;
+
 define class <dsp-error> (<format-string-condition>, <error>) end;
 
 define class <dsp-parse-error> (<dsp-error>) end;
@@ -660,8 +662,8 @@ end method modified?;
 define open method process-template
     (page :: <dylan-server-page>)
   when (~page-template(page)
-        | (development-mode?(current-server())
-           & (modified?(page) | modified?(page-template(page)))))
+          | (*reparse-templates?*
+               & (modified?(page) | modified?(page-template(page)))))
     let source = page.page-source;
     if (page-template(page))
       log-debug("Reparsing modified page %s", source);

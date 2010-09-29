@@ -81,23 +81,20 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
     init-keyword: debug:;
 
   // Value to send as 'Server' header.
-  slot server-header :: <byte-string>,
-    init-value: $server-header-value;
+  slot server-header :: <byte-string> = $server-header-value;
 
   constant slot server-lock :: <simple-lock>,
     required-init-keyword: lock:;
 
-  slot request-router :: <abstract-router>,
-    init-value: make(<resource>),
+  slot request-router :: <abstract-router> = make(<resource>),
     init-keyword: request-router:;
 
-  //// Next 6 slots are to support clean server shutdown.
+  //// Next 5 slots are to support clean server shutdown.
 
   constant slot server-listeners :: <stretchy-vector>,
     required-init-keyword: listeners:;
 
-  constant slot server-clients :: <stretchy-vector>,
-    init-function: curry(make, <stretchy-vector>);
+  constant slot server-clients :: <stretchy-vector> = make(<stretchy-vector>);
 
   constant slot listeners-shutdown-notification :: <notification>,
     required-init-keyword: listeners-shutdown-notification:;
@@ -150,12 +147,6 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   constant slot server-session-id :: <byte-string>,
     init-value: "koala_session_id",
     init-keyword: session-id:;
-
-  // Should be #f in a production setting.  So far only controls whether
-  // to check DSP template modification dates and reparse if needed.
-  slot development-mode? :: <boolean>,
-    init-value: #f,
-    init-keyword: development-mode:;
 
 end class <http-server>;
 
@@ -428,7 +419,8 @@ define method start-server
     ensure-sockets-started();
     log-info("Server root directory is %s", server-root(server));
     if (empty?(server.server-listeners))
-      log-error("No listeners were configured; start-up aborting.")
+      log-error("No listeners were configured; start-up aborting.");
+      #f
     else
       for (listener in server.server-listeners)
         start-http-listener(server, listener)
@@ -439,14 +431,12 @@ define method start-server
         log-info("%s %s ready for service", $server-name, $server-version);
       end;
       if (~background)
-        // Apparently when the main thread dies in an Open Dylan application
-        // the application exits without waiting for spawned threads to die,
-        // so join-listeners keeps the main thread alive until all listeners die.
+        // Main thread has nothing to do but wait.
         join-listeners(server);
       end;
-    end;
-  end dynamic-bind;
-  #t
+      #t
+    end
+  end dynamic-bind
 end method start-server;
 
 define function wait-for-listeners-to-start
@@ -707,10 +697,7 @@ define function do-http-listen
                          socket: socket,
                          thread: thread);
           add!(server.server-clients, client);
-        exception (ex :: <error>)
-          // This should be <thread-error>, which is not yet exported
-          // needs a compiler bootstrap, so specify it sometime later
-          // hannes, 27th January 2007
+        exception (ex :: <thread-error>)
           log-error("Thread error while making responder thread: %=", ex)
         end;
       end;
@@ -884,7 +871,14 @@ define method route-request
   request.request-url-path-prefix := join(prefix, "/");
   request.request-url-path-suffix := join(suffix, "/");
 
-  apply(respond, resource, path-variable-bindings(resource, suffix));
+  let (bindings, unbound, leftovers) = path-variable-bindings(resource, suffix);
+  if (~empty?(unbound))
+    handle-unbound-path-variables(resource, unbound);
+  end;
+  if (~empty?(leftovers))
+    handle-unmatched-path-elements(resource, leftovers);
+  end;
+  apply(respond, resource, bindings);
 end method route-request;
 
 // Internally redirect to a different URL.  parse-request-url resets various

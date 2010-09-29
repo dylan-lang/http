@@ -2,6 +2,14 @@ Module: dsp
 Author: Carl Gay
 Synopsis: Utilities for DSP that otherwise can stand alone.
 
+define method process-config-element
+    (server :: <http-server>, node :: xml$<element>, name == #"dsp")
+  let *refresh-templates?* = true-value(get-attr(node, #"refresh-templates") | "no");
+  log-info("DSP template refresh is %s.",
+           iff(*refresh-templates?*, "enabled", "disabled"));
+end method process-config-element;
+
+
 define open class <paginator> (<sequence>)
   // The underlying sequence we're paging over.
   constant slot paginator-sequence :: <sequence>,

@@ -60,34 +60,37 @@ define test alias-config-test ()
       send-request(conn, "GET", "/def");
       let response = read-response(conn, follow-redirects: #f);
       check-equal("/def returned response code 301?",
-                  response.response-code, 301);
+                  301, response.response-code);
       check-equal("/def was redirected to /abc?",
-                  get-header(response, "Location"), "/abc");
+                  "/abc", get-header(response, "Location"));
     end;
   end;
 end test alias-config-test;
 
+
+
+define suite directory-resource-test-suite ()
+  test test-directory-resource;
+  test test-directory-resource-default-documents;
+end;
+
 // Verify that the <document-root> setting is respected, by setting it
 // to the directory containing application-filename() and then requesting
 // the executable file.
-define test test-document-root ()
+define test test-directory-resource ()
   let app = as(<file-locator>, application-filename());
   let dir = as(<string>, locator-directory(app));
-  let text = fmt("<directory url=\"/\" location=\"%s\" allow-static=\"yes\"/>\n", dir);
+  let text = fmt("<directory url=\"/\" location=\"%s\"/>\n", dir);
   let server = make-server();  // includes default listener
   configure-from-string(server, koala-document(text));
   with-http-server (server = server)
     let app-url = test-url(concatenate("/", locator-name(app)));
     with-http-connection (conn = app-url)
       send-request(conn, "GET", app-url);
-      check-no-errors("<document-root> is respected?", read-response(conn));
+      check-no-errors("<directory> resource config", read-response(conn));
     end;
   end;
-end test test-document-root;
-
-define suite directory-resource-test-suite ()
-  test test-directory-resource-default-documents;
-end;
+end test test-directory-resource;
 
 define test test-directory-resource-default-documents ()
   let server = make-server();
@@ -117,11 +120,12 @@ define test test-directory-resource-default-documents ()
               resource.default-documents);
 end test test-directory-resource-default-documents;
 
+
+
 define suite configuration-test-suite ()
   test basic-config-test;
   test listener-config-test;
   test alias-config-test;
-  test test-document-root;
   suite directory-resource-test-suite;
 end suite configuration-test-suite;
 

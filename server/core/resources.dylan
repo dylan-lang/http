@@ -21,21 +21,51 @@ end;
 define open generic respond
     (resource :: <abstract-resource>, #key, #all-keys);
 
+
 // Is it okay to add child resources via an absolute URL path?
 // This is needed for <virtual-host-resource>, which has a
 // parent resource but allows absolute paths for its children.
 define open generic root-resource?
     (resource :: <abstract-resource>) => (root? :: <boolean>);
 
+
+// This method is called if the request URL has leftover path elements after
+// all path variables have been bound.  It gives the resource implementation
+// a chance to signal 404, for example.  In many applications you might want
+// to do this (at least during development or QA) so that incorrect URLs can
+// be discovered quickly.
+define open generic handle-unmatched-path-elements
+    (resource :: <abstract-resource>, unmatched-path :: <sequence>);
+
+define method handle-unmatched-path-elements
+    (resource :: <abstract-resource>, unmatched-path :: <sequence>)
+  log-warning("Unmatched path elements for resource %s: %s",
+              resource, unmatched-path);
+end;
+
+
+// Called if the request URL doesn't have enough path elements to bind every
+// path variable to a value.  The default is to log a warning and pass #f for
+// unbound variables.
+define open generic handle-unbound-path-variables
+    (resource :: <abstract-resource>, unbound-variables :: <sequence>);
+
+define method handle-unbound-path-variables
+    (resource :: <abstract-resource>, unbound-variables :: <sequence>)
+  log-warning("Unbound path variables for resource %s: %s",
+              resource, unbound-variables);
+end;
+
+
 // Pre-defined request methods each have a specific generic...
 
 define open generic respond-to-options (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-get (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-head (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-post (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-put (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-delete (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-trace (resource :: <abstract-resource>, #key, #all-keys);
+define open generic respond-to-get     (resource :: <abstract-resource>, #key, #all-keys);
+define open generic respond-to-head    (resource :: <abstract-resource>, #key, #all-keys);
+define open generic respond-to-post    (resource :: <abstract-resource>, #key, #all-keys);
+define open generic respond-to-put     (resource :: <abstract-resource>, #key, #all-keys);
+define open generic respond-to-delete  (resource :: <abstract-resource>, #key, #all-keys);
+define open generic respond-to-trace   (resource :: <abstract-resource>, #key, #all-keys);
 define open generic respond-to-connect (resource :: <abstract-resource>, #key, #all-keys);
 
 // The content type that will be sent in the HTTP response if no
@@ -83,9 +113,11 @@ define open class <resource> (<abstract-resource>, <abstract-router>)
   // from the request URL suffix, if available.  They are also used in URL
   // generation.  When a link is generated with f(... title: "t", version: "v")
   // this slot tells us where those arguments fit into the URL by virtue of
-  // the fact that its elements are ordered.
+  // the fact that its elements are ordered.  See handle-unbound-path-variables
+  // and handle-unmatched-path-elements.
   //
   slot resource-path-variables :: <sequence> = #();
+
 end class <resource>;
 
 define method root-resource?
@@ -202,44 +234,68 @@ define method add-resource
                     " %= using a URL with a leading slash %=.  This"
                     " will result in an unreachable URL path.",
                     resource, parent, join(path, "/"));
-  end;
-  let index = find-key(path, path-variable?) | path.size;
-  let path-vars = as(<list>, copy-sequence(path, start: index));
-  let path = as(<list>, copy-sequence(path, end: index));
-  resource.resource-path-variables := map(parse-path-variable, path-vars);
-  iterate loop (parent = parent, path = path)
-    if (empty?(path))
-      // done
-    elseif (path.size = 1)
-      let name :: <string> = first(path);
-      add-resource(parent, name, resource,
-                   url-name: url-name,
-                   trailing-slash: trailing-slash)
-    else
-      let name :: <string> = first(path);
-      let child = element(parent.resource-children, name, default: #f);
-      if (~child)
-        child := make(<placeholder-resource>);
-        add-resource(parent, name, child, trailing-slash: #f);  // do not pass url-name
-      end;
-      loop(child, rest(path))
-    end if;
-  end iterate;
+  else
+    let (prefix, vars) = parse-path-variables(path);
+    resource.resource-path-variables := vars;
+    iterate loop (parent = parent, path = prefix)
+      if (empty?(path))
+        // done
+      elseif (path.size = 1)
+        let name :: <string> = first(path);
+        add-resource(parent, name, resource,
+                     url-name: url-name,
+                     trailing-slash: trailing-slash)
+      else
+        let name :: <string> = first(path);
+        let child = element(parent.resource-children, name, default: #f);
+        if (~child)
+          child := make(<placeholder-resource>);
+          add-resource(parent, name, child, trailing-slash: #f, url-name: #f);
+        end;
+        loop(child, rest(path))
+      end if;
+    end iterate;
+  end if;
 end method add-resource;
 
 
 //// path variables
 
-// Turn "{foo}" into #"foo" and leave other strings alone.
-// A symbol indicates a keyword argument to a respond* function.
-// A string indicates a literal URL path element in the URL suffix.  (Probably rare.)
+define function parse-path-variables
+    (path :: <sequence>) => (prefix :: <sequence>, vars :: <sequence>)
+  let index = find-key(path, path-variable?) | path.size;
+  let path-vars = as(<list>, copy-sequence(path, start: index));
+  let path-prefix = as(<list>, copy-sequence(path, end: index));
+  let vars = map(parse-path-variable, path-vars);
+
+  // disallow {var...} except at the end of the path.
+  for (item in copy-sequence(vars, end: max(0, vars.size - 1)))
+    if (instance?(item, <list>) & first(item) = #"rest")
+      koala-api-error("Path variables of the form \"{var...}\" may only"
+                      " occur as the last element in the URL path."
+                      " URL: %s",
+                      join(path, "/"));
+    end;
+  end;
+
+  values(path-prefix, vars)
+end function parse-path-variables;
+
+// Parse a path element into a path variable or literal string if it
+// doesn't use path variable syntax:
+//   "{v}"     => #"v"
+//   "{v...}   => #(#"rest", #"v")  -- may only occur last in path
 //
 define function parse-path-variable
-    (path-element :: <string>) => (var :: type-union(<string>, <symbol>))
+    (path-element :: <string>) => (var)
   if (path-variable?(path-element))
-    as(<symbol>, copy-sequence(path-element,
-                               start: 1,
-                               end: path-element.size - 1))
+    let spec = copy-sequence(path-element, start: 1, end: path-element.size - 1);
+    if (spec.size > 3
+          & "..." = copy-sequence(spec, start: spec.size - 3))
+      list(#"rest", as(<symbol>, copy-sequence(spec, end: spec.size - 3)))
+    else
+      as(<symbol>, spec)
+    end
   else
     koala-api-error("%= is not a path variable.  All URL path elements"
                     " following the first path variable must also be path "
@@ -249,24 +305,37 @@ end function parse-path-variable;
 
 define function path-variable?
     (path-element :: <string>) => (path-variable? :: <boolean>)
-  path-element.size >= 2
+  path-element.size > 2
     & path-element[0] = '{'
     & path-element[path-element.size - 1] = '}'
 end;
 
-// Make a sequence of key/value pairs for passing to respond(resource, #key
+// Make a sequence of key/value pairs for passing to respond(resource, #key)
+//
 define method path-variable-bindings
-    (resource :: <resource>, path-suffix :: <list>) => (bindings :: <sequence>)
+    (resource :: <resource>, path-suffix :: <list>)
+ => (bindings :: <sequence>,
+     unbound :: <sequence>,
+     leftover-suffix :: <list>)
   let bindings = make(<stretchy-vector>);
   for (path-variable in resource.resource-path-variables,
        suffix = path-suffix then rest(suffix))
     let path-element = iff(empty?(suffix), #f, first(suffix));
-    if (instance?(path-variable, <symbol>))
-      add!(bindings, path-variable);
-      add!(bindings, path-element);
-    end;
-  end;
-  bindings
+    select (path-variable by instance?)
+      <symbol> =>
+        add!(bindings, path-variable);
+        add!(bindings, path-element);
+      <list> =>
+        // #(#"rest", {var})
+        add!(bindings, second(path-variable));
+        add!(bindings, suffix);
+        suffix := #();
+    end
+  finally
+    values(bindings,
+           copy-sequence(resource.resource-path-variables, start: bindings.size),
+           suffix)
+  end
 end method path-variable-bindings;
 
 
@@ -520,7 +589,7 @@ end;
 // /x/y, then the request is redirected to /x/y/c/d.  The redirection
 // is implemented by issuing a 301 (moved permanently redirect) response.
 //
-define class <redirecting-resource> (<abstract-resource>)
+define class <redirecting-resource> (<resource>)
   constant slot resource-target :: <uri>,
     required-init-keyword: target:;
 end;
@@ -532,7 +601,7 @@ define method respond
   if (suffix.size > 0 & suffix[0] = '/')
     suffix := copy-sequence(suffix, from: 1);
   end;
-  let path = split(suffix, '/');
+  let path = iff(empty?(suffix), #(), split(suffix, '/'));
   let location = build-uri(make(<uri>,
                                 path: concatenate(target.uri-path, path),
                                 copy-from: target));
@@ -545,7 +614,8 @@ end method respond;
 
 //// Function resources
 
-// A resource that simply calls a function.
+// A resource that simply calls a function.  The function must accept
+// only keyword arguments, one for each path variable it expects.
 //
 define open class <function-resource> (<resource>)
   constant slot resource-function,

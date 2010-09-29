@@ -38,10 +38,10 @@ end;
 
 define function print-resources
     (server :: <http-server>)
-  do-resource(method (res)
-                test-output("  %-25s -- %s", res.resource-url-path, res);
-              end,
-              server.request-router);
+  do-resources(server.request-router,
+               method (res)
+                 test-output("  %-25s -- %s", res.resource-url-path, res);
+               end);
   test-output("\n");
 end;
 

@@ -4,7 +4,7 @@ Module: koala-test-suite
 
 define suite resources-test-suite ()
   suite add-resource-test-suite;
-  test test-path-variable-bindings-application;
+  suite path-variable-test-suite;
   test test-find-resource;
   test test-request-router;
 end;
@@ -118,37 +118,6 @@ end test test-add-resource-path-variables;
 
 //// One-off tests, directly in add-resource-test-suite
 
-// Verify that path variable bindings are passed to respond* methods correctly.
-//
-define test test-path-variable-bindings-application ()
-  let result = unsupplied();
-  local method responder(#rest args)
-          result := copy-sequence(args);
-        end;
-  let resource = function-resource(responder);
-  with-http-server (server = make-server())
-    add-resource(server, "/{x}/{y}", resource);     // (1)
-    add-resource(server, "/c/{x}/{y}", resource);    // (2)
-
-    print-resources(server);
-
-    http-get(test-url("/n"));     // should match pattern (1)
-    check-equal("unsupplied path variables bind to #f?",
-                #(#"x", "n", #"y", #f),
-                result);
-
-    http-get(test-url("/n/m"));     // should match pattern (1)
-    check-equal("path variables at root",
-                #(#"x", "n", #"y", "m"),
-                result);
-
-    http-get(test-url("/c/d/e"));     // should match pattern (2)
-    check-equal("path variables at non root url",
-                #(#"x", "d", #"y", "e"),
-                result);
-  end;
-end test test-path-variable-bindings-application;
-
 define test test-find-resource ()
   local method find-and-verify
             (root, url-string, expected-resource, expected-pre-path, expected-post-path)
@@ -195,4 +164,101 @@ define test test-request-router ()
               resource-c,
               find-resource(server, parse-url("/foo")));
 end test test-request-router;
+
+
+
+//// Path variable suite
+
+define suite path-variable-test-suite ()
+  test test-path-variable-bindings-application;
+  test test-parse-path-variable;
+  test test-variable-arity-mapping
+end;
+
+define test test-parse-path-variable ()
+  check-condition("no path variable", <koala-api-error>, parse-path-variable("x"));
+  check-equal("basic path variable", #"x", parse-path-variable("{x}"));
+  check-equal("rest path variable", #(#"rest", #"x"), parse-path-variable("{x...}"));
+end;
+
+// Verify that path variable bindings are passed to respond* methods correctly.
+//
+define test test-path-variable-bindings-application ()
+  let result = unsupplied();
+  local method responder(#rest args)
+          result := copy-sequence(args);
+        end;
+  let resource = function-resource(responder);
+  with-http-server (server = make-server())
+    add-resource(server, "/{x}/{y}", resource);     // (1)
+    add-resource(server, "/c/{x}/{y}", resource);    // (2)
+
+    print-resources(server);
+
+    http-get(test-url("/n"));     // should match pattern (1)
+    check-equal("unsupplied path variables bind to #f?",
+                #(#"x", "n", #"y", #f),
+                result);
+
+    http-get(test-url("/n/m"));     // should match pattern (1)
+    check-equal("path variables at root",
+                #(#"x", "n", #"y", "m"),
+                result);
+
+    http-get(test-url("/c/d/e"));     // should match pattern (2)
+    check-equal("path variables at non root url",
+                #(#"x", "d", #"y", "e"),
+                result);
+  end;
+end test test-path-variable-bindings-application;
+
+// Verify that a leaf mapping (one that doesn't expect any URL suffix) gives
+// 404 error if suffix is non-empty.
+//
+define test test-variable-arity-mapping ()
+  let bindings = #f;
+  local method set-bindings (#rest args, #key)
+          bindings := args;
+        end;
+
+  // some checks with strict routing enabled...
+  with-http-server (server = make-server(use-strict-routing?: #t))
+    add-resource(server, "/a/b", function-resource(set-bindings));
+    check-equal("baseline: exact match",
+                #[],
+                begin
+                  http-get(test-url("/a/b"));
+                  bindings
+                end);
+    check-condition("extra URL path elements cause 404 with strict routing?",
+                    <resource-not-found-error>,
+                    http-get(test-url("/a/b/extra")));
+
+    add-resource(server, "/x/y/{z...}", function-resource(set-bindings));
+    check-equal("exact URL match gives #() in variable arity arg?",
+                #[z:, #()],
+                begin
+                  http-get(test-url("/x/y"));
+                  bindings
+                end);
+    check-equal("extra URL path elements stored in variable arity arg?",
+                #[z:, #("extra")],
+                begin
+                  http-get(test-url("/x/y/extra"));
+                  bindings
+                end);
+  end;
+
+  // one check with non-strict routing
+  with-http-server (server = make-server(use-strict-routing?: #f))
+    add-resource(server, "/x/y", function-resource(set-bindings));
+    check-equal("extra URL path elements ignored with non-strict routing?",
+                #[],
+                begin
+                  http-get(test-url("/x/y/extra"));
+                  bindings
+                end);
+  end;
+end test test-variable-arity-mapping;
+
 
