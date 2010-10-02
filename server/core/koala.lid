@@ -3,6 +3,7 @@ files:	library
 	utilities
 	vhost
 	response
+	request
 	server
 	resources
 	session
