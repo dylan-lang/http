@@ -872,11 +872,8 @@ define method route-request
   request.request-url-path-suffix := join(suffix, "/");
 
   let (bindings, unbound, leftovers) = path-variable-bindings(resource, suffix);
-  if (~empty?(unbound))
-    handle-unbound-path-variables(resource, unbound);
-  end;
   if (~empty?(leftovers))
-    handle-unmatched-path-elements(resource, leftovers);
+    unmatched-url-suffix(resource, leftovers);
   end;
   apply(respond, resource, bindings);
 end method route-request;

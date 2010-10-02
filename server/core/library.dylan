@@ -89,8 +89,7 @@ define module koala
       respond-to-trace,
       respond-to-connect,
       root-resource?,
-      handle-unmatched-path-elements,
-      handle-unbound-path-variables;
+      unmatched-url-suffix;
 
   // Resource implementations
   create
@@ -178,7 +177,12 @@ define module koala-unit
     parse-path-variable,
     resource-parent,
     resource-path-variables,
-    resource-url-path;
+    resource-url-path,
+    <path-variable>,
+      path-variable-name,
+      path-variable-required?,
+    <star-path-variable>,
+    <plus-path-variable>;
 end module koala-unit;
 
 define module httpi                             // http internals

@@ -102,7 +102,7 @@ define test test-add-resource-path-variables ()
   check-equal("first path variable defines where url prefix ends?", child, found);
   check-equal("add-resource sets path variables correctly?",
               #(#"x", #"y", #"z"),
-              child.resource-path-variables);
+              map(path-variable-name, child.resource-path-variables));
 
   let root = make(<resource>);
   let child = make(<resource>);
@@ -170,95 +170,75 @@ end test test-request-router;
 //// Path variable suite
 
 define suite path-variable-test-suite ()
-  test test-path-variable-bindings-application;
+  test test-path-variable-binding;
   test test-parse-path-variable;
-  test test-variable-arity-mapping
 end;
 
 define test test-parse-path-variable ()
-  check-condition("no path variable", <koala-api-error>, parse-path-variable("x"));
-  check-equal("basic path variable", #"x", parse-path-variable("{x}"));
-  check-equal("rest path variable", #(#"rest", #"x"), parse-path-variable("{x...}"));
-end;
+  check-condition("no path variable",
+                  <koala-api-error>,
+                  parse-path-variable("x"));
 
-// Verify that path variable bindings are passed to respond* methods correctly.
-//
-define test test-path-variable-bindings-application ()
-  let result = unsupplied();
-  local method responder(#rest args)
-          result := copy-sequence(args);
-        end;
-  let resource = function-resource(responder);
-  with-http-server (server = make-server())
-    add-resource(server, "/{x}/{y}", resource);     // (1)
-    add-resource(server, "/c/{x}/{y}", resource);    // (2)
-
-    print-resources(server);
-
-    http-get(test-url("/n"));     // should match pattern (1)
-    check-equal("unsupplied path variables bind to #f?",
-                #(#"x", "n", #"y", #f),
-                result);
-
-    http-get(test-url("/n/m"));     // should match pattern (1)
-    check-equal("path variables at root",
-                #(#"x", "n", #"y", "m"),
-                result);
-
-    http-get(test-url("/c/d/e"));     // should match pattern (2)
-    check-equal("path variables at non root url",
-                #(#"x", "d", #"y", "e"),
-                result);
+  for (item in list(list("{x}", <path-variable>, #"x", #t),
+                    list("{x?}", <path-variable>, #"x", #f),
+                    list("{x*}", <star-path-variable>, #"x", #f),
+                    list("{x+}", <plus-path-variable>, #"x", #t)))
+    let (text, class, name, required?) = apply(values, item);
+    let pvar = parse-path-variable(text);
+    check-equal(fmt("%s class", text), class, pvar.object-class);
+    check-equal(fmt("%s name", text), name, pvar.path-variable-name);
+    check-equal(fmt("%s required?", text), required?, pvar.path-variable-required?);
   end;
-end test test-path-variable-bindings-application;
+end test test-parse-path-variable;
+
 
 // Verify that a leaf mapping (one that doesn't expect any URL suffix) gives
 // 404 error if suffix is non-empty.
 //
-define test test-variable-arity-mapping ()
+define test test-path-variable-binding ()
   let bindings = #f;
   local method set-bindings (#rest args, #key)
           bindings := args;
         end;
 
-  // some checks with strict routing enabled...
-  with-http-server (server = make-server(use-strict-routing?: #t))
-    add-resource(server, "/a/b", function-resource(set-bindings));
-    check-equal("baseline: exact match",
-                #[],
-                begin
-                  http-get(test-url("/a/b"));
-                  bindings
-                end);
-    check-condition("extra URL path elements cause 404 with strict routing?",
-                    <resource-not-found-error>,
-                    http-get(test-url("/a/b/extra")));
+  with-http-server (server = make-server())
+    add-resource(server, "/a/b",      function-resource(set-bindings));
+    add-resource(server, "/x/y/{z*}", function-resource(set-bindings));
+    add-resource(server, "/m/n/{o+}", function-resource(set-bindings));
+    add-resource(server, "/r/s/{t}/{u?}", function-resource(set-bindings));
 
-    add-resource(server, "/x/y/{z...}", function-resource(set-bindings));
-    check-equal("exact URL match gives #() in variable arity arg?",
-                #[z:, #()],
-                begin
-                  http-get(test-url("/x/y"));
-                  bindings
-                end);
-    check-equal("extra URL path elements stored in variable arity arg?",
-                #[z:, #("extra")],
-                begin
-                  http-get(test-url("/x/y/extra"));
-                  bindings
-                end);
-  end;
+    for (item in list(#("/a/b",     #[]),
+                      #("/a/b/c",   404),
 
-  // one check with non-strict routing
-  with-http-server (server = make-server(use-strict-routing?: #f))
-    add-resource(server, "/x/y", function-resource(set-bindings));
-    check-equal("extra URL path elements ignored with non-strict routing?",
-                #[],
-                begin
-                  http-get(test-url("/x/y/extra"));
-                  bindings
-                end);
-  end;
-end test test-variable-arity-mapping;
+                      #("/x/y",     #[#"z", #()]),
+                      #("/x/y/z",   #[#"z", #("z")]),
+                      #("/x/y/z/q", #[#"z", #("z", "q")]),
+
+                      #("/m/n",     404),
+                      #("/m/n/o",   #[#"o", #("o")]),
+                      #("/m/n/o/p", #[#"o", #("o", "p")]),
+
+                      #("/r/s",       404),
+                      #("/r/s/t",     #[#"t", "t", #"u", #f]),
+                      #("/r/s/t/u",   #[#"t", "t", #"u", "u"]),
+                      #("/r/s/t/u/v", 404)))
+      let url = item[0];
+      let expected = item[1];
+      if (expected = 404)
+        check-condition(fmt("%s yields 404?", url),
+                        <resource-not-found-error>,
+                        http-get(test-url(url)));
+      else
+        check-equal(fmt("%s yields %s?", url, expected),
+                    expected,
+                    begin
+                      http-get(test-url(url));
+                      bindings
+                    end);
+      end;
+    end for;
+  end with-http-server;
+
+end test test-path-variable-binding;
 
 

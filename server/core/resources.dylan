@@ -34,26 +34,14 @@ define open generic root-resource?
 // a chance to signal 404, for example.  In many applications you might want
 // to do this (at least during development or QA) so that incorrect URLs can
 // be discovered quickly.
-define open generic handle-unmatched-path-elements
+define open generic unmatched-url-suffix
     (resource :: <abstract-resource>, unmatched-path :: <sequence>);
 
-define method handle-unmatched-path-elements
+define method unmatched-url-suffix
     (resource :: <abstract-resource>, unmatched-path :: <sequence>)
-  log-warning("Unmatched path elements for resource %s: %s",
-              resource, unmatched-path);
-end;
-
-
-// Called if the request URL doesn't have enough path elements to bind every
-// path variable to a value.  The default is to log a warning and pass #f for
-// unbound variables.
-define open generic handle-unbound-path-variables
-    (resource :: <abstract-resource>, unbound-variables :: <sequence>);
-
-define method handle-unbound-path-variables
-    (resource :: <abstract-resource>, unbound-variables :: <sequence>)
-  log-warning("Unbound path variables for resource %s: %s",
-              resource, unbound-variables);
+  log-debug("Unmatched URL suffix for resource %s: %s",
+            resource, unmatched-path);
+  resource-not-found-error();
 end;
 
 
@@ -261,6 +249,25 @@ end method add-resource;
 
 //// path variables
 
+//   "{v}"     => <path-variable> (required)
+//   "{v?}"    => <path-variable> (optional)
+//   "{v*}"    => <star-path-variable> (matches zero or more path elements)
+//   "{v+}"    => <plus-path-variable> (matches one or more path elements)
+
+// {v} or {v?}
+define sealed class <path-variable> (<object>)
+  constant slot path-variable-name :: <symbol>,
+    required-init-keyword: name:;
+  constant slot path-variable-required? :: <boolean>,
+    required-init-keyword: required?:;
+end;
+
+// {v*}
+define sealed class <star-path-variable> (<path-variable>) end;
+
+// {v+}
+define sealed class <plus-path-variable> (<path-variable>) end;
+
 define function parse-path-variables
     (path :: <sequence>) => (prefix :: <sequence>, vars :: <sequence>)
   let index = find-key(path, path-variable?) | path.size;
@@ -268,11 +275,12 @@ define function parse-path-variables
   let path-prefix = as(<list>, copy-sequence(path, end: index));
   let vars = map(parse-path-variable, path-vars);
 
-  // disallow {var...} except at the end of the path.
+  // disallow {v*} or {v+} except at the end of the path.
   for (item in copy-sequence(vars, end: max(0, vars.size - 1)))
-    if (instance?(item, <list>) & first(item) = #"rest")
-      koala-api-error("Path variables of the form \"{var...}\" may only"
-                      " occur as the last element in the URL path."
+    if (instance?(item, <star-path-variable>)
+          | instance?(item, <plus-path-variable>))
+      koala-api-error("Path variables of the form \"{var*}\" or \"{var+}\""
+                      " may only occur as the last element in the URL path."
                       " URL: %s",
                       join(path, "/"));
     end;
@@ -281,20 +289,27 @@ define function parse-path-variables
   values(path-prefix, vars)
 end function parse-path-variables;
 
-// Parse a path element into a path variable or literal string if it
-// doesn't use path variable syntax:
-//   "{v}"     => #"v"
-//   "{v...}   => #(#"rest", #"v")  -- may only occur last in path
-//
 define function parse-path-variable
-    (path-element :: <string>) => (var)
+    (path-element :: <string>) => (var :: <path-variable>)
   if (path-variable?(path-element))
     let spec = copy-sequence(path-element, start: 1, end: path-element.size - 1);
-    if (spec.size > 3
-          & "..." = copy-sequence(spec, start: spec.size - 3))
-      list(#"rest", as(<symbol>, copy-sequence(spec, end: spec.size - 3)))
+    if (spec.size = 1)
+      make(<path-variable>, name: as(<symbol>, spec), required?: #t)
     else
-      as(<symbol>, spec)
+      let modifier = spec[spec.size - 1];
+      let class = <path-variable>;
+      let required? = #t;
+      select (modifier by \=)
+        '?' => required? := #f;
+        '*' => class := <star-path-variable>;
+               required? := #f;
+        '+' => class := <plus-path-variable>;
+        otherwise => #f;
+      end;
+      if (member?(modifier, "?*+"))
+        spec := copy-sequence(spec, end: spec.size - 1);
+      end;
+      make(class, name: as(<symbol>, spec), required?: required?)
     end
   else
     koala-api-error("%= is not a path variable.  All URL path elements"
@@ -318,22 +333,39 @@ define method path-variable-bindings
      unbound :: <sequence>,
      leftover-suffix :: <list>)
   let bindings = make(<stretchy-vector>);
-  for (path-variable in resource.resource-path-variables,
+  log-debug("pvars = %s", resource.resource-path-variables);
+  for (pvar in resource.resource-path-variables,
        suffix = path-suffix then rest(suffix))
-    let path-element = iff(empty?(suffix), #f, first(suffix));
-    select (path-variable by instance?)
-      <symbol> =>
-        add!(bindings, path-variable);
-        add!(bindings, path-element);
-      <list> =>
-        // #(#"rest", {var})
-        add!(bindings, second(path-variable));
+    select (pvar by instance?)
+      <star-path-variable> =>
+        add!(bindings, pvar.path-variable-name);
         add!(bindings, suffix);
         suffix := #();
-    end
+      <plus-path-variable> =>
+        if (empty?(suffix))
+          log-debug("plus var not there");
+          resource-not-found-error();
+        else
+          add!(bindings, pvar.path-variable-name);
+          add!(bindings, suffix);
+          suffix := #();
+        end;
+      <path-variable> =>
+        let path-element = iff(empty?(suffix), #f, first(suffix));
+        if (pvar.path-variable-required? & ~path-element)
+          log-debug("pvar required but not there.");
+          resource-not-found-error();
+        else
+          add!(bindings, pvar.path-variable-name);
+          add!(bindings, path-element);
+        end;
+    end select;
+    log-debug("suffix = %s", suffix);
   finally
+    log-debug("suffix finally = %s", suffix);
     values(bindings,
-           copy-sequence(resource.resource-path-variables, start: bindings.size),
+           copy-sequence(resource.resource-path-variables,
+                         start: floor/(bindings.size, 2)),
            suffix)
   end
 end method path-variable-bindings;
@@ -626,6 +658,7 @@ define open class <function-resource> (<resource>)
   //
   constant slot resource-request-methods :: <collection> = #(#"get", #"post"),
     init-keyword: methods:;
+
 end;
 
 // Turn a function into a resource.
