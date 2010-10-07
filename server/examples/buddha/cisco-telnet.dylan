@@ -67,7 +67,7 @@ define method run (control :: <cisco-ios-telnet-control>)
              let line = read-whats-available(control.socket, 
                                              timeout: 1,
                                              end-marker: "Password:");
-             let (banner, prompt) = regex-search-strings(line, "(.*)(Password:)");
+             let (banner, prompt) = regex-search-strings(compile-regex("(.*)(Password:)"), line);
              if (banner)
                control.device.banner := banner;
                write-line(control.socket, 
@@ -83,7 +83,7 @@ define method run (control :: <cisco-ios-telnet-control>)
              let line = read-whats-available(control.socket, 
                                              timeout: 1,
                                              end-marker: ">");
-             let (match, hostname) = regex-search-strings(line, "(.*)>");
+             let (match, hostname) = regex-search-strings(compile-regex("(.*)>"), line);
              if (match)
                control.device.host-name := hostname;
                write-line(control.socket, "enable");
@@ -101,7 +101,7 @@ define method run (control :: <cisco-ios-telnet-control>)
              let line = read-whats-available(control.socket, 
                                              timeout: 1,
                                              end-marker: "#");
-             if (regex-search(line, "#"))
+             if (regex-search(compile-regex("#"), line))
                control.connection-state := #"enabled"
              else
                error("enable password invalid")

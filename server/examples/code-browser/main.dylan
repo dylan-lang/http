@@ -107,9 +107,12 @@ end;
 
 define function markup-dylan-source(source :: <string>)
  => (processed-source :: <string>);
-  regex-replace(regex-replace(regex-replace(source, "&", "&amp;"),
-                              "<", "&lt;"),
-                ">", "&gt;");
+  let amp = compile-regex("&");
+  let lt  = compile-regex("<");
+  let gt  = compile-regex(">");
+  regex-replace(regex-replace(regex-replace(source, amp, "&amp;"),
+                              lt, "&lt;"),
+                gt, "&gt;");
 end function markup-dylan-source;
 
 //XXX: refactor this into the specific tags - each tag which may be a reference
