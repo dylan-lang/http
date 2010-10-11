@@ -39,16 +39,16 @@ The ``respond`` methods for ``<user>`` and ``<group>`` are similar.  Notice that
 
 Lastly, we'll connect ``$wiki-app`` to the root URL (/) and start the server::
 
-    define constant $server = make(<http-server>, listeners: #("0.0.0.0:8000"));
+    define constant $server = make(<http-server>, listeners: #("0.0.0.0:8888"));
     add-resource($server, "/", $wiki-app);
     start-server($server);
 
 That's it.  Run the server and click on some of these URLs to see the corresponding behavior:
 
-* http://127.0.0.1:8000/page/view/Foo/3
-* http://127.0.0.1:8000/page/view/Foo
-* http://127.0.0.1:8000/user/add/cgay
-* http://127.0.0.1:8000/group/remove/administrators
+* http://127.0.0.1:8888/page/view/Foo/3
+* http://127.0.0.1:8888/page/view/Foo
+* http://127.0.0.1:8888/user/add/cgay
+* http://127.0.0.1:8888/group/remove/administrators
 
 Here's the full code listing::
 
@@ -90,7 +90,7 @@ Here's the full code listing::
 	     action, name);
     end;
 
-    define constant $server = make(<http-server>, listeners: #("0.0.0.0:8000"));
+    define constant $server = make(<http-server>, listeners: #("0.0.0.0:8888"));
     add-resource($server, "/", $wiki-app);
     start-server($server);
 
