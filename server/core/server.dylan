@@ -156,7 +156,10 @@ define sealed method make
  => (server :: <server>)
   // listeners, if specified, is a sequence of <listener>s, or strings in
   // the form "addr:port".
-  let listeners = map-as(<stretchy-vector>, make-listener, listeners | #[]);
+  let listeners = map-as(<stretchy-vector>, make-listener,
+                         iff(listeners & ~empty?(listeners),
+                             listeners,
+                             "0.0.0.0:80"));
   let lock = make(<simple-lock>);
   let listeners-notification = make(<notification>, lock: lock);
   let clients-notification = make(<notification>, lock: lock);
