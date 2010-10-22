@@ -11,12 +11,6 @@ define class <basic-request> (<object>)
     required-init-keyword: client:;
 end;
 
-define method initialize
-    (request :: <basic-request>, #key, #all-keys)
-  next-method();
-  request.request-client.client-request := request;
-end;
-
 define inline function request-socket
     (request :: <basic-request>)
  => (socket :: <tcp-socket>)
@@ -25,7 +19,7 @@ end;
 
 define inline function request-server
     (request :: <basic-request>)
- => (server :: <server>)
+ => (server :: <http-server>)
   request.request-client.client-server
 end;
 

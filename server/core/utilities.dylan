@@ -183,3 +183,30 @@ end method redirect-temporarily-to;
 define method redirect-temporarily-to (url :: <url>)
   redirect-temporarily-to(build-uri(url));
 end;
+
+
+
+//// <page-context>
+
+// Gives the user a place to store values that will have a lifetime
+// equal to the duration of the handling of the request.  The name is
+// stolen from JSP's PageContext class, but it's not intended to serve the
+// same purpose.  Use set-attribute(page-context, key, val) to store attributes
+// for the page and get-attribute(page-context, key) to retrieve them.
+
+define class <page-context> (<attributes-mixin>)
+end;
+
+define thread variable *page-context* :: false-or(<page-context>) = #f;
+
+define method page-context
+    () => (context :: false-or(<page-context>))
+  if (*request*)
+    *page-context* | (*page-context* := make(<page-context>))
+  else
+    application-error(message: "There is no active HTTP request.")
+  end;
+end;
+
+
+

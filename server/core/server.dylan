@@ -102,9 +102,6 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   constant slot clients-shutdown-notification :: <notification>,
     required-init-keyword: clients-shutdown-notification:;
 
-  constant slot listener-shutdown-timeout :: <real> = 5;
-  constant slot client-shutdown-timeout :: <real> = 5;
-
   constant slot request-class :: subclass(<basic-request>) = <request>,
     init-keyword: request-class:;
 
@@ -148,18 +145,15 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
 
 end class <http-server>;
 
-// get rid of this eventually.  <http-server> is the new name.
-define constant <server> = <http-server>;
-
 define sealed method make
-    (class == <server>, #rest keys, #key listeners)
- => (server :: <server>)
+    (class :: subclass(<http-server>), #rest keys, #key listeners)
+ => (server :: <http-server>)
   // listeners, if specified, is a sequence of <listener>s, or strings in
   // the form "addr:port".
   let listeners = map-as(<stretchy-vector>, make-listener,
                          iff(listeners & ~empty?(listeners),
                              listeners,
-                             "0.0.0.0:80"));
+                             #("0.0.0.0:80")));
   let lock = make(<simple-lock>);
   let listeners-notification = make(<notification>, lock: lock);
   let clients-notification = make(<notification>, lock: lock);
@@ -188,7 +182,8 @@ end method initialize;
 
 define sealed domain initialize (<http-server>);
 
-define function release-client (client :: <client>)
+define function release-client
+    (client :: <client>)
   let server = client.client-server;
   with-lock (server.server-lock)
     remove!(server.server-clients, client);
@@ -209,13 +204,9 @@ define class <listener> (<object>)
     init-value: #f,
     init-keyword: socket:;
 
-  // Maybe should hold some mark of who requested it..
-  slot listener-exit-requested? :: <boolean> = #f;
+  slot listener-thread :: <thread> = #f;
 
-  // The time when server entered 'accept', so we can
-  // abort it if it's hung...
-  // This gets set but is otherwise unused so far.
-  slot listener-listen-start :: false-or(<date>) = #f;
+  slot listener-exit-requested? :: <boolean> = #f;
 
   // Statistics
   slot connections-accepted :: <integer> = 0;
@@ -289,7 +280,7 @@ end;
 
 
 define class <client> (<object>)
-  constant slot client-server :: <server>,
+  constant slot client-server :: <http-server>,
     required-init-keyword: server:;
 
   constant slot client-listener :: <listener>,
@@ -301,34 +292,9 @@ define class <client> (<object>)
   constant slot client-thread :: <thread>,
     required-init-keyword: thread:;
 
-  slot client-request :: <basic-request>;
-end;
+end class <client>;
 
 
-//// <page-context>
-
-// Gives the user a place to store values that will have a lifetime
-// equal to the duration of the handling of the request.  The name is
-// stolen from JSP's PageContext class, but it's not intended to serve the
-// same purpose.  Use set-attribute(page-context, key, val) to store attributes
-// for the page and get-attribute(page-context, key) to retrieve them.
-
-define class <page-context> (<attributes-mixin>)
-end;
-
-define thread variable *page-context* :: false-or(<page-context>) = #f;
-
-define method page-context
-    () => (context :: false-or(<page-context>))
-  if (*request*)
-    *page-context* | (*page-context* := make(<page-context>))
-  else
-    application-error(message: "There is no active HTTP request.")
-  end;
-end;
-
-
-
 // TODO: make thread safe
 define variable *sockets-started?* :: <boolean> = #f;
 
@@ -403,7 +369,7 @@ define function wait-for-listeners-to-start
   // Either make a connection to each listener or signal an error.
   for (listener in listeners)
     let start :: <date> = current-date();
-    let max-wait = make(<duration>, days: 0, hours: 0, minutes: 0, seconds: 1,
+    let max-wait = make(<duration>, days: 0, hours: 0, minutes: 0, seconds: 10,
                         microseconds: 0);
     iterate loop (iteration = 1)
       let socket = #f;
@@ -435,101 +401,66 @@ define function wait-for-listeners-to-start
   end for;
 end function wait-for-listeners-to-start;
 
-define function join-listeners
-    (server :: <server>)
-  // Don't use join-thread, because no timeouts, so could hang.
-  // eh?
-  block (return)
-    while (#t)
-      sleep(1);
-      with-lock (server.server-lock)
-        if (empty?(server.server-listeners))
-          return();
-        end;
-      end;
-    end;
-  end;
-end;
-
 define open generic stop-server
     (server :: <http-server>, #key abort);
 
 define method stop-server
     (server :: <http-server>, #key abort)
-  abort-listeners(server);
-  when (~abort)
-    join-clients(server, timeout: server.client-shutdown-timeout);
-  end;
-  abort-clients(server);
+  stop-listeners(server);
+  join-clients(server);
   log-info("%s HTTP server stopped", $server-name);
 end method stop-server;
 
-define function abort-listeners (server :: <server>)
-  iterate next ()
-    let listener = with-lock (server.server-lock)
-                     any?(method (listener :: <listener>)
-                            ~listener.listener-exit-requested? & listener
-                          end,
-                          server.server-listeners);
-                   end;
-    when (listener)
-      listener.listener-exit-requested? := #t; // don't restart
-      synchronize-side-effects();
-      if (listener.listener-socket)
-        close(listener.listener-socket, abort?: #t);
-      end;
-      next();
-    end;
-  end iterate;
-  // Don't use join-thread, because no timeouts, so could hang.
-  let n = with-lock (server.server-lock)
-            if (~empty?(server.server-listeners))
-              if (~wait-for(server.listeners-shutdown-notification,
-                            timeout: server.listener-shutdown-timeout))
-                log-info("Timed out waiting for listeners to shut down.");
-              end;
-            end;
-            let n = server.server-listeners.size;
-            server.server-listeners.size := 0;
-            n
-          end;
-  when (n > 0)
-    log-warning("Listeners shutdown timed out, %d left", n);
+define function stop-listeners
+    (server :: <http-server>)
+  for (listener in server.server-listeners)
+    listener.listener-exit-requested? := #t;
   end;
-end abort-listeners;
+  synchronize-side-effects();
+  
+  // Connect to each listener to make its call to accept() return.
+  for (listener in server.server-listeners)
+    let socket = #f;
+    block ()
+      let host = listener.listener-host;
+      let conn-host = iff(host = "0.0.0.0", "127.0.0.1", host);
+      socket := make(<tcp-socket>,
+                     host: conn-host,
+                     port: listener.listener-port);
+    cleanup
+      socket & close(socket);
+    exception (ex :: <connection-failed>)
+    exception (ex :: <error>)
+    end block;
+  end for;
+  join-listeners(server);
+end function stop-listeners;
 
-// At this point all listeners have been shut down, so shouldn't
-// be spawning any more clients.
-define function abort-clients (server :: <server>, #key abort)
-  with-lock (server.server-lock)
-    for (client in server.server-clients)
-      close(client.client-socket, abort: abort);
-    end;
+define function join-listeners
+    (server :: <http-server>)
+  for (listener in server.server-listeners)
+    join-thread(listener.listener-thread);
   end;
-  let n = join-clients(server, timeout: server.client-shutdown-timeout);
-  when (n > 0)
-    log-warning("Clients shutdown timed out, %d left", n);
-  end;
-end abort-clients;
+end;
 
 define function join-clients
-    (server :: <server>, #key timeout)
- => (clients-left :: <integer>)
-  with-lock (server.server-lock)
-    if (~empty?(server.server-clients))
-      if (~wait-for(server.clients-shutdown-notification,
-                    timeout: timeout))
-        log-info("Timed out waiting for clients to shut down.");
-      end;
-    end;
-    let n = server.server-clients.size;
-    server.server-clients.size := 0;
-    n
+    (server :: <http-server>)
+  // Clients are removed from server.server-clients when they exit,
+  // which can result in #f being stored in the <stretchy-vector>
+  // before its size is updated.  Hence the lock.
+  let clients = with-lock (server.server-lock)
+                  copy-sequence(server.server-clients)
+                end;
+  for (client in clients)
+    close(client.client-socket, abort?: #t);
+    log-info("Waiting for shut down of %s...", client);
+    join-thread(client.client-thread);
+    log-info("Client %s shut down", client);
   end;
-end join-clients;
+end function join-clients;
 
 define function start-http-listener
-    (server :: <server>, listener :: <listener>)
+    (server :: <http-server>, listener :: <listener>)
   let server-lock = server.server-lock;
   local method release-listener ()
           remove!(server.server-listeners, listener);
@@ -556,9 +487,10 @@ define function start-http-listener
   with-lock (server-lock)
     block ()
       make-socket(listener);
-      make(<thread>,
-           name: listener.listener-name,
-           function: run-listener-top-level);
+      let thread = make(<thread>,
+                        name: listener.listener-name,
+                        function: run-listener-top-level);
+      listener.listener-thread := thread;
     exception (ex :: <socket-condition>)
       log-error("Error creating socket for %s: %s", listener.listener-name, ex);
       release-listener();
@@ -567,7 +499,7 @@ define function start-http-listener
 end start-http-listener;
 
 define function listener-top-level
-    (server :: <server>, listener :: <listener>)
+    (server :: <http-server>, listener :: <listener>)
   with-socket-thread (server?: #t)
     // loop spawning clients until listener socket gets broken.
     do-http-listen(server, listener);
@@ -601,12 +533,10 @@ end listener-top-level;
 // Listen and spawn handlers until listener socket breaks.
 //
 define function do-http-listen
-    (server :: <server>, listener :: <listener>)
+    (server :: <http-server>, listener :: <listener>)
   let server-lock = server.server-lock;
   log-info("%s ready for service", listener.listener-name);
   iterate loop ()
-    // Let outsiders know when we've blocked...
-    listener.listener-listen-start := current-date();
     let socket = block ()
                    unless (listener.listener-exit-requested?)
                      // use "element-type: <byte>" here?
@@ -624,23 +554,13 @@ define function do-http-listen
                    #f
                  end;
     synchronize-side-effects();
-    listener.listener-listen-start := #f;
     when (socket)
       //---TODO: should limit number of clients.
       let client = #f;
       local method do-respond ()
               with-lock (server-lock) end;   // Wait for setup to finish.
               let client :: <client> = client;
-              block ()
-                with-socket-thread ()
-                  handler-top-level(client);
-                end;
-              cleanup
-                log-debug("Closing socket for %s", client);
-                ignore-errors(<socket-condition>,
-                              close(client.client-socket, abort: #t));
-                release-client(client);
-              end;
+              respond-top-level(client);
             end method;
       with-lock (server-lock)
         block()
@@ -649,7 +569,7 @@ define function do-http-listen
           let thread = make(<thread>,
                             name: format-to-string("HTTP Responder %d",
                                                    server.connections-accepted),
-                            function:  do-respond);
+                            function: do-respond);
           client := make(<client>,
                          server: server,
                          listener: listener,
@@ -663,7 +583,6 @@ define function do-http-listen
       loop();
     end when;
   end iterate;
-  log-debug("Closing socket for %s", listener);
   close(listener.listener-socket, abort: #t);
 end function do-http-listen;
 
@@ -686,7 +605,20 @@ end;
 // If keep-alive is requested, wait for more requests on the same
 // connection.
 //
-define function handler-top-level
+define function respond-top-level
+    (client :: <client>)
+  block ()
+    with-socket-thread ()
+      %respond-top-level(client);
+    end;
+  cleanup
+    ignore-errors(<socket-condition>,
+                  close(client.client-socket, abort: #t));
+    release-client(client);
+  end;
+end function respond-top-level;
+
+define function %respond-top-level
     (client :: <client>)
   dynamic-bind (*request* = #f,
                 *server* = client.client-server,
@@ -694,7 +626,7 @@ define function handler-top-level
                 *error-logger* = *server*.error-logger,
                 *request-logger* = *server*.request-logger,
                 *http-common-log* = *debug-logger*)
-    block (exit-handler-top-level)
+    block (exit-respond-top-level)
       while (#t)                      // keep alive loop
         let request :: <basic-request>
           = make(client.client-server.request-class, client: client);
@@ -704,7 +636,7 @@ define function handler-top-level
             // More recently installed handlers take precedence...
             let handler <error> = rcurry(htl-error-handler, finish-request);
             let handler <stream-error>
-              = rcurry(htl-error-handler, exit-handler-top-level,
+              = rcurry(htl-error-handler, exit-respond-top-level,
                        send-response: #f,
                        decline-if-debugging: #f);
             // This handler casts too wide of a net.  There's no reason to catch
@@ -712,7 +644,7 @@ define function handler-top-level
             // <host-not-found> here.  But it's not clear what it SHOULD be catching
             // either.  --cgay Feb 2009
             let handler <socket-condition>
-              = rcurry(htl-error-handler, exit-handler-top-level,
+              = rcurry(htl-error-handler, exit-respond-top-level,
                        send-response: #f,
                        decline-if-debugging: #f);
             let handler <http-error> = rcurry(htl-error-handler, finish-request,
@@ -733,14 +665,15 @@ define function handler-top-level
             end;
             force-output(request.request-socket);
           end block; // finish-request
-          if (~request-keep-alive?(request))
-            exit-handler-top-level();
+          if (client.client-listener.listener-exit-requested?
+              | ~request-keep-alive?(request))
+            exit-respond-top-level();
           end;
         end with-simple-restart;
       end while;
-    end block; // exit-handler-top-level
+    end block; // exit-respond-top-level
   end dynamic-bind;
-end function handler-top-level;
+end function %respond-top-level;
 
 // Find a resource for the request and call respond on it.
 // Signal 404 if no resource can be found.

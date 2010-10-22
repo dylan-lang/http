@@ -16,7 +16,7 @@ define macro with-http-server
          ?body
        cleanup
          if (_server)
-           stop-server(_server);
+           stop-server(_server, abort: #t);
          end
        end;
      }

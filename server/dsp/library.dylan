@@ -58,6 +58,9 @@ define module dsp
   use threads;
   use uncommon-dylan;
   use uri;
+  use xml-parser,
+    prefix: "xml$",
+    import: { <element> };
   use simple-xml,
     import: { with-xml };
 
