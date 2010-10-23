@@ -485,16 +485,17 @@ define function start-http-listener
           end dynamic-bind;
         end method;
   with-lock (server-lock)
-    block ()
-      make-socket(listener);
-      let thread = make(<thread>,
-                        name: listener.listener-name,
-                        function: run-listener-top-level);
-      listener.listener-thread := thread;
-    exception (ex :: <socket-condition>)
-      log-error("Error creating socket for %s: %s", listener.listener-name, ex);
-      release-listener();
-    end block;
+    let handler <serious-condition>
+      = method (cond, next-handler)
+          log-error("Error creating socket for %s: %s", listener.listener-name, cond);
+          release-listener();
+          next-handler();
+        end;
+    make-socket(listener);
+    let thread = make(<thread>,
+                      name: listener.listener-name,
+                      function: run-listener-top-level);
+    listener.listener-thread := thread;
   end;
 end start-http-listener;
 

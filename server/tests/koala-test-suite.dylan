@@ -76,7 +76,6 @@ define test conflicting-listener-ips-test ()
                     <address-in-use>,
                     start-server(server, background: #t, wait: #t));
   cleanup
-    // Note that listener threads are still running.
     stop-server(server);
   end;
 end test conflicting-listener-ips-test;
