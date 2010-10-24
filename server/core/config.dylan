@@ -480,14 +480,14 @@ define method process-config-element
     let default-content-type
       = string-to-mime-type(get-attr(node, #"default-content-type") | "text/plain",
                             class: <media-type>);
-    let policy = make(<directory-resource>,
-                      directory: location,
-                      allow-multi-views?: multi? & true-value?(multi?),
-                      follow-symlinks?: follow? & true-value?(follow?),
-                      allow-directory-listing?: dirlist? & true-value?(dirlist?),
-                      default-documents: indexes,
-                      default-content-type: default-content-type);
-    add-resource(%vhost, parse-url(url), policy);
+    let resource = make(<directory-resource>,
+                        directory: location,
+                        allow-multi-views?: multi? & true-value?(multi?),
+                        follow-symlinks?: follow? & true-value?(follow?),
+                        allow-directory-listing?: dirlist? & true-value?(dirlist?),
+                        default-documents: indexes,
+                        default-content-type: default-content-type);
+    add-resource(%vhost, parse-url(url), resource);
     for (child in xml$node-children(node))
       process-config-element(server, child, xml$name(child));
     end;
@@ -505,8 +505,8 @@ define method process-config-element
               | warn("Invalid <cgi-directory> spec.  The 'url' attribute is "
                      "required.");
   let location = get-attr(node, #"location")
-                   | warn("Invalid <DIRECTORY> spec.  The 'location' attribute "
-                          "is required.");
+                   | warn("Invalid <cgi-directory> spec.  The 'location' "
+                          "attribute is required.");
   if (url & location)
     log-info("CGI directory %s added at URL %s", location, url);
     let location = as(<directory-locator>, get-attr(node, #"location"));

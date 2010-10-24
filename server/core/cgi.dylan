@@ -10,6 +10,8 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 // CGI 1.1 specification: http://www.rfc-editor.org/rfc/rfc3875.txt
 // CGI 1.2 specification draft: http://ken.coar.org/cgi/cgi-120-00a.html
 
+define variable *debug-cgi?* :: <boolean> = #t;
+
 define open class <cgi-script-resource> (<resource>)
   constant slot resource-locator :: <file-system-file-locator>,
     required-init-keyword: locator:;
@@ -53,6 +55,11 @@ define method make
   apply(next-method, class,
         locator: as(<directory-locator>, locator),
         args)
+end;
+
+// Don't err if unmatched suffix remains
+define method unmatched-url-suffix
+    (resource :: <cgi-directory-resource>, suffix :: <sequence>)
 end;
 
 define method respond-to-post
@@ -154,6 +161,14 @@ define method serve-cgi-script
                       //activate?: #f,
                       //minimize?: #t,
                       //hide?: #t);
+  let handler <serious-condition>
+    = method (cond, next-handler)
+        log-error("  CGI terminated with error: %s", cond);
+        log-debug("  CGI stdout = %s", %read-buffered-data(stdout));
+        if (*debug-cgi?*)
+          next-handler()
+        end
+      end;
   block ()
     if (exit-code ~= 0)
       log-error("CGI failed to launch: %s, exit-code: %s, signal: %s",
@@ -167,9 +182,6 @@ define method serve-cgi-script
     let (exit-code, signal) = wait-for-application-process(child);
     log-debug("  CGI terminated: %s, exit-code: %s, signal: %s",
               command, exit-code, signal);
-  exception (ex :: <serious-condition>)
-    log-error("  CGI terminated with error: %s", ex);
-    log-debug("  CGI stdout = %s", %read-buffered-data(stdout));
   end;
 end method serve-cgi-script;
 
@@ -227,7 +239,7 @@ define method process-cgi-script-output
     if (absolute?(target-url))
       redirect-to(target-url);
     else
-      internal-redirect-to(target-url);
+      internal-redirect-to(location);
     end;
   else
     // The CGI script is generating the response body...

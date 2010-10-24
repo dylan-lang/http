@@ -52,6 +52,11 @@ define method make
         args)
 end;
 
+// Don't err if unmatched suffix remains
+define method unmatched-url-suffix
+    (resource :: <directory-resource>, suffix :: <sequence>)
+end;
+
 define method respond-to-get
     (policy :: <directory-resource>, #key)
   let suffix :: <string> = request-url-path-suffix(current-request());

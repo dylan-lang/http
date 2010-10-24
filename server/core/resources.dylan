@@ -101,8 +101,7 @@ define open class <resource> (<abstract-resource>, <abstract-router>)
   // from the request URL suffix, if available.  They are also used in URL
   // generation.  When a link is generated with f(... title: "t", version: "v")
   // this slot tells us where those arguments fit into the URL by virtue of
-  // the fact that its elements are ordered.  See handle-unbound-path-variables
-  // and handle-unmatched-path-elements.
+  // the fact that its elements are ordered.  See unmatched-url-suffix.
   //
   slot resource-path-variables :: <sequence> = #();
 

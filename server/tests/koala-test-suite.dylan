@@ -170,11 +170,7 @@ define method main () => ()
       *http-common-log*.log-level := $trace-level;
       *http-client-log*.log-level := $trace-level;
       *log-content?* := #t;  // koala variable, not yet configurable.
-
       run-test-application(koala-test-suite);
-      // Work around bug in new-io.  It should force-output before the
-      // application exits.
-      force-output(*standard-output*);
     else
       // We're being invoked as a CGI script.
       // Note: don't log anything in this branch since it will become

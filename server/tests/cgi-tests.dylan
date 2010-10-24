@@ -4,8 +4,6 @@ Synopsis: Tests for CGI functionality
 // CGI 1.2 specification draft: http://ken.coar.org/cgi/cgi-120-00a.html
 // CGI 1.1 "spec": http://hoohoo.ncsa.illinois.edu/cgi/interface.html
 
-//add-target(get-logger("http.common"), $stdout-log-target);
-
 define suite cgi-test-suite ()
   test cgi-location-header-test;
   test cgi-required-environment-variables-test;
@@ -18,18 +16,15 @@ end suite cgi-test-suite;
 
 define function make-cgi-server
     (#key server-root :: <string>) => (server :: <http-server>)
-  let cfg = "<?xml version=\"1.0\"?>\n"
-            "<koala>\n"
-            "<server-root   location=\"%s\" />\n"
-            "<document-root location=\".\" />\n"
-            "<debug-server value=\"on\"/>\n"
-            "<debug-log level=\"trace\"/>\n"
-            "<error-log level=\"trace\"/>\n"
-            "<request-log level=\"trace\"/>\n"
-            "<directory pattern=\"/*\" allow-cgi=\"yes\" cgi-extensions=\"cgi,bat,exe\"/>\n"
-            "</koala>\n";
+  let text = "<server root=\"%s\" debug=\"on\" />\n"
+             "<debug-log level=\"trace\" />\n"
+             "<error-log level=\"trace\" />\n"
+             "<request-log level=\"trace\" />\n"
+             "<cgi-directory location=\".\" url=\"/\" extensions=\"cgi,bat,exe\" />\n";
+  let document = koala-document(fmt(text, server-root));
+  test-output("config: %s", document);
   let server = make-server();
-  configure-from-string(server, fmt(cfg, server-root));
+  configure-from-string(server, document);
   server
 end function make-cgi-server;
 
@@ -93,9 +88,9 @@ define test cgi-required-environment-variables-test ()
          end,
          split(response.response-content, eol-regex));
 
-      log-debug("env.size = %d", env.size);
+      log-debug($log, "env.size = %d", env.size);
       for (val keyed-by key in env)
-        log-debug("%= = %=", key, val);
+        log-debug($log, "%= = %=", key, val);
       end;
 
       for (expected keyed-by var in $required-cgi-variables)
@@ -130,7 +125,7 @@ define test cgi-location-header-test ()
   let server = make-cgi-server(server-root: cgi-directory());
   let redirected? = #f;
   local method responder ()
-          log-debug("Executing responder for /cgi-location-header-test");
+          log-debug($log, "Executing responder for /cgi-location-header-test");
           redirected? := #t;
         end;
   add-resource(server,
