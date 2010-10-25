@@ -58,7 +58,7 @@ define test alias-config-test ()
   with-http-server (server = server)
     with-http-connection(conn = test-url("/"))
       send-request(conn, "GET", "/def");
-      let response = read-response(conn, follow-redirects: #f);
+      let response = read-response(conn);
       check-equal("/def returned response code 301?",
                   301, response.response-code);
       check-equal("/def was redirected to /abc?",
@@ -93,7 +93,6 @@ define test test-directory-resource ()
 end test test-directory-resource;
 
 define test test-directory-resource-default-documents ()
-  let server = make-server();
   let resource = make(<directory-resource>, directory: temp-directory());
   check-equal("Default default documents are index.html and index.htm",
               list(as(<file-locator>, "index.html"),
@@ -101,18 +100,22 @@ define test test-directory-resource-default-documents ()
               resource.default-documents);
 
   local method configure (default-docs :: <string>)
-          let str = fmt("<directory url=\"/\" default-documents = \"%s\" />",
-                        default-docs);
+          let server = make-server();
+          let str = fmt("<directory location=\"%s\"\n"
+                        "           url=\"/\"\n"
+                        "           default-documents = \"%s\" />",
+                        temp-directory(), default-docs);
           configure-from-string(server, koala-document(str));
+          server
         end;
 
-  configure("one");
+  let server = configure("one");
   let resource = find-resource(server, parse-url("/"));
   check-equal("A single default document parses correctly",
               list(as(<file-locator>, "one")),
               resource.default-documents);
 
-  configure("one,two");
+  let server = configure("one,two");
   let resource = find-resource(server, parse-url("/"));
   check-equal("Multiple default documents parse correctly",
               list(as(<file-locator>, "one"),

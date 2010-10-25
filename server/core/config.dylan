@@ -462,10 +462,10 @@ end method process-config-element;
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"directory")
   let url = get-attr(node, #"url")
-              | warn("Invalid <DIRECTORY> spec.  The 'url' attribute is "
+              | warn("Invalid <directory> spec.  The 'url' attribute is "
                      "required.");
   let location = get-attr(node, #"location")
-                   | warn("Invalid <DIRECTORY> spec.  The 'location' attribute "
+                   | warn("Invalid <directory> spec.  The 'location' attribute "
                           "is required.");
   if (url & location)
     log-info("Static directory %s added at URL %s", location, url);

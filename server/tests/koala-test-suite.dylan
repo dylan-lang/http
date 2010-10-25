@@ -169,7 +169,7 @@ define method main () => ()
       // Show all request/response headers and message content.
       *http-common-log*.log-level := $trace-level;
       *http-client-log*.log-level := $trace-level;
-      *log-content?* := #t;  // koala variable, not yet configurable.
+      *log-content?* := #f;  // koala variable, not yet configurable.
       run-test-application(koala-test-suite);
     else
       // We're being invoked as a CGI script.

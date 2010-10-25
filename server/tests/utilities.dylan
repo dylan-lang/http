@@ -60,6 +60,7 @@ define function make-server
         keys)
 end;
 
+
 define class <echo-resource> (<resource>)
 end;
 
@@ -69,6 +70,12 @@ define method respond-to-get
   output(request-content(current-request()));
 end;
 
+define method respond-to-post
+    (resource :: <echo-resource>, #key)
+  respond-to-get(resource)
+end;
+
+
 define class <x-resource> (<resource>)
 end;
 
@@ -76,6 +83,11 @@ define method respond-to-get
     (resource :: <x-resource>, #key)
   let n = get-query-value("n", as: <integer>);
   output(make(<byte-string>, size: n, fill: 'x'))
+end;
+
+define method respond-to-post
+    (resource :: <x-resource>, #key)
+  respond-to-get(resource)
 end;
 
 define function make-x-url
