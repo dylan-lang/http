@@ -13,6 +13,7 @@ define library koala-demo
   use koala;
   use system,
     import: { locators, threads };
+  use xml-rpc-server;
 end;
 
 
@@ -28,5 +29,6 @@ define module koala-demo
     exclude: { <http-server> };  // badly named
   use streams;
   use threads;
+  use xml-rpc-server;
 end;
 
