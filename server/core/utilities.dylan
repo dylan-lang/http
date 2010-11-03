@@ -47,6 +47,7 @@ define method parent-directory
 end;
 
 
+
 // These loggers are used if no other loggers are configured.
 // Usually that should only happen very early during startup when
 // *server* isn't bound, if at all.
@@ -127,9 +128,9 @@ define constant $default-media-type-map
       tmap
     end;
 
-define function resource-not-found-error
-    (#rest args, #key url, #all-keys)
-  apply(%resource-not-found-error,
+define function %resource-not-found-error
+    (#rest args, #key url :: false-or(<string>), #all-keys)
+  apply(resource-not-found-error,
         url: url | build-path(request-url(current-request())),
         args)
 end;

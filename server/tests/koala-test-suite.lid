@@ -8,4 +8,5 @@ Files: library
        content-negotiation-tests
        http-client-tests
        resources-tests
+       rewrite-rules-tests
        koala-test-suite

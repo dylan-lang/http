@@ -5,6 +5,7 @@ Module: koala-test-suite
 define suite resources-test-suite ()
   suite add-resource-test-suite;
   suite path-variable-test-suite;
+  suite rewrite-rules-test-suite;
   test test-find-resource;
   test test-request-router;
 end;
@@ -240,5 +241,4 @@ define test test-path-variable-binding ()
   end with-http-server;
 
 end test test-path-variable-binding;
-
 

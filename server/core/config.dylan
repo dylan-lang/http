@@ -76,6 +76,10 @@ define method configure-from-string
      #key filename :: false-or(<string>))
   let xml :: false-or(xml$<document>) = xml$parse-document(text);
   if (xml)
+    // <http-server> defaults to having a listener on port 80.  When loading
+    // a config file the user must specify a listener explicitly.
+    size(server.server-listeners) := 0;
+
     // When loading a configuration file, always set the root resource
     // to a <virtual-host-map> if it isn't one already so that if we
     // encounter a <virtual-host/> element in the config we can just

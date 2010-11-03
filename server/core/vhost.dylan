@@ -33,17 +33,15 @@ define method add-resource
      resource :: <abstract-resource>, #rest args, #key)
   log-debug("add-resource(%=, %=, %=)", router, url, resource);
   // Lowercase the host name and give a more specific error message.
-  let fqdn = as-lowercase(url);
   if (member?('/', url))
     add-resource(router, parse-url(url), resource);
   else
     let fqdn = as-lowercase(url);
-    let vhost = resource;
-    if (instance?(vhost, <virtual-host>))
+    if (instance?(resource, <virtual-host>))
       if (element(router.virtual-hosts, fqdn, default: #f))
         koala-api-error("Attempt to add virtual host %=, which already exists.", fqdn);
       else
-        router.virtual-hosts[fqdn] := vhost;
+        router.virtual-hosts[fqdn] := resource;
       end;
     else
       koala-api-error("Attempt to add resource %= to a <virtual-host-router> but"
@@ -120,7 +118,7 @@ define method find-resource
   values(element(router.virtual-hosts, fqdn, default: #f)
            | (router.fall-back-to-default?
                 & router.default-virtual-host)
-           | resource-not-found-error(),
+           | %resource-not-found-error(),
          #(),
          #())
 end method find-resource;
@@ -134,7 +132,6 @@ end method find-resource;
 //
 define class <virtual-host>
     (<multi-logger-mixin>, <abstract-router>, <abstract-resource>)
-
   constant slot virtual-host-router :: <abstract-router> = make(<resource>),
     init-keyword: router:;
 end;

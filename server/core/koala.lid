@@ -1,6 +1,7 @@
 library: koala
 files:	library
 	utilities
+	rewrite-rules
 	vhost
 	response
 	request

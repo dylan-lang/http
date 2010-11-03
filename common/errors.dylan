@@ -1,64 +1,70 @@
-Module: http-common-internals
-Synopsis: Response codes and associated error classes.
+Module:    http-common-internals
+Synopsis:  Response codes and associated error classes.
 Author:    Carl Gay
-Copyright: Copyright (c) 2001 Carl L. Gay.  All rights reserved.
+Copyright: Copyright (c) 2001-2010 Carl L. Gay.  All rights reserved.
            Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
 License:   Functional Objects Library Public License Version 1.0
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-define table $http-status-codes =
-  { 
-    // Informational 1xx
-    100 => "Continue",
-    101 => "Switching Protocols",
-    // Successful 2xx
-    200 => "OK",
-    201 => "Created",
-    202 => "Accepted",
-    203 => "Non-Authoritative Information",
-    204 => "No Content",
-    205 => "Reset Content",
-    206 => "Partial Content",
-    // Redirection 3xx
-    300 => "Multiple Choices",
-    301 => "Moved Permanently",
-    302 => "Found",
-    303 => "See Other",
-    304 => "Not Modified",
-    305 => "Use Proxy",
-    306 => "(Unused)",
-    307 => "Temporary Redirect",
-    // Client Error 4xx
-    400 => "Bad Request",
-    401 => "Unauthorized",
-    402 => "Payment Required",
-    403 => "Forbidden",
-    404 => "Not Found",
-    405 => "Method Not Allowed",
-    406 => "Not Acceptable",
-    407 => "Proxy Authentication Required",
-    408 => "Request Timeout",
-    409 => "Conflict",
-    410 => "Gone",
-    411 => "Length Required",
-    412 => "Precondition Failed",
-    413 => "Request Entity Too Large",
-    414 => "Request-URI Too Long",
-    415 => "Unsupported Media Type",
-    416 => "Requested Range Not Satisfiable",
-    417 => "Expectation Failed",
-    // Server Error 5xx
-    500 => "Internal Server Error",
-    501 => "Not Implemented",
-    502 => "Bad Gateway",
-    503 => "Service Unavailable",
-    504 => "Gateway Timeout",
-    505 => "HTTP Version Not Supported",
-    // Local extensions
-    599 => "Application Error"
-    };
+//// HTTP status codes
 
+// Informational 1xx
+define constant $status-continue :: <integer> = 100;
+define constant $status-switching-protocols :: <integer> = 101;
+
+// Successful 2xx
+define constant $status-ok :: <integer> = 200;
+define constant $status-created :: <integer> = 201;
+define constant $status-accepted :: <integer> = 202;
+define constant $status-non-authoritative-information :: <integer> = 203;
+define constant $status-no-content :: <integer> = 204;
+define constant $status-reset-content :: <integer> = 205;
+define constant $status-partial-content :: <integer> = 206;
+
+// Redirection 3xx
+define constant $status-multiple-choices :: <integer> = 300;
+define constant $status-moved-permanently :: <integer> = 301;
+define constant $status-found :: <integer> = 302;
+define constant $status-see-other :: <integer> = 303;
+define constant $status-not-modified :: <integer> = 304;
+define constant $status-use-proxy :: <integer> = 305;
+// 306 unused
+define constant $status-temporary-redirect :: <integer> = 307;
+
+// Client Error 4xx
+define constant $status-bad-request :: <integer> = 400;
+define constant $status-unauthorized :: <integer> = 401;
+define constant $status-payment-required :: <integer> = 402;
+define constant $status-forbidden :: <integer> = 403;
+define constant $status-not-found :: <integer> = 404;
+define constant $status-method-not-allowed :: <integer> = 405;
+define constant $status-not-acceptable :: <integer> = 406;
+define constant $status-proxy-authentication-required :: <integer> = 407;
+define constant $status-request-timeout :: <integer> = 408;
+define constant $status-conflict :: <integer> = 409;
+define constant $status-gone :: <integer> = 410;
+define constant $status-length-required :: <integer> = 411;
+define constant $status-precondition-failed :: <integer> = 412;
+define constant $status-request-entity-too-large :: <integer> = 413;
+define constant $status-request-uri-too-long :: <integer> = 414;
+define constant $status-unsupported-media-type :: <integer> = 415;
+define constant $status-requested-range-not-satisfiable :: <integer> = 416;
+define constant $status-expectation-failed :: <integer> = 417;
+
+// Server Error 5xx
+define constant $status-internal-server-error :: <integer> = 500;
+define constant $status-not-implemented :: <integer> = 501;
+define constant $status-bad-gateway :: <integer> = 502;
+define constant $status-service-unavailable :: <integer> = 503;
+define constant $status-gateway-timeout :: <integer> = 504;
+define constant $status-http-version-not-supported :: <integer> = 505;
+
+// Local extensions
+define constant $status-application-error :: <integer> = 599;
+
+
+
 // For any error related to the HTTP libraries.
 define open class <http-error> (<format-string-condition>, <error>)
 end;
@@ -149,13 +155,15 @@ define http-error found-redirect (<http-redirect-condition>)
     location;
 
 define http-error see-other-redirect (<http-redirect-condition>)
-    303, "See Other";
+    303, "See Other",
+    location;
 
 define http-error not-modified-redirect (<http-redirect-condition>)
     304, "Not Modified";
 
 define http-error use-proxy-redirect (<http-redirect-condition>)
-    305, "Use Proxy";
+    305, "Use Proxy",
+    location;
 
 // 306 unused
 

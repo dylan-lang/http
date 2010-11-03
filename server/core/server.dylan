@@ -89,6 +89,11 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   slot request-router :: <abstract-router> = make(<resource>),
     init-keyword: request-router:;
 
+  // Rewrite rules are stored here on the theory that they may
+  // eventually apply to the request host.  Otherwise they would go in
+  // the <virtual-host> class.
+  constant slot rewrite-rules :: <stretchy-vector> = make(<stretchy-vector>);
+
   //// Next 5 slots are to support clean server shutdown.
 
   constant slot server-listeners :: <stretchy-vector>,
@@ -153,7 +158,8 @@ define sealed method make
   let listeners = map-as(<stretchy-vector>, make-listener,
                          iff(listeners & ~empty?(listeners),
                              listeners,
-                             #("0.0.0.0:80")));
+                             list(format-to-string("0.0.0.0:%d",
+                                                   $default-http-port))));
   let lock = make(<simple-lock>);
   let listeners-notification = make(<notification>, lock: lock);
   let clients-notification = make(<notification>, lock: lock);
@@ -681,35 +687,41 @@ end function %respond-top-level;
 //
 define method route-request
     (server :: <http-server>, request :: <request>)
-  // Find a resource or signal an error.
-  let (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
-    = find-resource(server, request);
+  let old-path :: <string> = build-path(request.request-url);
+  let (new-path :: <string>, rule) = rewrite-url(old-path, server.rewrite-rules);
+  if (new-path ~= old-path)
+    do-rewrite-redirection(server, request, new-path, rule);
+  else
+    // Find a resource or signal an error.
+    let (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
+      = find-resource(server, request);
 
-  // Bind loggers for the vhost being used.
-  // TODO: This assumes <resource> but should only assume <abstract-resource>.
-  iterate loop (current = resource, vhost = #f)
-    if (current)
-      loop(current.resource-parent,
-           iff(instance?(current, <virtual-host>),
-               current,
-               vhost))
-    elseif (vhost)
-      *debug-logger* := vhost.debug-logger;
-      *error-logger* := vhost.error-logger;
-      *request-logger* := vhost.request-logger;
+    // Bind loggers for the vhost being used.
+    // TODO: This assumes <resource> but should only assume <abstract-resource>.
+    iterate loop (current = resource, vhost = #f)
+      if (current)
+        loop(current.resource-parent,
+             iff(instance?(current, <virtual-host>),
+                 current,
+                 vhost))
+      elseif (vhost)
+        *debug-logger* := vhost.debug-logger;
+        *error-logger* := vhost.error-logger;
+        *request-logger* := vhost.request-logger;
+      end;
     end;
-  end;
 
-  log-debug("Found resource %s, prefix = %=, suffix = %=",
-            resource, prefix, suffix);
-  request.request-url-path-prefix := join(prefix, "/");
-  request.request-url-path-suffix := join(suffix, "/");
+    log-debug("Found resource %s, prefix = %=, suffix = %=",
+              resource, prefix, suffix);
+    request.request-url-path-prefix := join(prefix, "/");
+    request.request-url-path-suffix := join(suffix, "/");
 
-  let (bindings, unbound, leftovers) = path-variable-bindings(resource, suffix);
-  if (~empty?(leftovers))
-    unmatched-url-suffix(resource, leftovers);
+    let (bindings, unbound, leftovers) = path-variable-bindings(resource, suffix);
+    if (~empty?(leftovers))
+      unmatched-url-suffix(resource, leftovers);
+    end;
+    apply(respond, resource, bindings);
   end;
-  apply(respond, resource, bindings);
 end method route-request;
 
 // Internally redirect to a different URL.  parse-request-url resets various

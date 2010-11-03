@@ -27,7 +27,7 @@ define method respond-to-post
     serve-cgi-script(script, script-name, path-info: path-info);
   else
     log-info("CGI script %s not found", as(<string>, script));
-    resource-not-found-error();
+    %resource-not-found-error();
   end;
 end method respond-to-post;
 
@@ -106,7 +106,7 @@ define method respond-to-post
           end;
         end;
       end iterate;
-      resource-not-found-error();
+      %resource-not-found-error();
     end block;
   end if;
 end method respond-to-post;

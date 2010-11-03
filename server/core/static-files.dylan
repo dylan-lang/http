@@ -71,7 +71,7 @@ define method respond-to-get
 
   if (~file-exists?(document))
     document := find-multi-view-file(policy, document)
-                  | resource-not-found-error();
+                  | %resource-not-found-error();
     log-debug("static file: multi-view document = %s", as(<string>, document));
   end;
 
@@ -95,7 +95,7 @@ define method respond-to-get
         serve-directory(policy, document);
         return();
       else
-        resource-not-found-error()
+        %resource-not-found-error()
       end;
     end;
 
@@ -135,7 +135,7 @@ define function locator-from-relative-path
     if (locator-below-root?(locator, resource.resource-directory))
       locator
     else
-      resource-not-found-error()
+      %resource-not-found-error()
     end
   end
 end function locator-from-relative-path;
@@ -148,7 +148,7 @@ define function follow-links
  => (target :: <pathname>)
   if ( ~(file-exists?(document)
            & locator-below-root?(document, policy.resource-directory)))
-    resource-not-found-error();
+    %resource-not-found-error();
   elseif (file-type(document) == #"link")
     follow-links(link-target(document), policy)
   else

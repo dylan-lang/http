@@ -155,9 +155,6 @@ define function koala-main
 
 	// Any command-line listeners specified?
 	let listeners = option-value-by-long-name(parser, "listen");
-	if (empty?(listeners) & ~config-file)
-          listeners := vector(list("0.0.0.0", $default-http-port));
-	end;
         for (listener in listeners)
           add!(*server*.server-listeners, make-listener(listener));
         end;

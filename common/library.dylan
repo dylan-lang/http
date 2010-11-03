@@ -80,6 +80,62 @@ define module http-common
     response-reason-phrase-setter,
     response-request;
 
+  // HTTP status codes
+  create
+    // Informational 1xx
+    $status-continue,
+    $status-switching-protocols,
+
+    // Successful 2xx
+    $status-ok,
+    $status-created,
+    $status-accepted,
+    $status-non-authoritative-information,
+    $status-no-content,
+    $status-reset-content,
+    $status-partial-content,
+
+    // Redirection 3xx
+    $status-multiple-choices,
+    $status-moved-permanently,
+    $status-found,
+    $status-see-other,
+    $status-not-modified,
+    $status-use-proxy,
+    // 306 unused
+    $status-temporary-redirect,
+
+    // Client Error 4xx
+    $status-bad-request,
+    $status-unauthorized,
+    $status-payment-required,
+    $status-forbidden,
+    $status-not-found,
+    $status-method-not-allowed,
+    $status-not-acceptable,
+    $status-proxy-authentication-required,
+    $status-request-timeout,
+    $status-conflict,
+    $status-gone,
+    $status-length-required,
+    $status-precondition-failed,
+    $status-request-entity-too-large,
+    $status-request-uri-too-long,
+    $status-unsupported-media-type,
+    $status-requested-range-not-satisfiable,
+    $status-expectation-failed,
+
+    // Server Error 5xx
+    $status-internal-server-error,
+    $status-not-implemented,
+    $status-bad-gateway,
+    $status-service-unavailable,
+    $status-gateway-timeout,
+    $status-http-version-not-supported,
+
+    // Local extensions
+    $status-application-error;
+
   // Errors and redirects
   create
     <http-error>,                            // Any client or server error

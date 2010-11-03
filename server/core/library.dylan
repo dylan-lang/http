@@ -165,6 +165,12 @@ define module koala
     <koala-api-error>,
     <configuration-error>;
 
+  // Rewrite rules
+  create
+    <abstract-rewrite-rule>,
+    <rewrite-rule>,
+    rewrite-url;
+
 end module koala;
 
 // Additional interface for unit tests.
@@ -178,6 +184,13 @@ define module koala-unit
     resource-parent,
     resource-path-variables,
     resource-url-path,
+
+    rewrite-rule-regex,
+    rewrite-rule-redirect-code,
+    rewrite-rule-replacement,
+    rewrite-rule-terminal?,
+    parse-replacement,
+
     <path-variable>,
       path-variable-name,
       path-variable-required?,
@@ -203,8 +216,7 @@ define module httpi                             // http internals
               };
   use file-system;             // from system lib
   use format;
-  use http-common,
-    rename: { resource-not-found-error => %resource-not-found-error };
+  use http-common;
   use koala;
   use koala-unit;
   use locators,

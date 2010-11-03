@@ -88,7 +88,7 @@
 
      The logs should be configured near the beginning of this config
      file so debugging statements emitted during config file parsing
-     can be displayed.
+     are logged to the correct targets.
   -->
 <debug-log
    name="http.server"

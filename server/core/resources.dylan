@@ -41,7 +41,7 @@ define method unmatched-url-suffix
     (resource :: <abstract-resource>, unmatched-path :: <sequence>)
   log-debug("Unmatched URL suffix for resource %s: %s",
             resource, unmatched-path);
-  resource-not-found-error();
+  %resource-not-found-error();
 end;
 
 
@@ -343,7 +343,7 @@ define method path-variable-bindings
       <plus-path-variable> =>
         if (empty?(suffix))
           log-debug("plus var not there");
-          resource-not-found-error();
+          %resource-not-found-error();
         else
           add!(bindings, pvar.path-variable-name);
           add!(bindings, suffix);
@@ -353,7 +353,7 @@ define method path-variable-bindings
         let path-element = iff(empty?(suffix), #f, first(suffix));
         if (pvar.path-variable-required? & ~path-element)
           log-debug("pvar required but not there.");
-          resource-not-found-error();
+          %resource-not-found-error();
         else
           add!(bindings, pvar.path-variable-name);
           add!(bindings, path-element);
@@ -452,7 +452,7 @@ define method find-resource
   if (resource)
     values(resource, reverse(prefix), suffix)
   else
-    resource-not-found-error();
+    %resource-not-found-error();
   end;
 end method find-resource;
 
@@ -588,7 +588,7 @@ define table $request-method-table = {
 
 define method respond
     (resource :: <placeholder-resource>, #key)
-  resource-not-found-error();
+  %resource-not-found-error();
 end;
 
 // Default method dispatches to respond-to-<request-method> functions.
