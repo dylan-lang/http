@@ -9,6 +9,46 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 //// Resource protocol
 
+// The <abstract-router> class gives libraries a way to provide alternate
+// ways of routing/mapping URLs to resources if they don't like the default
+// mechanism, by storing a different subclass of <abstract-router>
+// in the <http-server>.
+
+define open abstract class <abstract-router> (<object>)
+end;
+
+
+// Add a route to a resource.  (Or, map a URL to a resource.)
+// URLs (and more specifically, URL paths) may be represented in various ways,
+// which is why the 'url' parameter is typed as <object>.
+//
+define open generic add-resource
+    (router :: <abstract-router>,
+     url :: <object>,
+     resource :: <abstract-resource>,
+     #key, #all-keys);
+
+
+// Find a resource mapped to the given URL, or signal an error.
+// Return the resource, the URL prefix it was mapped to, and the URL
+// suffix that remained.
+//
+// TODO: The return values for this are probably too specific to the
+//       way the default router works.  It's probably a bit more generic
+//       to return (resource, url, bindings) or some such.
+//
+define open generic find-resource
+    (router :: <abstract-router>, url :: <object>)
+ => (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>);
+
+
+// Generate a URL from a name and path variables.
+// If the given name doesn't exist signal <koala-api-error>.
+define open generic generate-url
+    (router :: <abstract-router>, name :: <string>, #key, #all-keys)
+ => (url);
+
+
 // An <abstract-resource> is responsible for setting headers on and
 // writing data to the current <response> by overriding the "respond"
 // method or one of the "respond-to-{get,put,...}"
@@ -20,13 +60,6 @@ end;
 // Respond to a request for the given resource.
 define open generic respond
     (resource :: <abstract-resource>, #key, #all-keys);
-
-
-// Is it okay to add child resources via an absolute URL path?
-// This is needed for <virtual-host-resource>, which has a
-// parent resource but allows absolute paths for its children.
-define open generic root-resource?
-    (resource :: <abstract-resource>) => (root? :: <boolean>);
 
 
 // This method is called if the request URL has leftover path elements after
@@ -88,7 +121,7 @@ define open class <resource> (<abstract-resource>, <abstract-router>)
   // hash table would be nice here....)
   constant slot resource-order :: <stretchy-vector> = make(<stretchy-vector>);
 
-  // The parent is used for URL to find the full URL path (for url generation).
+  // The parent is used to find the canonical URL path (for url generation).
   // Even though there may be multiple URLs that map to the same resource
   // each resource only has a single parent.  The idea is that you should
   // add the URL under its "canonical" name first, and that will be the one
@@ -106,11 +139,6 @@ define open class <resource> (<abstract-resource>, <abstract-router>)
   slot resource-path-variables :: <sequence> = #();
 
 end class <resource>;
-
-define method root-resource?
-    (resource :: <resource>) => (root? :: <boolean>)
-  ~resource.resource-parent
-end;
 
 // Used for internal book-keeping.
 define class <placeholder-resource> (<resource>)
@@ -133,45 +161,22 @@ end;
 // The "url-name" parameter can be used to give a (global) name to the
 // URL which can be used for URL generation (to avoid hard-coding URLs
 // into the application).  See generate-url.
-//
-// The "trailing-slash" parameter determines what, if anything, to do
-// for the given path with a trailing slash appended to it.  
-//
 
 // convert <uri> to <sequence>
 define method add-resource
-    (router :: <resource>, url :: <uri>, child :: <abstract-resource>,
+    (parent :: <resource>, url :: <uri>, child :: <abstract-resource>,
      #rest args, #key)
-  log-debug("add-resource(%=, %=, %=)", router, url, child);
-  // The root URL, "/", is a special case because it is both a leading
-  // and trailing slash, which doesn't match our resource tree structure.
-  // There is a corresponding hack in find-resource.
-  let path = url.uri-path;
-  apply(add-resource, router, iff(path = #("", ""), #(""), path), child, args)
-end;
-
-// convert <http-server> to <abstract-router>
-define method add-resource
-    (server :: <http-server>, url :: <object>, resource :: <abstract-resource>,
-     #rest args, #key)
-  log-debug("add-resource(%=, %=, %=)", server, url, resource);
-  apply(add-resource, server.request-router, url, resource, args);
+  //log-debug("add-resource(%=, %=, %=)", parent, url, child);
+  apply(add-resource, parent, url.uri-path, child, args)
 end;
 
 // "url" is either a single path element or a full URL path.
 define method add-resource
     (parent :: <resource>, url :: <string>, child :: <resource>,
-     #key url-name :: false-or(<string>),
-          trailing-slash: trailing-slash)
-  log-debug("add-resource(%=, %=, %=)", parent, url, child);
+     #key url-name :: false-or(<string>))
+  //log-debug("add-resource(%=, %=, %=)", parent, url, child);
   if (member?('/', url))
-    // The root URL, "/", is a special case because it is both a leading
-    // and trailing slash, which doesn't match our resource tree structure.
-    // There is a corresponding hack in find-resource.
-    let path = iff(url = "/", list(""), split(url, '/'));
-    add-resource(parent, path, child,
-                 url-name: url-name,
-                 trailing-slash: trailing-slash);
+    add-resource(parent, split(url, '/'), child, url-name: url-name);
   elseif (path-variable?(url))
     koala-api-error("Attempt to call add-resource with a path "
                     "variable (%=) as the URL.", url);
@@ -183,7 +188,7 @@ define method add-resource
         for (kid keyed-by kid-name in existing-child.resource-children)
           // Do this recursively to check for duplicate names.
           // Do not pass the url-name argument.
-          add-resource(child, kid-name, kid, trailing-slash: #f);
+          add-resource(child, kid-name, kid);
         end;
       else
         koala-api-error("A child resource, %=, is already mapped "
@@ -196,13 +201,7 @@ define method add-resource
       if (~child.resource-parent)
         child.resource-parent := parent;
       end;
-      if (trailing-slash & name ~= "")
-        // The caller passed url foo and wants foo/ mapped as well.
-        add-resource(child, "", child);
-      end;
       if (url-name)
-        // TODO: add a way to specify whether the url with or without
-        //       a trailing slash should be canonical (i.e., generated).
         add-resource-name(url-name, child);
       end;
     end;
@@ -212,11 +211,17 @@ end method add-resource;
 // "path" is a sequence of URL path elements (strings). 
 define method add-resource
     (parent :: <resource>, path :: <sequence>, resource :: <resource>,
-     #key url-name, trailing-slash)
-  log-debug("add-resource(%=, %=, %=)", parent, path, resource);
+     #key url-name)
+  //log-debug("add-resource(%=, %=, %=)", parent, path, resource);
+
+  // The root URL, "/", is a special case because it is both a leading
+  // and trailing slash, which doesn't match our resource tree structure.
+  // There is a corresponding hack in find-resource.
+  let path = iff(path = #("", ""), #(""), path);
+
   if (empty?(path))
     koala-api-error("Empty sequence, %=, passed to add-resource.", path);
-  elseif (path[0] = "" & ~parent.root-resource?)
+  elseif (path[0] = "" & parent.resource-parent)
     koala-api-error("Attempt to add resource %= to non-root resource"
                     " %= using a URL with a leading slash %=.  This"
                     " will result in an unreachable URL path.",
@@ -230,14 +235,13 @@ define method add-resource
       elseif (path.size = 1)
         let name :: <string> = first(path);
         add-resource(parent, name, resource,
-                     url-name: url-name,
-                     trailing-slash: trailing-slash)
+                     url-name: url-name)
       else
         let name :: <string> = first(path);
         let child = element(parent.resource-children, name, default: #f);
         if (~child)
           child := make(<placeholder-resource>);
-          add-resource(parent, name, child, trailing-slash: #f, url-name: #f);
+          add-resource(parent, name, child, url-name: #f);
         end;
         loop(child, rest(path))
       end if;
@@ -332,7 +336,7 @@ define method path-variable-bindings
      unbound :: <sequence>,
      leftover-suffix :: <list>)
   let bindings = make(<stretchy-vector>);
-  log-debug("pvars = %s", resource.resource-path-variables);
+  //log-debug("pvars = %s", resource.resource-path-variables);
   for (pvar in resource.resource-path-variables,
        suffix = path-suffix then rest(suffix))
     select (pvar by instance?)
@@ -342,7 +346,7 @@ define method path-variable-bindings
         suffix := #();
       <plus-path-variable> =>
         if (empty?(suffix))
-          log-debug("plus var not there");
+          //log-debug("plus var not there");
           %resource-not-found-error();
         else
           add!(bindings, pvar.path-variable-name);
@@ -352,16 +356,16 @@ define method path-variable-bindings
       <path-variable> =>
         let path-element = iff(empty?(suffix), #f, first(suffix));
         if (pvar.path-variable-required? & ~path-element)
-          log-debug("pvar required but not there.");
+          //log-debug("pvar %= required but not there.", pvar.path-variable-name);
           %resource-not-found-error();
         else
           add!(bindings, pvar.path-variable-name);
           add!(bindings, path-element);
         end;
     end select;
-    log-debug("suffix = %s", suffix);
+    //log-debug("suffix = %s", suffix);
   finally
-    log-debug("suffix finally = %s", suffix);
+    //log-debug("suffix finally = %s", suffix);
     values(bindings,
            copy-sequence(resource.resource-path-variables,
                          start: floor/(bindings.size, 2)),
@@ -371,11 +375,13 @@ end method path-variable-bindings;
 
 
 define open generic do-resources
-    (router :: <abstract-router>, function :: <function>, #key seen);
+    (router :: <abstract-router>, function :: <function>, #key seen)
+ => ();
 
 define method do-resources
     (router :: <resource>, function :: <function>,
      #key seen :: <list> = #())
+ => ()
   // It's perfectly normal to add a resource in multiple places
   // so just skip the ones we've seen before.
   if (~member?(router, seen))
@@ -391,32 +397,12 @@ end method do-resources;
 
 //// find-resource
 
-// convert <request> to <uri>
-define method find-resource
-    (router :: <abstract-router>, request :: <request>)
- => (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
-  log-debug("find-resource(%=, %=)", router, request);
-  find-resource(router, request.request-url)
-end;
-
-// convert <http-server> to <resource>
-define method find-resource
-    (server :: <http-server>, path :: <object>)
- => (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
-  log-debug("find-resource(%=, %=)", server, path);
-  find-resource(server.request-router, path)
-end;
-
 // convert <uri> to <sequence>
 define method find-resource
-    (router :: <resource>, uri :: <uri>)
+    (router :: <resource>, url :: <uri>)
  => (resource :: <resource>, prefix :: <list>, suffix :: <list>)
-  log-debug("find-resource(%=, %=)", router, uri);
-  // Special case the root path, "/", which is both a leading and
-  // trailing slash, which doesn't match our resource tree structure.
-  // There's a similar special case for add-resource.
-  let path = iff(uri.uri-path = #("", ""), list(""), uri.uri-path);
-  find-resource(router, path)
+  log-debug("find-resource(%=, %=)", router, url);
+  find-resource(router, url.uri-path)
 end;
 
 // convert <string> to <sequence>
@@ -432,10 +418,14 @@ define method find-resource
     (router :: <resource>, path :: <sequence>)
  => (resource :: <resource>, prefix :: <list>, suffix :: <list>)
   log-debug("find-resource(%=, %=)", router, path);
+  // Special case the root path, "/", which is both a leading and
+  // trailing slash, which doesn't match our resource tree structure.
+  // There's a similar special case for add-resource.
+  let new-path = iff(path = #("", ""), #(""), path);
   let resource = #f;
   let prefix = #();
   let suffix = #();
-  iterate loop (parent = router, path = as(<list>, path), seen = #())
+  iterate loop (parent = router, path = as(<list>, new-path), seen = #())
     if (~empty?(path))
       let key = first(path);
       let child = element(parent.resource-children, key, default: #f);
@@ -452,7 +442,7 @@ define method find-resource
   if (resource)
     values(resource, reverse(prefix), suffix)
   else
-    %resource-not-found-error();
+    resource-not-found-error(url: join(path, "/"))
   end;
 end method find-resource;
 

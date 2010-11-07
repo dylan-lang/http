@@ -17,23 +17,31 @@
 
 
 <!-- <server> controls settings that apply to the server itself:
-     root - The root of the directory tree under which the server's
-            configuration and log files are kept.  Other pathnames are
-            merged against this one, so if they're relative they will be
-            relative to this.
+     root
+         The root of the directory tree under which the server's
+         configuration and log files are kept.  Other pathnames are
+         merged against this one, so if they're relative they will be
+         relative to this.
 
-     debug - Enabling this will make Koala not try to handle errors
-             thrown during the execution of a server request.  Only
-             turn this on when running inside a development environment,
-             or the server will crash.  This should also be near the
-             beginning of the log file if you want to debug config file
-             loading.
+     working-directory
+         Change to this working directory.  The specified directory
+	 is merged against the 'root' attribute first.
+
+     debug
+         Enabling this will make Koala not try to handle errors
+         thrown during the execution of a server request.  Only
+         turn this on when running inside a development environment,
+         or the server will crash.  This should also be near the
+         beginning of the log file if you want to debug config file
+         loading.
+
      use-default-virtual-host
-           - Whether to lookup URLs using the default virtual host if
-             no host matching the request's Host header or URL host
-             can be found.
+         Whether to lookup URLs using the default virtual host if
+         no host matching the request's Host header or URL host
+         can be found.
      -->
-<server root="."
+<server root="/foo"
+	working-directory="/foo/bar"
         debug="no"
         use-default-virtual-host="yes"
         />

@@ -21,7 +21,8 @@ define function make-cgi-server
              "<error-log level=\"trace\" />\n"
              "<request-log level=\"trace\" />\n"
              "<cgi-directory location=\".\" url=\"/\" extensions=\"cgi,bat,exe\" />\n";
-  let document = koala-document(fmt(text, server-root));
+  let document = koala-document(fmt(text, server-root),
+                                listener?: #t);
   test-output("config: %s", document);
   let server = make-server();
   configure-from-string(server, document);

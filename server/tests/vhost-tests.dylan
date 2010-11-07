@@ -6,32 +6,41 @@ define suite virtual-host-test-suite ()
 end;
 
 define test test-vhost-add-resource ()
-  let router = make(<virtual-host-router>, fall-back-to-default?: #t);
-  let resource = make(<resource>);
-  let url = parse-url("http://127.0.0.1/a/b/c");
-  check-no-errors("add-resource with fully-qualified URL doesn't err?",
-                  add-resource(router, url, resource));
-  check-true("a <virtual-host-resource> was added for 127.0.0.1?",
-             instance?(find-resource(router, "127.0.0.1"),
-                       <virtual-host>));
-  check-equal("find-resource uses URL host to find correct virtual host?",
-              resource,
-              find-resource(router, url));
+  let server = make-server(use-default-virtual-host?: #t);
+  let root = make(<resource>);
+  let vhost = make(<virtual-host>, router: root);
+
+  add-virtual-host(server, "127.0.0.1", vhost);
+  check-equal("a <virtual-host> was added for 127.0.0.1?",
+              vhost,
+              find-virtual-host(server, "127.0.0.1"));
+
+  let abc-resource = make(<resource>);
+  check-no-errors("add-resource(<http-server>, ...)",
+                  add-resource(server, "/a/b/c", abc-resource));
+  check-equal("resource added to default vhost?",
+              abc-resource,
+              find-resource(server.default-virtual-host, "/a/b/c"));
+
+  check-condition("Verify resource NOT added to non-default vhost.",
+                  <resource-not-found-error>,
+                  find-resource(vhost, "/a/b/c"));
 
   // Make sure requests are routed to the correct virtual host.
   // Need to fire up a server for this test because it's very difficult
   // to make a <request> without creating clients, listeners, sockets, etc.
-  let router = make(<virtual-host-router>);
   let value = #f;
   let resource-1 = make(<function-resource>,
                         function: method () value := 1 end);
   let resource-2 = make(<function-resource>,
                         function: method () value := 2 end);
-  with-http-server (server = make-server(request-router: make(<virtual-host-router>)))
-    add-resource(server, parse-url("http://127.0.0.1/x"), resource-1);
-    add-resource(server, parse-url("http://localhost/x"), resource-2);
+  with-http-server (server = make-server())
+    let vhost = make(<virtual-host>);
+    add-virtual-host(server, "localhost", vhost);
+    add-resource(server, "/x", resource-1);  // adds to "127.0.0.1" vhost
+    add-resource(vhost, "/x", resource-2);   // adds to "localhost" vhost
     http-get(test-url("/x", host: "127.0.0.1"));
-    check-equal("find-resource(router, <request>) uses correct virtual host - #1",
+    check-equal("find-resource(server, <request>) uses correct virtual host - #1",
                 1, value);
     http-get(test-url("/x", host: "localhost"));
     check-equal("find-resource(router, <request>) uses correct virtual host - #2",

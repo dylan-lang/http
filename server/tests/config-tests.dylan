@@ -5,8 +5,16 @@ define constant $xml-header :: <string>
 
 // Make an XML document string that contains the given string.
 define function koala-document
-    (content :: <string>) => (doc :: <string>)
-  concatenate($xml-header, "<koala>\n", content, "\n</koala>\n")
+    (content :: <string>, #key listener?)
+ => (doc :: <string>)
+  concatenate($xml-header,
+              "<koala>\n",
+              iff(listener?,
+                  fmt("<listener address=\"%s\" port=\"%s\" />\n",
+                      *test-host*, *test-port*),
+                  ""),
+              content,
+              "\n</koala>\n")
 end;
 
 // Try to configure a server with the given document (a string containing
@@ -53,8 +61,8 @@ end test listener-config-test;
 define test alias-config-test ()
   let server = make-server();
   add-resource(server, "/abc", make(<echo-resource>));
-  let text = "<koala><alias url=\"/def\" target=\"/abc\"/></koala>";
-  configure-from-string(server, text);
+  let text = "<alias url=\"/def\" target=\"/abc\"/>";
+  configure-from-string(server, koala-document(text, listener?: #t));
   with-http-server (server = server)
     with-http-connection(conn = test-url("/"))
       send-request(conn, "GET", "/def");
@@ -81,8 +89,8 @@ define test test-directory-resource ()
   let app = as(<file-locator>, application-filename());
   let dir = as(<string>, locator-directory(app));
   let text = fmt("<directory url=\"/\" location=\"%s\"/>\n", dir);
-  let server = make-server();  // includes default listener
-  configure-from-string(server, koala-document(text));
+  let server = make-server();
+  configure-from-string(server, koala-document(text, listener?: #t));
   with-http-server (server = server)
     let app-url = test-url(concatenate("/", locator-name(app)));
     with-http-connection (conn = app-url)
@@ -110,7 +118,7 @@ define test test-directory-resource-default-documents ()
         end;
 
   let server = configure("one");
-  let resource = find-resource(server, parse-url("/"));
+  let resource = find-resource(server, "/");
   check-equal("A single default document parses correctly",
               list(as(<file-locator>, "one")),
               resource.default-documents);

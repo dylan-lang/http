@@ -7,7 +7,6 @@ define suite resources-test-suite ()
   suite path-variable-test-suite;
   suite rewrite-rules-test-suite;
   test test-find-resource;
-  test test-request-router;
 end;
 
 
@@ -48,10 +47,6 @@ define test test-add-resource-basics ()
   check-condition("add-resource with empty (non-string) path errs?",
                   <koala-api-error>,
                   add-resource(make(<resource>), #(), make(<resource>)));
-
-  // Finding by <uri> (always absolute)
-  add-and-find("/foo", parse-uri("/foo"));
-  add-and-find("/foo/bar/", parse-uri("/foo/bar/"));
 
   // Finding by string (a bit more fuzzy than by sequence)
   add-and-find("", "/");
@@ -99,7 +94,7 @@ define test test-add-resource-path-variables ()
   let root = make(<resource>);
   let child = make(<resource>);
   add-resource(root, "/a/b/c/{x}/{y}/{z}", child);
-  let found = find-resource(root, parse-url("/a/b/c"));
+  let found = find-resource(root, "/a/b/c");
   check-equal("first path variable defines where url prefix ends?", child, found);
   check-equal("add-resource sets path variables correctly?",
               #(#"x", #"y", #"z"),
@@ -121,19 +116,16 @@ end test test-add-resource-path-variables;
 
 define test test-find-resource ()
   local method find-and-verify
-            (root, url-string, expected-resource, expected-pre-path, expected-post-path)
+            (root, url, expected-resource, expected-pre-path, expected-post-path)
           let (rsrc :: <resource>, pre-path :: <list>, post-path :: <list>)
-            = find-resource(root, parse-url(url-string));
-          check-equal(format-to-string("find-resource(%=) returns expected resource",
-                                       url-string),
+            = find-resource(root, url);
+          check-equal(format-to-string("find-resource(%=) returns expected resource", url),
                       expected-resource,
                       rsrc);
-          check-equal(format-to-string("find-resource(%=) returns expected pre-path",
-                                       url-string),
+          check-equal(format-to-string("find-resource(%=) returns expected pre-path", url),
                       expected-pre-path,
                       pre-path);
-          check-equal(format-to-string("find-resource(%=) returns expected post-path",
-                                       url-string),
+          check-equal(format-to-string("find-resource(%=) returns expected post-path", url),
                       expected-post-path,
                       post-path);
         end;
@@ -144,27 +136,11 @@ define test test-find-resource ()
   add-resource(root, "/aaa", aaa);
   add-resource(root, "/bbb", bbb);
   add-resource(root, "/bbb/ccc", ccc);
-  find-and-verify(root, "http://host/aaa",     aaa, #("", "aaa"), #());
-  find-and-verify(root, "http://host/aaa/xxx", aaa, #("", "aaa"), #("xxx"));
-  find-and-verify(root, "http://host/bbb",     bbb, #("", "bbb"), #());
-  find-and-verify(root, "http://host/bbb/ccc", ccc, #("", "bbb", "ccc"), #());
+  find-and-verify(root, parse-url("http://host/aaa"),     aaa, #("", "aaa"), #());
+  find-and-verify(root, parse-url("http://host/aaa/xxx"), aaa, #("", "aaa"), #("xxx"));
+  find-and-verify(root, parse-url("http://host/bbb"),     bbb, #("", "bbb"), #());
+  find-and-verify(root, parse-url("http://host/bbb/ccc"), ccc, #("", "bbb", "ccc"), #());
 end test test-find-resource;
-
-// Verify that resource operations on <http-server> delegate
-// to the root resource.
-//
-define test test-request-router ()
-  let resource-a = make(<resource>);
-  let server = make(<http-server>, request-router: resource-a);
-  check-equal("request-router: init-keyword for <http-server>",
-              resource-a, server.request-router);
-
-  let resource-c = make(<resource>);
-  add-resource(server, "/foo", resource-c);
-  check-equal("add-resource on <http-server>",
-              resource-c,
-              find-resource(server, parse-url("/foo")));
-end test test-request-router;
 
 
 

@@ -80,19 +80,7 @@ define method configure-from-string
     // a config file the user must specify a listener explicitly.
     size(server.server-listeners) := 0;
 
-    // When loading a configuration file, always set the root resource
-    // to a <virtual-host-map> if it isn't one already so that if we
-    // encounter a <virtual-host/> element in the config we can just
-    // add it in.  The current root resource is lost.
-    if (~instance?(server.request-router, <virtual-host-router>))
-      let n = server.request-router.resource-children.size;
-      if (n > 0)
-        warn("The existing request router, with %d child resources, "
-             "will be discarded.  This probably isn't what you intended.", n);
-      end;
-      server.request-router := make(<virtual-host-router>);
-    end;
-    dynamic-bind (%vhost = server.request-router.default-virtual-host)
+    dynamic-bind (%vhost = server.default-virtual-host)
       process-config-node(server, xml);
     end;
   else
@@ -219,9 +207,13 @@ define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"virtual-host")
   let name = get-attr(node, #"name");
   if (name)
-    let resource = make(<virtual-host>);
-    add-resource(server, name, resource);
-    dynamic-bind (%vhost = resource)
+    let name = as-lowercase(name);
+    if (find-virtual-host(server, name))
+      warn("Replacing existing virtual host named %=.", name);
+    end;
+    let vhost :: <virtual-host> = make(<virtual-host>);
+    add-virtual-host(server, name, vhost);
+    dynamic-bind (%vhost = vhost)
       for (child in xml$node-children(node))
         process-config-element(server, child, xml$name(child))
       end;
@@ -232,14 +224,17 @@ define method process-config-element
   end;
 end;
 
+// For when a virtual host may be addressed by several names.
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"host-alias")
   let name = get-attr(node, #"name");
   if (name)
-    block ()
-      add-resource(server, name, %vhost);
-    exception (err :: <koala-api-error>)
-      warn("Invalid <HOST-ALIAS> element.  %s", err);
+    let name = as-lowercase(name);
+    if (find-virtual-host(server, name))
+      warn("Ignoring <host-alias> %=.  A virtual host by that name already exists.",
+           name);
+    else
+      add-virtual-host(server, name, %vhost);
     end;
   else
     warn("Invalid <HOST-ALIAS> element.  The 'name' attribute must be specified.");
@@ -252,10 +247,26 @@ end;
 //
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"server")
+  // root
+  let loc = get-attr(node, #"root");
+  if (loc)
+    server.server-root := merge-locators(as(<directory-locator>, loc),
+                                         server.server-root);
+  end;
+  log-info("Server root: %s", as(<string>, server.server-root));
+
+  // working directory
+  let loc = get-attr(node, #"working-directory");
+  if (loc)
+    working-directory() := merge-locators(as(<directory-locator>, loc),
+                                          server.server-root);
+  end;
+  log-info("Server root: %s", as(<string>, server.server-root));
+
   // use-default-virtual-host
   let attr = get-attr(node, #"use-default-virtual-host");
   let value = true-value?(attr | "yes");
-  server.request-router.fall-back-to-default? := value;
+  server.use-default-virtual-host? := value;
   log-info("Fallback to the default virtual host is %s.",
            iff(value, "enabled", "disabled"));
 
@@ -267,13 +278,6 @@ define method process-config-element
                "enabled.  Server may crash if not run inside the IDE!",
                "disabled."));
 
-  // root
-  let loc = get-attr(node, #"root");
-  if (loc)
-    server.server-root := merge-locators(as(<directory-locator>, loc),
-                                         server.server-root);
-  end;
-  log-info("Server root: %s", as(<string>, server.server-root));
 end method process-config-element;
 
 // TODO: There is currently no way to configure (for example) the

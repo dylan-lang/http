@@ -80,7 +80,7 @@ end function parse-replacement;
 
 //// Configuration
 
-// <rewrite-rules base-url="/base/url">
+// <rewrite-rules base-url="/base/url/">
 //   <rewrite-rule pattern="^drm_1(\.html)?$" replacement="Title$1" redirect="permanent" terminal="yes" />
 //   <rewrite-rule pattern="^drm_2(\.html)?$" replacement="Copyrights$1" redirect="permanent" terminal="yes" />
 //   ...
@@ -124,7 +124,7 @@ define method process-config-element
                     replacement: concatenate(*rewrite-rule-base-url*, replacement),
                     redirect-code: redirect-code,
                     terminal?: true-value?(terminal));
-    add!(%vhost.rewrite-rules, rule);
+    add!(server.rewrite-rules, rule);
   end;
 end method process-config-element;
 
@@ -141,7 +141,7 @@ define open generic rewrite-url
 define method rewrite-url
     (url :: <string>, rule :: <rewrite-rule>)
  => (url :: <string>, matched? :: <boolean>)
-  log-debug("rewrite-url(%=, %=)", url, rule);
+  //log-debug("rewrite-url(%=, %=)", url, rules);
   let match = regex-search(rule.rewrite-rule-regex, url);
   if (match)
     local method do-replacement (x)
@@ -161,21 +161,21 @@ end method rewrite-url;
 define method rewrite-url
     (url :: <string>, rules :: <sequence>)
  => (url :: <string>, rule :: false-or(<abstract-rewrite-rule>))
-  log-debug("rewrite-url(%=, %=)", url, rules);
+  //log-debug("rewrite-url(%=, %=)", url, rules);
   iterate loop (new-url = url, i = 0, prev = #f)
     if (i >= rules.size)
-      log-debug("  returning %=, %=", new-url, prev);
+      log-debug("rewrite-url returning %=, %=", new-url, prev);
       values(new-url, prev)
     else
       let rule = rules[i];
       let (new, matched?) = rewrite-url(new-url, rule);
-      log-debug("  regex: %=, replacement: %=, new: %=, terminate?: %=",
+      /* log-debug("  regex: %=, replacement: %=, new: %=, terminate?: %=",
                 rule.rewrite-rule-regex.regex-pattern,
                 rule.rewrite-rule-replacement,
                 new,
-                rule.rewrite-rule-terminal?);
+                rule.rewrite-rule-terminal?); */
       if (matched? & rule.rewrite-rule-terminal?)
-        log-debug("  returning %=, #t", new);
+        log-debug("rewrite-url returning %=, #t", new);
         values(new, rule)
       else
         loop(new, i + 1, iff(matched?, rule, prev))

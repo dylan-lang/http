@@ -23,49 +23,6 @@ begin
 end;
 
 
-//// Request Router
-
-// The request router class gives libraries a way to provide alternate
-// ways of routing/mapping URLs to resources if they don't like the default
-// mechanism, by storing a different subclass of <abstract-router>
-// in the <http-server>.
-
-define open abstract class <abstract-router> (<object>)
-end;
-
-
-// Add a route to a resource.  (Or, map a URL to a resource.)
-// URLs (and more specifically, URL paths) may be represented in various ways,
-// which is why the 'url' parameter is typed as <object>.
-//
-define open generic add-resource
-    (router :: <abstract-router>,
-     url :: <object>,
-     resource :: <abstract-resource>,
-     #key, #all-keys);
-
-
-// Find a resource mapped to the given URL, or signal an error.
-// Return the resource, the URL prefix it was mapped to, and the URL
-// suffix that remained.
-//
-// TODO: The return values for this are probably too specific to the
-//       way the default router works.  It's probably a bit more generic
-//       to return (resource, url, bindings) or some such.
-//
-define open generic find-resource
-    (router :: <abstract-router>, url :: <object>)
- => (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>);
-
-
-// Generate a URL from a name and path variables.
-// If the given name doesn't exist signal <koala-api-error>.
-define open generic generate-url
-    (router :: <abstract-router>, name :: <string>, #key, #all-keys)
- => (url);
-
-
-
 //// <http-server>
 
 // The user instantiates this class directly, passing configuration options
@@ -86,12 +43,22 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   constant slot server-lock :: <simple-lock>,
     required-init-keyword: lock:;
 
-  slot request-router :: <abstract-router> = make(<resource>),
-    init-keyword: request-router:;
+  // lowercase fqdn -> <virtual-host>
+  constant slot virtual-hosts :: <string-table> = make(<string-table>),
+    init-keyword: virtual-hosts:;
+
+  // Use this if no virtual host matches the Host header or URL and
+  // use-default-virtual-host? is true.
+  slot default-virtual-host :: <virtual-host> = make(<virtual-host>),
+    init-keyword: default:;
+
+  // If true, use the default vhost if the given host isn't found.
+  slot use-default-virtual-host? :: <boolean> = #t,
+    init-keyword: use-default-virtual-host?:;
 
   // Rewrite rules are stored here on the theory that they may
-  // eventually apply to the request host.  Otherwise they would go in
-  // the <virtual-host> class.
+  // eventually apply to the request host.  Possibly there should
+  // be a separate set of rules per vhost?
   constant slot rewrite-rules :: <stretchy-vector> = make(<stretchy-vector>);
 
   //// Next 5 slots are to support clean server shutdown.
@@ -188,6 +155,85 @@ end method initialize;
 
 define sealed domain initialize (<http-server>);
 
+
+//// Virtual hosts
+
+define open generic find-virtual-host
+    (server :: <http-server>, fqdn :: <string>)
+ => (vhost :: <virtual-host>);
+
+define method find-virtual-host
+    (server :: <http-server>, fqdn :: <string>)
+ => (vhost :: <virtual-host>)
+  let fqdn = as-lowercase(fqdn);
+  element(server.virtual-hosts, fqdn, default: #f)
+  | iff(server.use-default-virtual-host?,
+        server.default-virtual-host,
+        %resource-not-found-error())
+end method find-virtual-host;
+
+define open generic add-virtual-host
+    (server :: <http-server>, fqdn :: <string>, vhost :: <virtual-host>)
+ => ();
+
+define method add-virtual-host
+    (server :: <http-server>, fqdn :: <string>, vhost :: <virtual-host>)
+ => ()
+  let name = as-lowercase(fqdn);
+  if (element(server.virtual-hosts, fqdn, default: #f))
+    koala-api-error("Attempt to add a virtual host named %= to %= but "
+                    "a virtual host by that name already exists.",
+                    name, server);
+  else
+    server.virtual-hosts[name] := vhost;
+    log-info("Added virtual host %=.", name);
+  end;
+end method add-virtual-host;
+
+
+
+//// Resource protocols
+
+// Adding a resource directly to an <http-server> adds it to the default
+// virtual host.  If you want to add it to a specific virtual host, use
+// find-virtual-host(server, fqdn).
+define method add-resource
+    (server :: <http-server>, url :: <object>, resource :: <abstract-resource>,
+     #rest args, #key)
+  //log-debug("add-resource(%=, %=, %=)", server, url, resource);
+  apply(add-resource, server.default-virtual-host, url, resource, args);
+end;
+
+define method find-resource
+    (server :: <http-server>, url :: <object>)
+ => (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
+  log-debug("find-resource(%=, %=)", server, url);
+  find-resource(server.default-virtual-host, url)
+end;
+
+define method do-resources
+    (server :: <http-server>, function :: <function>,
+     #key seen :: <list> = #())
+ => ()
+  for (vhost in server.virtual-hosts)
+    if (~member?(vhost, seen))
+      do-resources(vhost, function, seen: seen);
+    end;
+  end;
+  let vhost = server.default-virtual-host;
+  if (~member?(vhost, seen))
+    do-resources(vhost, function, seen: seen);
+  end;
+end method do-resources;
+
+
+define method generate-url
+    (server :: <http-server>, name :: <string>, #rest args, #key)
+ => (url)
+  apply(generate-url, server.default-virtual-host, name, args)
+end;
+
+
 define function release-client
     (client :: <client>)
   let server = client.client-server;
@@ -692,24 +738,15 @@ define method route-request
   if (new-path ~= old-path)
     do-rewrite-redirection(server, request, new-path, rule);
   else
+    let vhost :: <virtual-host> = find-virtual-host(server, request.request-host);
+
+    *debug-logger* := vhost.debug-logger;
+    *error-logger* := vhost.error-logger;
+    *request-logger* := vhost.request-logger;
+
     // Find a resource or signal an error.
     let (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
-      = find-resource(server, request);
-
-    // Bind loggers for the vhost being used.
-    // TODO: This assumes <resource> but should only assume <abstract-resource>.
-    iterate loop (current = resource, vhost = #f)
-      if (current)
-        loop(current.resource-parent,
-             iff(instance?(current, <virtual-host>),
-                 current,
-                 vhost))
-      elseif (vhost)
-        *debug-logger* := vhost.debug-logger;
-        *error-logger* := vhost.error-logger;
-        *request-logger* := vhost.request-logger;
-      end;
-    end;
+      = find-resource(vhost, request.request-url);
 
     log-debug("Found resource %s, prefix = %=, suffix = %=",
               resource, prefix, suffix);

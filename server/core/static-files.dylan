@@ -195,15 +195,19 @@ define method locator-below-root?
 end method locator-below-root?;
 
 define method locator-media-type
-    (locator :: <locator>, policy :: <directory-resource>)
+    (locator :: <locator>, resource :: <directory-resource>)
  => (media-type :: <media-type>)
-  extension-to-mime-type(locator.locator-extension, *server*.server-media-type-map)
-    | begin
-        let mtype :: <mime-type> = default-content-type(policy);
-        make(<media-type>,
-             type: mtype.mime-type,
-             subtype: mtype.mime-subtype)
-      end
+  let extension = locator.locator-extension;
+  let mtype = extension & extension-to-mime-type(extension,
+                                                 *server*.server-media-type-map);
+  if (mtype)
+    mtype
+  else
+    let mtype :: <mime-type> = default-content-type(resource);
+    make(<media-type>,
+         type: mtype.mime-type,
+         subtype: mtype.mime-subtype)
+  end
 end method locator-media-type;
 
 define method serve-static-file

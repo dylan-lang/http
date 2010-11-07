@@ -129,7 +129,8 @@ define constant $default-media-type-map
     end;
 
 define function %resource-not-found-error
-    (#rest args, #key url :: false-or(<string>), #all-keys)
+    (#rest args, #key url, #all-keys)
+  let url = iff(instance?(url, <uri>), build-path(url), url);
   apply(resource-not-found-error,
         url: url | build-path(request-url(current-request())),
         args)

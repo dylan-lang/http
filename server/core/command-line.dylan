@@ -160,7 +160,7 @@ define function koala-main
         end;
 
         log-debug("Mapped resources:");
-        do-resources(*server*.request-router,
+        do-resources(*server*,
                      method (res)
                        log-debug("  %-25s -- %s", res.resource-url-path, res);
                      end);

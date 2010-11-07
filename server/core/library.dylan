@@ -48,8 +48,6 @@ define module koala
 
   // Servers
   create
-    request-router,
-    request-router-setter,
     current-server,
     debugging-enabled?,
     debugging-enabled?-setter;
@@ -88,7 +86,6 @@ define module koala
       respond-to-delete,
       respond-to-trace,
       respond-to-connect,
-      root-resource?,
       unmatched-url-suffix;
 
   // Resource implementations
@@ -100,14 +97,18 @@ define module koala
       <cgi-directory-resource>,
       <function-resource>,
       <redirecting-resource>,
-      <virtual-host-router>,
-        default-virtual-host,
-        default-virtual-host-setter,
-        fall-back-to-default?,
-      <virtual-host>,
       add-resource-name,
       do-resources,
       function-resource;
+
+  // Virtual hosts
+  create
+    <virtual-host>,
+    add-virtual-host,
+    default-virtual-host,
+    default-virtual-host-setter,
+    find-virtual-host,
+    use-default-virtual-host?;
 
   // Request routing
   create

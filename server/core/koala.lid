@@ -5,8 +5,8 @@ files:	library
 	vhost
 	response
 	request
-	server
 	resources
+	server
 	session
 	config
 	modules

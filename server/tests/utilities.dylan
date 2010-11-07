@@ -24,11 +24,12 @@ end macro with-http-server;
 
 define constant fmt = format-to-string;
 
+define variable *test-host* :: <string> = "127.0.0.1";
 define variable *test-port* :: <integer> = 8080;
 
 define method test-url
     (path-etc :: <string>, #key host, port) => (url :: <url>)
-  parse-url(fmt("http://%s:%d%s", host | "127.0.0.1", *test-port*, path-etc))
+  parse-url(fmt("http://%s:%d%s", host | *test-host*, *test-port*, path-etc))
 end;
 
 define method root-url
@@ -38,7 +39,7 @@ end;
 
 define function print-resources
     (server :: <http-server>)
-  do-resources(server.request-router,
+  do-resources(server,
                method (res)
                  test-output("  %-25s -- %s", res.resource-url-path, res);
                end);

@@ -45,7 +45,7 @@ define tag url in dsp
     (page :: <dylan-server-page>)
     (name :: <string>, include-query :: <boolean>)
   // TODO: include-query
-  output(generate-url(current-server().request-router, name));
+  output(generate-url(current-server(), name));
 end;
 
 // This is for comments that you don't want to be seen by the user,
