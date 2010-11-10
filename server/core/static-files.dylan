@@ -218,9 +218,10 @@ define method serve-static-file
                  element-type: <byte>)
     set-header(response, "Content-Type",
                mime-name(locator-media-type(locator, policy)));
-    let props = file-properties(locator);
-    set-header(response, "Last-Modified",
-               as-rfc1123-string(props[#"modification-date"]));
+    let mod-date = file-prop(locator, #"modification-date");
+    if (mod-date)
+      set-header(response, "Last-Modified", as-rfc1123-string(mod-date));
+    end;
     copy-to-end(in-stream, response);
   end;
 end method serve-static-file;
@@ -244,25 +245,23 @@ define method etag
  => (etag :: <string>, weak? :: <boolean>)
   //generate an etag (use modification date and size)
   // --TODO: algorithm should be changed (md5?), because a file can
-  //changes more than once per second without changing size.
-  let props = file-properties(locator);
+  //change more than once per second without changing size.
   let now = current-date();
-  let timestamp = props[#"modification-date"];
+  let timestamp = file-prop(locator, #"modification-date");
   let time = (date-hours(timestamp) * 60 +
-             date-minutes(timestamp)) * 60 +
+              date-minutes(timestamp)) * 60 +
              date-seconds(timestamp);
   let date = (date-year(timestamp) * 1000 +
-             date-month(timestamp)) * 100 +
+              date-month(timestamp)) * 100 +
              date-day(timestamp);
   let weak :: <boolean> = #f;
-  let dur :: <day/time-duration> =
-    make(<day/time-duration>, days: 0, seconds: 1);
+  let dur :: <day/time-duration> = make(<day/time-duration>, days: 0, seconds: 1);
   if (now < timestamp + dur)
     weak := #t;
   end if;
   values(concatenate("\"", integer-to-string(date, base: 16), "-",
                      integer-to-string(time, base: 16), "-",
-                     integer-to-string(props[#"size"], base: 16), "\""),
+                     integer-to-string(file-prop(locator, #"size"), base: 16), "\""),
                      weak);
 end method etag;
 
@@ -277,9 +276,9 @@ define method serve-directory
     = iff(instance?(locator, <directory-locator>),
           locator,
           subdirectory-locator(locator-directory(locator), locator-name(locator)));
-  let directory-properties = file-properties(locator);
-  set-header(response, "Last-Modified",
-             as-rfc1123-string(directory-properties[#"modification-date"]));
+  let mod-date = file-prop(locator, #"modification-date");
+  set-header(response, "Last-Modified", as-rfc1123-string(mod-date));
+  set-header(response, "Content-type", "text/html");
   let stream = response;
   local
     method show-file-link (directory, name, type)
@@ -288,12 +287,9 @@ define method serve-directory
                           subdirectory-locator(as(<directory-locator>, directory), name),
                           merge-locators(as(<file-locator>, name),
                                          as(<directory-locator>, directory)));
-        let props = file-properties(locator);
-        let link = if (type = #"directory")
-                     concatenate(name, "/");
-                   else
-                     name;
-                   end if;
+        let link = iff(type = #"directory",
+                       concatenate(name, "/"),
+                       name);
         write(stream, "\t\t\t\t<tr>\n");
         format(stream, "\t\t\t\t<td class=\"name\"><a href=\"%s\">%s</a></td>\n",
                link, link);
@@ -303,14 +299,10 @@ define method serve-directory
         format(stream, "\t\t\t\t<td class=\"mime-type\">%s</td>\n", mime-type);
         for (key in #[#"size", #"modification-date", #"author"],
              alignment in #["right", "left", "left"])
-          let prop = element(props, key, default: #f);
+          let prop = file-prop(locator, key);
           format(stream, "\t\t\t\t<td align=\"%s\" class=\"%s\">",
                  alignment, as(<string>, key));
-          if (prop)
-            display-file-property(stream, key, prop, type);
-          else
-            write(stream,"-");
-          end if;
+          display-file-property(stream, key, prop | "-", type);
           write(stream, "\t\t\t\t</td>\n");
         end;
         write(stream, "\t\t\t</tr>\n");
@@ -397,3 +389,13 @@ define method display-file-property
     (stream, key, property :: <string>, file-type :: <file-type>) => ()
   format(stream, property);
 end;
+
+define function file-prop
+    (locator :: <locator>, property-name :: <symbol>)
+ => (property-value)
+  block ()
+    file-property(locator, property-name)
+  exception (ex :: <file-system-error>)
+    #f
+  end
+end function file-prop;
