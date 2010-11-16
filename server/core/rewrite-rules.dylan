@@ -187,16 +187,25 @@ end method rewrite-url;
 define function do-rewrite-redirection
     (server :: <http-server>, request :: <request>, url-path :: <string>,
      rule :: false-or(<rewrite-rule>))
+  local method full-url ()
+          // The Location header should have an absolute URL in it.
+          let url = request.request-absolute-url;
+          build-uri(make(<url>,
+                         scheme: url.uri-scheme,
+	                 host: request.request-host,
+			 port: url.uri-port,
+			 path: split(url-path, '/')))
+        end;
   let code = iff(rule, rule.rewrite-rule-redirect-code, $status-found);
   select (code)
     $status-moved-permanently =>
-      moved-permanently-redirect(location: url-path);
+      moved-permanently-redirect(location: full-url());
     $status-found =>
-      found-redirect(location: url-path);
+      found-redirect(location: full-url());
     $status-see-other =>
-      see-other-redirect(location: url-path);
+      see-other-redirect(location: full-url());
     $status-temporary-redirect =>
-      moved-temporarily-redirect(location: url-path);
+      moved-temporarily-redirect(location: full-url());
     $status-not-modified =>
       not-modified-redirect();
     //$status-use-proxy =>

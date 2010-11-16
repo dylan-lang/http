@@ -83,7 +83,7 @@ define method respond-to-post
           let script = merge-locators(as(<file-locator>, filename), directory);
           if (file-exists?(script))
             select (script.file-type)
-              #"file" =>
+              #"file", #"link" =>
                 let path-info = iff(empty?(rest(remainder)),
                                     "",
                                     // note added leading slash, per spec
