@@ -35,7 +35,7 @@ define module http-client
 
   // Progress protocol
   create
-      note-bytes-sent;
+    note-bytes-sent;
 
   // Request/response
   create
@@ -46,7 +46,8 @@ define module http-client
     <http-response>,
     response-content,
     http-get,
-    <maximum-redirects-exceeded>;
+    <maximum-redirects-exceeded>,
+    <redirect-loop-detected>;
 
   // Utilities
   create

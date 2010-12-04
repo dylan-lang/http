@@ -92,6 +92,10 @@ define constant <http-version> = type-union(<symbol>, <byte-string>);
 define open class <maximum-redirects-exceeded> (<http-error>)
 end;
 
+define open class <redirect-loop-detected> (<http-error>)
+end;
+
+
 // For sending requests, an <http-connection> acts as the output stream so
 // that it can do chunking etc.  But note that the request line and the headers
 // are written directly to the socket so as to avoid chunking etc.
@@ -582,7 +586,7 @@ define method http-get
     let headers = convert-headers(headers);
     let original-headers = convert-headers(headers);  // copy
 
-    iterate loop (follow = follow-redirects, url = url)
+    iterate loop (follow = follow-redirects, url = url, seen = #())
       send-request(conn, #"get", url, headers: original-headers);
       let read-content? = ~stream;
       let response :: <http-response> = read-response(conn, read-content: #f);
@@ -590,12 +594,19 @@ define method http-get
       if (follow & code >= 300 & code <= 399)
         // Discard the body of the redirect message.
         read-and-discard-to-end(response);
+        let location = get-header(response, "Location");
         if (follow = 0)
           signal(make(<maximum-redirects-exceeded>,
                       format-string: "Maximum number of redirects exceeded."));
+        elseif (member?(location, seen, test: string-equal?))
+          // RFC 2616, 10.3
+          signal(make(<redirect-loop-detected>,
+                      format-string: "Redirect loop detected: %s",
+                      format-arguments: list(location)));
         else
           loop(iff(follow = #t, #t, follow - 1),
-               get-header(response, "Location"))
+               location,
+               pair(location, seen))
         end
       else
         if (stream)
@@ -634,9 +645,12 @@ define method read-and-discard-to-end
     (response :: <http-response>)
   let buff-size :: <integer> = 16384;
   let buffer :: <byte-string> = make(<byte-string>, size: buff-size);
-  let count = buff-size;
-  while (count)
-    count := read-into!(response, buff-size, buffer, on-end-of-stream: #f);
+  block ()
+    while (#t)
+      read-into!(response, buff-size, buffer);
+    end;
+  exception (ex :: <end-of-stream-error>)
+    // done
   end;
 end method read-and-discard-to-end;
 
