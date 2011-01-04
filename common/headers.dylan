@@ -532,9 +532,10 @@ define method extract-cookies
                          make(<cookie>,
                               name: name, value: value, path: path, domain: domain,
                               version: version));
-          pset (name, value, path, domain)
-            values(#f, #f, #f, #f)
-          end;
+          name  := #f;
+          value := #f;
+          path  := #f;
+          domain := #f;
         end;
   iterate loop (bpos = bpos)
     let bpos = skip-whitespace(str, bpos, epos);

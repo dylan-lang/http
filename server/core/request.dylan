@@ -98,7 +98,8 @@ end method request-absolute-url;
 // This method takes care of parsing the request headers and signalling any
 // errors therein.
 //---TODO: have overall timeout for header reading.
-define method read-request (request :: <request>) => ()
+define method read-request
+    (request :: <request>) => ()
   let socket = request.request-socket;
   let server = request.request-server;
   let (buffer, len) = read-http-line(socket);
@@ -111,7 +112,9 @@ define method read-request (request :: <request>) => ()
     if (line-count > 5)
       bad-request-error(reason: "No Request-Line received");
     end;
-    pset (buffer, len) read-http-line(socket) end;
+    let (new-buffer, new-len) = read-http-line(socket);
+    buffer := new-buffer;
+    len := new-len;
   end;
 
   parse-request-line(server, request, buffer, len);

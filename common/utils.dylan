@@ -61,7 +61,7 @@ define generic remove-attribute
 define method has-attribute?
     (this :: <attributes-mixin>, key :: <string>)
  => (has-it? :: <boolean>)
-  has-key?(this.attributes, key)
+  key-exists?(this.attributes, key)
 end;
 
 define method get-attribute
