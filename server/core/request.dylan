@@ -3,7 +3,7 @@ Synopsis:  HTTP requests
 Author:    Gail Zacharias, Carl Gay
 Copyright: Copyright (c) 2001-2010 Carl L. Gay.  All rights reserved.
            Original Code is Copyright (c) 2001 Functional Objects, Inc.  All rights reserved.
-License:   Functional Objects Library Public License Version 1.0
+License:      See License.txt in this distribution for details.
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 define class <basic-request> (<object>)

@@ -378,31 +378,22 @@ end method read-chunk;
 
 define open class <base-http-request> (<message-headers-mixin>)
 
-  // todo -- url, raw-url, method, and version (everything that comes in the request
-  // line) should be constant slots.  The server needs to be updated to read the
-  // request line before the request object is created before this can happen, which
-  // should not be a problem.
+  slot request-url :: false-or(<url>) = #f,
+    init-keyword: url:;
 
-  /* constant */ slot request-url :: false-or(<url>),
-    /* required- */ init-keyword: url:;
-
-  /* constant */ slot request-raw-url-string :: false-or(<byte-string>),
+  slot request-raw-url-string :: false-or(<byte-string>) = #f,
     init-keyword: raw-url:;
 
   // todo -- RFC 2616, 5.1.1 -- The request method is case-sensitive.
   //         So it shouldn't be a <symbol>.
-  /* constant */ slot request-method :: <symbol>,
-    init-keyword: method:,
-    init-value: #"GET";
+  slot request-method :: <symbol> = #"not-set",
+    init-keyword: method:;
 
-  /* constant */ slot request-version :: <symbol>,
-    init-keyword: version:,
-    init-value: #"http/1.1";
+  slot request-version :: <symbol> = #"not-set",
+    init-keyword: version:;
 
-  // The body content of the request.  Only present for POST?
-  slot request-content :: <string>,
-    init-keyword: content:,
-    init-value: "";
+  slot request-content :: <byte-string> = "",
+    init-keyword: content:;
 
 end class <base-http-request>;
 

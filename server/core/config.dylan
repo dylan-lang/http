@@ -2,7 +2,7 @@ Module:    httpi
 Synopsis:  For processing the configuration init file, koala-config.xml
 Author:    Carl Gay
 Copyright: Copyright (c) 2001-2010 Carl L. Gay.  All rights reserved.
-License:   Functional Objects Library Public License Version 1.0
+License:      See License.txt in this distribution for details.
 Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 /*
