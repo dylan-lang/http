@@ -673,7 +673,7 @@ end function respond-top-level;
 
 define function %respond-top-level
     (client :: <client>)
-  dynamic-bind (*request* = make(client.client-server.request-class, client: client),
+  dynamic-bind (*request* = #f,
                 *server* = client.client-server,
                 *debug-logger* = *server*.debug-logger,
                 *error-logger* = *server*.error-logger,
@@ -682,6 +682,7 @@ define function %respond-top-level
     block (exit-respond-top-level)
       while (#t)                      // keep alive loop
         with-simple-restart("Skip this request and continue with the next")
+          *request* := make(client.client-server.request-class, client: client);
           let request :: <basic-request> = *request*;
           block (finish-request)
             // More recently installed handlers take precedence...
