@@ -336,7 +336,6 @@ define method path-variable-bindings
      unbound :: <sequence>,
      leftover-suffix :: <list>)
   let bindings = make(<stretchy-vector>);
-  //log-debug("pvars = %s", resource.resource-path-variables);
   for (pvar in resource.resource-path-variables,
        suffix = path-suffix then rest(suffix))
     select (pvar by instance?)
@@ -346,7 +345,9 @@ define method path-variable-bindings
         suffix := #();
       <plus-path-variable> =>
         if (empty?(suffix))
-          //log-debug("plus var not there");
+          // TODO: It would be more helpful for debugging if this were part
+          //       of the error message (only when server.debugging-enabled?).
+          log-debug("{%s}+ not matched", pvar.path-variable-name);
           %resource-not-found-error();
         else
           add!(bindings, pvar.path-variable-name);
@@ -356,16 +357,14 @@ define method path-variable-bindings
       <path-variable> =>
         let path-element = iff(empty?(suffix), #f, first(suffix));
         if (pvar.path-variable-required? & ~path-element)
-          //log-debug("pvar %= required but not there.", pvar.path-variable-name);
+          log-debug("{%s} not matched", pvar.path-variable-name);
           %resource-not-found-error();
         else
           add!(bindings, pvar.path-variable-name);
           add!(bindings, path-element);
         end;
     end select;
-    //log-debug("suffix = %s", suffix);
   finally
-    //log-debug("suffix finally = %s", suffix);
     values(bindings,
            copy-sequence(resource.resource-path-variables,
                          start: floor/(bindings.size, 2)),
