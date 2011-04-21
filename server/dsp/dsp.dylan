@@ -69,7 +69,7 @@ end;
 
 define method respond-to-post
     (page :: <dylan-server-page>, #key)
-  respond-to-get(page);
+  process-template(page);
 end;
 
 define method respond-to-get
