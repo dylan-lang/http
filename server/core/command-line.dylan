@@ -120,58 +120,54 @@ define function koala-main
                     "cause server to enter debugger (or exit).");
       end;
 
-      block ()
-	// Configure first so that command-line argument override config settings.
-	let config-file = option-value-by-long-name(parser, "config");
-	if (config-file)
-	  configure-server(*server*, config-file);
-	end;
+      // Configure first so that command-line argument override config settings.
+      let config-file = option-value-by-long-name(parser, "config");
+      if (config-file)
+        configure-server(*server*, config-file);
+      end;
 
-        // If --directory is specified, map it to / on the server.
-        // This is a special case to make serving a directory super-easy.
-        let directory = option-value-by-long-name(parser, "directory");
-        if (directory)
-          add-resource(*server*, "/", make(<directory-resource>,
-                                           directory: directory,
-                                           allow-directory-listing?: #t,
-                                           follow-symlinks?: #f));
-        end;
+      // If --directory is specified, map it to / on the server.
+      // This is a special case to make serving a directory super-easy.
+      let directory = option-value-by-long-name(parser, "directory");
+      if (directory)
+        add-resource(*server*, "/", make(<directory-resource>,
+                                         directory: directory,
+                                         allow-directory-listing?: #t,
+                                         follow-symlinks?: #f));
+      end;
 
-        // If --cgi is specified, map it to /cgi-bin on the server.
-        // This is a special case to make serving a directory super-easy.
-        let cgi = option-value-by-long-name(parser, "cgi");
-        if (cgi)
-          add-resource(*server*, "/cgi-bin", make(<cgi-directory-resource>,
-                                                  locator: cgi,
-                                                  extensions: #("cgi", "bat")));
-        end;
+      // If --cgi is specified, map it to /cgi-bin on the server.
+      // This is a special case to make serving a directory super-easy.
+      let cgi = option-value-by-long-name(parser, "cgi");
+      if (cgi)
+        add-resource(*server*, "/cgi-bin", make(<cgi-directory-resource>,
+                                                locator: cgi,
+                                                extensions: #("cgi", "bat")));
+      end;
 
-	// Gives callers a chance to do things after the server has been
-	// configured.  e.g., the wiki wants to add responders after a
-	// URL prefix has been configured.
-	if (before-startup)
-	  before-startup(*server*);
-	end;
+      // Gives callers a chance to do things after the server has been
+      // configured.  e.g., the wiki wants to add responders after a
+      // URL prefix has been configured.
+      if (before-startup)
+        before-startup(*server*);
+      end;
 
-	// Any command-line listeners specified?
-	let listeners = option-value-by-long-name(parser, "listen");
-        for (listener in listeners)
-          add!(*server*.server-listeners, make-listener(listener));
-        end;
+      // Any command-line listeners specified?
+      let listeners = option-value-by-long-name(parser, "listen");
+      for (listener in listeners)
+        add!(*server*.server-listeners, make-listener(listener));
+      end;
 
-        log-debug("Mapped resources:");
-        do-resources(*server*,
-                     method (res)
-                       log-debug("  %-25s -- %s", res.resource-url-path, res);
-                     end);
+      log-debug("Mapped resources:");
+      do-resources(*server*,
+                   method (res)
+                     log-debug("  %-25s -- %s", res.resource-url-path, res);
+                   end);
 
-        if (empty?(*server*.server-listeners))
-          error("No listeners were created.  Exiting.");
-        else
-          start-server(*server*);
-        end;
-      exception (ex :: <serious-condition>)
-        log-error("Error starting server: %s", ex);
+      if (empty?(*server*.server-listeners))
+        error("No listeners were created.  Exiting.");
+      else
+        start-server(*server*);
       end;
     end dynamic-bind;
   end if;
