@@ -389,10 +389,15 @@ define body tag loop in dsp
         let value = get-context-value(over, context);
         iff(found?(value), value, #[])
       else
-        // This errs if not found.
-        let named-method = parse-tag-arg("over", over, <named-method>);
-        named-method(page);
+        block ()
+          let named-method = parse-tag-arg("over", over, <named-method>);
+          named-method(page)
+        exception (ex :: <tag-argument-parse-error>)
+          #[]
+        end
       end;
+  let pc = page-context();
+  let saved-val = get-attribute(pc, var, default: $unfound);
   if (empty?(items))
     output("%s", empty | "");
   else
@@ -402,7 +407,7 @@ define body tag loop in dsp
                     *loop-start?* = (i = 1),
                     *loop-end?* = (i = items.size))
         if (var)
-          set-attribute(page-context(), var, *loop-value*);
+          set-attribute(pc, var, *loop-value*);
         end;
         if (header & *loop-start?*)
           output("%s", header);
@@ -417,7 +422,11 @@ define body tag loop in dsp
     end for;
   end if;
   // Scope the loop variable to the loop, not the entire page.
-  remove-attribute(page-context(), var);
+  if (saved-val == $unfound)
+    remove-attribute(pc, var);
+  else
+    set-attribute(pc, var, saved-val);
+  end;
 end tag loop;
 
 define tag loop-index in dsp
