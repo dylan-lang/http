@@ -100,6 +100,7 @@ define function koala-main
             next-handler()  // decline to handle it
           else
             format(*standard-error*, "Error: %s\n", cond);
+            force-output(*standard-error*);
             exit-application(1);
           end;
         end;
