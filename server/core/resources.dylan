@@ -89,20 +89,18 @@ define open generic respond-to-delete  (resource :: <abstract-resource>, #key, #
 define open generic respond-to-trace   (resource :: <abstract-resource>, #key, #all-keys);
 define open generic respond-to-connect (resource :: <abstract-resource>, #key, #all-keys);
 
+
 // The content type that will be sent in the HTTP response if no
 // Content-Type header is set by the respond* method.
 //
 define open generic default-content-type
     (resource :: <abstract-resource>)
- => (content-type :: <mime-type>);
-
-define constant application/octet-stream :: <mime-type>
-  = make(<mime-type>, type: "application", subtype: "octet-stream");
+ => (content-type :: type-union(<mime-type>, <string>));
 
 define method default-content-type
     (resource :: <abstract-resource>)
- => (content-type :: <mime-type>)
-  application/octet-stream
+ => (content-type :: <string>)
+  "application/octet-stream"
 end;
 
 
@@ -574,6 +572,14 @@ define table $request-method-table = {
     };
 
 // TODO: a way to add new request methods
+
+
+define inline function %respond
+    (resource :: <abstract-resource>, bindings) => ()
+  // Don't require every respond method to set the Content-Type header explicitly.
+  set-header(current-response(), "Content-Type", default-content-type(resource));
+  apply(respond, resource, bindings);
+end;
 
 define method respond
     (resource :: <placeholder-resource>, #key)

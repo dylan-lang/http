@@ -756,7 +756,7 @@ define method route-request
     if (~empty?(leftovers))
       unmatched-url-suffix(resource, leftovers);
     end;
-    apply(respond, resource, bindings);
+    %respond(resource, bindings);
   end;
 end method route-request;
 

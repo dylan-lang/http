@@ -59,6 +59,11 @@ define method make
         args)
 end;
 
+define method default-content-type
+    (resource :: <dylan-server-page>) => (content-type :: <string>)
+  "text/html"
+end;
+
 // This is here (rather than in "make" or "initialize") because koala has an
 // option to set the working directory and we want to respect it, and we don't
 // want to depend on file load order.
