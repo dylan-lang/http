@@ -5,11 +5,10 @@ define library http-common
   use base64;
   use common-dylan,
     import: { dylan,
+              dylan-extensions,
               common-extensions,
               threads,
               simple-random };
-  use functional-dylan,
-    import: { dylan-extensions };
   use io,
     import: { format,
               standard-io,

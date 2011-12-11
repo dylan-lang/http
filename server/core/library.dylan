@@ -11,9 +11,7 @@ define library koala
     import: { table-extensions };
   use command-line-parser;
   use common-dylan,
-    import: { dylan, common-extensions, threads, simple-random };
-  use functional-dylan,
-    import: { dylan-extensions };
+    import: { dylan, dylan-extensions, common-extensions, threads, simple-random };
   use http-common;
   use io,
     import: { format, standard-io, streams, streams-internals };
