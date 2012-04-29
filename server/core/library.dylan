@@ -11,7 +11,7 @@ define library koala
     import: { table-extensions };
   use command-line-parser;
   use common-dylan,
-    import: { dylan, dylan-extensions, common-extensions, threads, simple-random };
+    import: { dylan, common-extensions, threads, simple-random };
   use http-common;
   use io,
     import: { format, standard-io, streams, streams-internals };
@@ -204,15 +204,6 @@ define module httpi                             // http internals
     exclude: { format-to-string };
   use date;                    // from system lib
   use dylan;
-  use dylan-extensions,
-    import: { element-no-bounds-check,
-              element-no-bounds-check-setter,
-              element-range-check,
-              element-range-error,
-              // make-symbol,
-              // case-insensitive-equal,
-              // case-insensitive-string-hash
-              };
   use file-system;             // from system lib
   use format;
   use http-common;

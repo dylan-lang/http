@@ -5,7 +5,6 @@ define library http-common
   use base64;
   use common-dylan,
     import: { dylan,
-              dylan-extensions,
               common-extensions,
               threads,
               simple-random };
@@ -304,16 +303,6 @@ define module http-common-internals
     exclude: { format-to-string };
   use date;
   use dylan;
-  use dylan-extensions,
-    import: { element-no-bounds-check,
-              element-no-bounds-check-setter,
-              element-range-check,
-              element-range-error,
-              // make-symbol,
-              // case-insensitive-equal,
-              // case-insensitive-string-hash
-              <format-string-condition>
-              };
   use file-system,
     import: { with-open-file,
               <file-does-not-exist-error>,
