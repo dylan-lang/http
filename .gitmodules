@@ -1,0 +1,30 @@
+[submodule "submodules/logging"]
+	path = submodules/logging
+	url = git://github.com/dylan-lang/logging.git
+[submodule "submodules/strings"]
+	path = submodules/strings
+	url = git://github.com/dylan-lang/strings.git
+[submodule "submodules/uncommon-dylan"]
+	path = submodules/uncommon-dylan
+	url = git://github.com/dylan-lang/uncommon-dylan.git
+[submodule "submodules/uri"]
+	path = submodules/uri
+	url = git://github.com/dylan-lang/uri.git
+[submodule "submodules/mime"]
+	path = submodules/mime
+	url = git://github.com/dylan-lang/mime.git
+[submodule "submodules/base64"]
+	path = submodules/base64
+	url = git://github.com/dylan-lang/base64.git
+[submodule "submodules/command-line-parser"]
+	path = submodules/command-line-parser
+	url = git://github.com/dylan-lang/command-line-parser.git
+[submodule "submodules/xml-parser"]
+	path = submodules/xml-parser
+	url = git://github.com/dylan-lang/xml-parser.git
+[submodule "submodules/meta"]
+	path = submodules/meta
+	url = git://github.com/dylan-lang/meta.git
+[submodule "submodules/anaphora"]
+	path = submodules/anaphora
+	url = git://github.com/dylan-lang/anaphora.git
