@@ -51,8 +51,7 @@ define module http-client
 
   // Utilities
   create
-    *http-client-log*,
-    encode-form-data;
+    *http-client-log*;
 
 end module http-client;
 

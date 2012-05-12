@@ -43,8 +43,8 @@ define open class <cgi-directory-resource> (<resource>)
   constant slot resource-locator :: <directory-locator>,
     required-init-keyword: locator:;
   // Acceptable CGI script file extensions.  No other files will be served.
-  constant slot resource-extensions :: <sequence> = #("cgi"),
-    init-keyword: extensions:;
+  //constant slot resource-extensions :: <sequence> = #("cgi"),
+  //  init-keyword: extensions:;
 end;
 
 // For convenience, convert the location: init arg to <directory-locator>

@@ -37,15 +37,6 @@ define method root-url
   test-url("/")
 end;
 
-define function print-resources
-    (server :: <http-server>)
-  do-resources(server,
-               method (res)
-                 test-output("  %-25s -- %s", res.resource-url-path, res);
-               end);
-  test-output("\n");
-end;
-
 define method make-listener
     (address :: <string>) => (listener :: <string>)
   format-to-string("%s:%d", address, *test-port*)
