@@ -82,7 +82,7 @@ define test cgi-required-environment-variables-test ()
       let eol-regex = compile-regex("\r?\n");
       do(method (line)
            let (var, val) = apply(values, split(line, "=", count: 2));
-           var := trim(var);
+           var := strip(var);
            if (val & var.size > 0)
              env[var] := val;
            end;

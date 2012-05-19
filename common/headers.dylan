@@ -237,12 +237,8 @@ end;
 define sealed method table-protocol (table :: <header-table>)
   => (test-fn :: <function>, hash-fn :: <function>);
   ignore(table);
-  values(string-equal?, sstring-hash);
+  values(string-equal-ic?, sstring-hash);
 end method table-protocol;
-
-define method sstring-hash (s :: <substring>, state)
-  values(string-hash-2(s.substring-base, s.substring-start, s.size), state)
-end;
 
 define method sstring-hash (s :: <byte-string>, state)
   values(string-hash-2(s, 0, s.size), state)

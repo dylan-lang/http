@@ -207,6 +207,7 @@ define module httpi                             // http internals
   use file-system;             // from system lib
   use format;
   use http-common;
+  use %http-common-byte-string;
   use koala;
   use koala-unit;
   use locators,

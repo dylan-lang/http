@@ -21,7 +21,7 @@ define method show-element
           // IIRC <option name="foo" selected> used to be valid.  Not sure there's
           // much point in supporting this anymore, but it doesn't seem to hurt.
           if (value)
-            let value = as(<string>, trim(value));
+            let value = as(<string>, strip(value));
             if (~empty?(value))
               format(stream, "=\"%s\"", quote-html(value));
             end;
@@ -89,7 +89,7 @@ end tag get;
 define method get-context-value
     (name :: <string>, context :: false-or(<string>), #key tag)
  => (value :: <object>)
-  let name = trim(name);
+  let name = strip(name);
   local method get-context-value-internal ()
     block (return)
       // Search contexts in order to find a value.  First one is displayed.
@@ -690,7 +690,7 @@ define method validate-form-field
     field-value := percent-decode(field-value);
   end;
   if (trim?)
-    field-value := trim(field-value);
+    field-value := strip(field-value);
   end;
   if (error-if-empty & empty?(field-value))
     add-field-error(field-name, "The %s field is required.", field-name);

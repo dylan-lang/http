@@ -35,6 +35,7 @@ define module dsp
   use format,
     rename: { format-to-string => sformat };
   use http-common;
+  use %http-common-byte-string;
   use koala;
   use locators,
     import: { <locator>,
