@@ -6,3 +6,4 @@ files: library
        header-values
        headers
        http-common
+       byte-string

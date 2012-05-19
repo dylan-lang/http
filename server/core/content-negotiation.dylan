@@ -189,30 +189,23 @@ define constant $file-extension-regex :: <regex>
 
 // Get locators for all the files matching the given locator prefix.  e.g., if the
 // locator is for /foo/bar then we would return bar.html, bar.txt, etc.
+// TODO(cgay): This assumes case-sensitive file system.
 define method locators-matching
     (document :: <locator>)
  => (locators :: <sequence>)
   let document-name :: <string> = concatenate(locator-name(document), ".");
   let length :: <integer> = document-name.size;
-  log-debug("document-name = %=, length = %=", document-name, length);
   let locators = make(<stretchy-vector>);
   local method match (directory, name, type)
-          log-debug("match: directory = %s, name = %s, type = %s",
-                    directory, name, type);
           if (type = #"file"
                 & (name.size >= document-name.size)
-                & equal?(document-name, name, end2: length))
+                & string-equal?(document-name, name, end2: length))
             log-debug("document name matched");
             if (regex-search($file-extension-regex, name, start: length))
-              log-debug("regex matched");
               add!(locators, make(<file-locator>,
                                   directory: document.locator-directory,
                                   name: name));
-            else
-              log-debug("regex didn't match");
             end;
-          else
-            log-debug("document name didn't match")  
           end;
         end;
   do-directory(match, locator-directory(document));

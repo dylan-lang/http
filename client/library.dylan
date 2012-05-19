@@ -61,6 +61,7 @@ define module http-client-internals
   use format;
   use http-client, export: all;
   use http-common;
+  use %http-common-byte-string;
   use logging;
   use sockets,
     exclude: { start-server };
