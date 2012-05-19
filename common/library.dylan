@@ -4,10 +4,13 @@ Synopsis: Code shared by HTTP client and server
 define library http-common
   use base64;
   use common-dylan,
-    import: { dylan,
+    import: { common-dylan,
               common-extensions,
-              threads,
-              simple-random };
+              dylan,
+              simple-random,
+              threads };
+  use dylan,
+    import: { dylan-extensions };
   use io,
     import: { format,
               standard-io,
@@ -24,7 +27,8 @@ define library http-common
   use uri;
   export
     http-common,
-    http-common-internals;
+    http-common-internals,
+    %http-common-byte-string;
 end library http-common;
 
 define module http-common
@@ -297,6 +301,25 @@ define module http-common
     $default-cookie-version;   // get rid of this
 end module http-common;
 
+define module %http-common-byte-string
+  use common-dylan;
+  use dylan-extensions;
+  use strings;
+  export
+    $cr,
+    $lf,
+    char-position,
+    char-position-from-end,
+    char-position-if,
+    digit-weight,
+    looking-at?,
+    skip-whitespace,
+    substring,
+    string-extent,
+    trim-whitespace,
+    whitespace-position;
+end module %http-common-byte-string;
+
 define module http-common-internals
   use base64;
   use common-extensions,
@@ -309,6 +332,7 @@ define module http-common-internals
               <pathname> };
   use format;
   use http-common;
+  use %http-common-byte-string;
   use locators,
     import: { <locator>,
               <file-locator>,

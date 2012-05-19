@@ -291,7 +291,7 @@ define function parse-authorization-value (str :: <byte-string>,
   let dpos = whitespace-position(str, bpos, epos) | epos;
   let (b, e) = trim-whitespace(str, dpos, epos);
 
-  if (string-match("Basic", str, bpos, dpos))
+  if (string-equal-ic?("Basic", str, start2: bpos, end2: dpos))
     // base64 encoding of userid:password.  Should decode and return
     // (userid . password).  or maybe avalue with "userid"=userid, etc.
     let username+password = split(base64-decode(trimmed-substring(str, dpos, epos)), ":");
@@ -350,10 +350,10 @@ end;
 
 define function parse-entity-tag-value
     (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
-  if (string-match("*", str, bpos, epos))
+  if (string-equal-ic?("*", str, start2: bpos, end2: epos))
     #("*" . #f)
   else
-    let weak? = looking-at?("W/", str, bpos, epos)
+    let weak? = string-equal-ic?("W/", str, start2: bpos, end2: epos)
                   & (bpos := skip-whitespace(str, bpos + 2, epos));
     unless (bpos < epos & str[bpos] == '"')
       bad-header-error(message: "invalid entity tag; expected '\"'");
@@ -442,7 +442,7 @@ define function parse-ranges-value (str :: <byte-string>,
   let pos = char-position('=', str, bpos, epos)
               | bad-header-error(message: "invalid ranges value");
   let (b, e) = trim-whitespace(str, bpos, pos);
-  string-match("bytes", str, b, e)
+  string-equal-ic?("bytes", str, start2: b, end2: e)
     | bad-header-error(message: "invalid range unit; expected 'bytes'");
   iterate loop (pos = pos, ranges = #())
     let bpos = skip-whitespace(str, pos + 1, epos);
@@ -469,7 +469,7 @@ define function parse-range-value
     (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
  => (range :: <pair>)
   let pos = token-end-position(str, bpos, epos);
-  unless (pos & string-match("bytes", str, bpos, pos))
+  unless (pos & string-equal-ic?("bytes", str, start2: bpos, end2: pos))
     bad-header-error(message: "invalid range unit; expected 'bytes'");
   end;
   let bpos = skip-whitespace(str, pos, epos);
