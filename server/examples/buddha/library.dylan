@@ -6,7 +6,7 @@ define library buddha
   use io;
   use koala, import: { koala, dsp };
   use dood;
-  use string-extensions, import: { character-type };
+  use strings;
   use regular-expressions;
   use network;
   use system, import: { file-system, date };
@@ -40,7 +40,7 @@ define module buddha
 
   use streams;
   use standard-io;
-  use character-type, import: { hex-digit? };
+  use strings, import: { hexadecimal-digit? };
   use date;
 
   use koala, exclude: { print-object };

@@ -35,7 +35,7 @@ define method as (class == <mac-address>, mac :: <string>)
       end unless;
       for (field in fields)
         for (ele in field)
-          unless (hex-digit?(ele))
+          unless (hexadecimal-digit?(ele))
             parse-error(#f);
           end unless;
         end for;
@@ -48,7 +48,7 @@ define method as (class == <mac-address>, mac :: <string>)
     elseif (size(mac) = 12)
       //assume xxxxxxxxxxxx
       for(ele in mac)
-        unless (hex-digit?(ele))
+        unless (hexadecimal-digit?(ele))
           parse-error(#f);
         end unless;
       end for;
