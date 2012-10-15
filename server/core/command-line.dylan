@@ -9,56 +9,52 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
 // --listen <interface> ...
-add-option-parser-by-type(*argument-list-parser*,
-                          <repeated-parameter-option-parser>,
-                          description: format-to-string("host:port on which to "
-                                                          "listen.  Option may be "
-                                                          "repeated. "
-                                                          "[default: 0.0.0.0:%d]",
-                                                        $default-http-port),
-                          long-options: #("listen"),
-                          short-options: #("l"));
+add-option(*command-line-parser*,
+           make(<repeated-parameter-option>,
+                help: format-to-string("host:port on which to "
+                                       "listen.  Option may be "
+                                       "repeated. "
+                                       "[default: 0.0.0.0:%d]",
+                                     $default-http-port),
+                names: #("listen", "l")));
 
 // --config <file>
-add-option-parser-by-type(*argument-list-parser*,
-                          <parameter-option-parser>,
-                          description: "Location of the koala configuration file.  "
-                                       "[default: None]",
-                          long-options: #("config"),
-                          short-options: #("c"));
+add-option(*command-line-parser*,
+           make(<parameter-option>,
+                help: "Location of the koala configuration file.  "
+                      "[default: None]",
+                names: #("config", "c")));
 
 // --help
-add-option-parser-by-type(*argument-list-parser*,
-                          <simple-option-parser>,
-                          description: "Display this help message",
-                          long-options: #("help"),
-                          short-options: #("h"));
+add-option(*command-line-parser*,
+           make(<flag-option>,
+                help: "Display this help message",
+                names: #("help", "h")));
 
 // --debug
-add-option-parser-by-type(*argument-list-parser*,
-                          <simple-option-parser>,
-                          description: "Enable debug mode.  Causes Koala to not handle "
-                                       "most errors during request handling.",
-                          long-options: #("debug"));
+add-option(*command-line-parser*,
+           make(<flag-option>,
+                help: "Enable debug mode.  Causes Koala to not handle "
+                      "most errors during request handling.",
+                names: #("debug")));
 
 // --working-directory <dir>
-add-option-parser-by-type(*argument-list-parser*,
-                          <parameter-option-parser>,
-                          description: "Working directory to change to upon startup",
-                          long-options: #("working-directory"),
-                          short-options: #("w"));
+add-option(*command-line-parser*,
+           make(<parameter-option>,
+                help: "Working directory to change to upon startup",
+                names: #("working-directory", "w")));
 
 // --directory <static-dir>
-add-option-parser-by-type(*argument-list-parser*,
-                          <parameter-option-parser>,
-                          description: "Serve static content from the given directory.",
-                          long-options: #("directory"));
+add-option(*command-line-parser*,
+           make(<parameter-option>,
+                help: "Serve static content from the given directory.",
+                names: #("directory")));
 
 // --cgi <cgi-dir>
-add-option-parser-by-type(*argument-list-parser*,
-                          <parameter-option-parser>,
-                          description: "Serve CGI scripts from the given directory.",
-                          long-options: #("cgi"));
+add-option(*command-line-parser*,
+           make(<parameter-option>,
+                help: "Serve CGI scripts from the given directory.",
+                names: #("cgi")));
 
 /*
 This is the precedence order (lowest to highest) in which initialization
@@ -81,10 +77,15 @@ define function koala-main
           description :: false-or(<string>),
           before-startup :: false-or(<function>))
  => ()
-  let parser = *argument-list-parser*;
-  parse-arguments(parser, application-arguments());
-  if (option-value-by-long-name(parser, "help")
-        | ~empty?(parser.regular-arguments))
+  let parser = *command-line-parser*;
+  block ()
+    parse-command-line(parser, application-arguments());
+  exception (ex :: <usage-error>)
+    format-out("%s\n", condition-to-string(ex));
+    exit-application(2);
+  end;
+  if (get-option-value(parser, "help")
+        | ~empty?(parser.positional-options))
     let desc = description
                  | "The Koala web server, a multi-threaded web server with\n"
                    "Dylan Server Pages and XML RPC, written in Dylan.";
@@ -93,7 +94,7 @@ define function koala-main
                    usage: format-to-string("%s [options]", application-name()),
                    description: desc);
   else
-    let debug? :: <boolean> = option-value-by-long-name(parser, "debug");
+    let debug? :: <boolean> = get-option-value(parser, "debug");
     let handler <error>
       = method (cond :: <error>, next-handler :: <function>)
           if (debug?)
@@ -105,7 +106,7 @@ define function koala-main
           end;
         end;
 
-    let cwd = option-value-by-long-name(parser, "working-directory");
+    let cwd = get-option-value(parser, "working-directory");
     if (cwd)
       log-info("Working directory is %s", cwd);
       working-directory() := as(<directory-locator>, cwd);
@@ -122,14 +123,14 @@ define function koala-main
       end;
 
       // Configure first so that command-line argument override config settings.
-      let config-file = option-value-by-long-name(parser, "config");
+      let config-file = get-option-value(parser, "config");
       if (config-file)
         configure-server(*server*, config-file);
       end;
 
       // If --directory is specified, map it to / on the server.
       // This is a special case to make serving a directory super-easy.
-      let directory = option-value-by-long-name(parser, "directory");
+      let directory = get-option-value(parser, "directory");
       if (directory)
         add-resource(*server*, "/", make(<directory-resource>,
                                          directory: directory,
@@ -139,7 +140,7 @@ define function koala-main
 
       // If --cgi is specified, map it to /cgi-bin on the server.
       // This is a special case to make serving a directory super-easy.
-      let cgi = option-value-by-long-name(parser, "cgi");
+      let cgi = get-option-value(parser, "cgi");
       if (cgi)
         add-resource(*server*, "/cgi-bin", make(<cgi-directory-resource>,
                                                 locator: cgi,
@@ -154,7 +155,7 @@ define function koala-main
       end;
 
       // Any command-line listeners specified?
-      let listeners = option-value-by-long-name(parser, "listen");
+      let listeners = get-option-value(parser, "listen");
       for (listener in listeners)
         add!(*server*.server-listeners, make-listener(listener));
       end;

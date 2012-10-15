@@ -9,8 +9,8 @@ Synopsis:  Variables and utilities
 // Command-line arguments parser.  The expectation is that libraries that use
 // and extend koala (e.g., wiki) may want to add their own <option-parser>s to
 // this before calling koala-main().
-define variable *argument-list-parser* :: <argument-list-parser>
-  = make(<argument-list-parser>);
+define variable *command-line-parser* :: <command-line-parser>
+  = make(<command-line-parser>);
 
 
 // Max size of data in a POST.

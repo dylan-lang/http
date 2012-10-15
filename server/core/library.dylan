@@ -14,7 +14,7 @@ define library koala
     import: { dylan, common-extensions, threads, simple-random };
   use http-common;
   use io,
-    import: { format, standard-io, streams, streams-internals };
+    import: { format, format-out, standard-io, streams, streams-internals };
   use logging;
   use memory-manager;
   use mime;
@@ -42,7 +42,7 @@ define module koala
     start-server,
     stop-server,
     koala-main,
-    *argument-list-parser*;
+    *command-line-parser*;
 
   // Servers
   create
@@ -206,6 +206,7 @@ define module httpi                             // http internals
   use dylan;
   use file-system;             // from system lib
   use format;
+  use format-out;
   use http-common;
   use %http-common-byte-string;
   use koala;
