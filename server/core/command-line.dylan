@@ -76,7 +76,6 @@ define function koala-main
     parse-command-line(parser, application-arguments(),
                        description: description);
   exception (ex :: <usage-error>)
-    format-out("%s\n", condition-to-string(ex));
     exit-application(2);
   end;
   if (~empty?(parser.positional-options))
