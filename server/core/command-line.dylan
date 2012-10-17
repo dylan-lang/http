@@ -25,12 +25,6 @@ add-option(*command-line-parser*,
                       "[default: None]",
                 names: #("config", "c")));
 
-// --help
-add-option(*command-line-parser*,
-           make(<flag-option>,
-                help: "Display this help message",
-                names: #("help", "h")));
-
 // --debug
 add-option(*command-line-parser*,
            make(<flag-option>,
@@ -74,25 +68,20 @@ command-line args
 
 define function koala-main
     (#key server :: false-or(<http-server>),
-          description :: false-or(<string>),
+          description :: <string> = "The Koala web server.",
           before-startup :: false-or(<function>))
  => ()
   let parser = *command-line-parser*;
   block ()
-    parse-command-line(parser, application-arguments());
+    parse-command-line(parser, application-arguments(),
+                       description: description);
   exception (ex :: <usage-error>)
     format-out("%s\n", condition-to-string(ex));
     exit-application(2);
   end;
-  if (get-option-value(parser, "help")
-        | ~empty?(parser.positional-options))
-    let desc = description
-                 | "The Koala web server, a multi-threaded web server with\n"
-                   "Dylan Server Pages and XML RPC, written in Dylan.";
-    print-synopsis(parser,
-                   *standard-output*,
-                   usage: format-to-string("%s [options]", application-name()),
-                   description: desc);
+  if (~empty?(parser.positional-options))
+    print-synopsis(parser, *standard-output*, description: description);
+    exit-application(2);
   else
     let debug? :: <boolean> = get-option-value(parser, "debug");
     let handler <error>
