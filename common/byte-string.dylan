@@ -116,10 +116,3 @@ define function string-extent
  => (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
   values(str, 0, str.size)
 end;
-
-// Does pattern occur in string starting at bpos?
-define function looking-at?
-    (pattern :: <byte-string>, string :: <byte-string>, bpos :: <integer>)
- => (found? :: <boolean>)
-  string-equal-ic?(pattern, string, start2: bpos)
-end;
