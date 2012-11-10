@@ -11,7 +11,8 @@ process line by line and then will show the complete code.
 
 First, we set up the usual library and module definitions.  "http-server"
 is all you need other than common-dylan.
-::
+
+.. code-block:: dylan
 
     Module: dylan-user
 
@@ -26,40 +27,47 @@ is all you need other than common-dylan.
     end;
 
 Next we need an HTTP server.  We'll make it listen to all interfaces
-on port 8888::
+on port 8888:
+
+.. code-block:: dylan
 
       let server = make(<http-server>,
                         listeners: list("0.0.0.0:8888"));
 
-
-Instances of ``<resource>`` are responsible for generating HTTP
+Instances of :class:`<resource>` are responsible for generating HTTP
 responses.  To serve static content we create a
-``<directory-resource>`` whose file-system directory is /tmp and which
-allows directory listings::
+:class:`<directory-resource>` whose file-system directory is ``/tmp``
+and which allows directory listings:
+
+.. code-block:: dylan
 
       let resource = make(<directory-resource>,
 			  directory: "/tmp",    // c:\tmp on Windows
 			  allow-directory-listing?: #t);
 
+Next we connect the resource to a specific URL on the server:
 
-Next we connect the resource to a specific URL on the server::
+.. code-block:: dylan
 
       add-resource(server, "/", resource);
 
+Last, we start the server:
 
-Last, we start the server::
+.. code-block:: dylan
 
       start-server(server);
 
-
 If you wanted to start the server in a separate thread you could say
-this instead::
+this instead:
+
+.. code-block:: dylan
 
       start-server(server, background: #t);
 
-
 The entire example, including the library and module definitions,
-looks like this::
+looks like this:
+
+.. code-block:: dylan
 
     ---- File: library.dylan ----
     Module: dylan-user
