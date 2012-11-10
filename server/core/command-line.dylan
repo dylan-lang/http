@@ -166,11 +166,7 @@ define function koala-main
                      log-debug("  %-25s -- %s", res.resource-url-path, res);
                    end);
 
-      if (empty?(*server*.server-listeners))
-        error("No listeners were created.  Exiting.");
-      else
-        start-server(*server*);
-      end;
+      start-server(*server*);
     end dynamic-bind;
   end if;
 end function koala-main;
