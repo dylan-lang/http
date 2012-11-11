@@ -50,8 +50,7 @@ define module dsp
               log-debug => %log-debug,
               log-info => %log-info,
               log-warning => %log-warning,
-              log-error => %log-error },
-    export: all;
+              log-error => %log-error };
   use operating-system;
   use standard-io;
   use streams;
