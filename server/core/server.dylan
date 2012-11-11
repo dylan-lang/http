@@ -118,15 +118,11 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
 end class <http-server>;
 
 define sealed method make
-    (class :: subclass(<http-server>), #rest keys, #key listeners)
+    (class :: subclass(<http-server>), #rest keys, #key listeners = #())
  => (server :: <http-server>)
   // listeners, if specified, is a sequence of <listener>s, or strings in
   // the form "addr:port".
-  let listeners = map-as(<stretchy-vector>, make-listener,
-                         iff(listeners & ~empty?(listeners),
-                             listeners,
-                             list(format-to-string("0.0.0.0:%d",
-                                                   $default-http-port))));
+  let listeners = map-as(<stretchy-vector>, make-listener, listeners);
   let lock = make(<simple-lock>);
   let listeners-notification = make(<notification>, lock: lock);
   let clients-notification = make(<notification>, lock: lock);
@@ -396,23 +392,24 @@ define method start-server
     ensure-sockets-started();
     log-info("Server root directory is %s", server-root(server));
     if (empty?(server.server-listeners))
-      log-error("No listeners were configured; start-up aborting.");
-      #f
-    else
-      for (listener in server.server-listeners)
-        start-http-listener(server, listener)
-      end;
-      if (wait)
-        // Connect to each listener or signal error.
-        wait-for-listeners-to-start(server.server-listeners);
-        log-info("%s %s ready for service", $server-name, $server-version);
-      end;
-      if (~background)
-        // Main thread has nothing to do but wait.
-        join-listeners(server);
-      end;
-      #t
-    end
+      log-info("No listeners were configured; using default (0.0.0.0:%d).",
+               $default-http-port);
+      add!(server.server-listeners, make(<listener>, host: "0.0.0.0",
+                                         port: $default-http-port));
+    end if;
+    for (listener in server.server-listeners)
+      start-http-listener(server, listener)
+    end;
+    if (wait)
+      // Connect to each listener or signal error.
+      wait-for-listeners-to-start(server.server-listeners);
+      log-info("%s %s ready for service", $server-name, $server-version);
+    end;
+    if (~background)
+      // Main thread has nothing to do but wait.
+      join-listeners(server);
+    end;
+    #t
   end dynamic-bind
 end method start-server;
 

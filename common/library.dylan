@@ -312,7 +312,6 @@ define module %http-common-byte-string
     char-position-from-end,
     char-position-if,
     digit-weight,
-    looking-at?,
     skip-whitespace,
     substring,
     string-extent,

@@ -739,14 +739,14 @@ define function parse-tag-prefix
     (buffer, taglib-specs, bpos, epos) => (prefix, taglib)
   local method parse-prefix (spec-index :: <integer>)
           if (spec-index >= size(taglib-specs))
-            iff(looking-at?("%dsp:", buffer, bpos, epos),
+            iff(string-equal-ic?("%dsp:", buffer, start2: bpos, end2: epos),
                 values("%dsp", #"directive"),
                 values(#f, #f))
           else
             let spec = taglib-specs[spec-index];
             let prefix = head(spec);
             let taglib = tail(spec);
-            iff(looking-at?(concatenate(prefix, ":"), buffer, bpos, epos),
+            iff(string-equal-ic?(concatenate(prefix, ":"), buffer, start2: bpos, end2: epos),
                 values(prefix, taglib),
                 parse-prefix(spec-index + 1))
           end
@@ -923,10 +923,10 @@ define method parse-template (page :: <dylan-server-page>,
             add-entry!(tmplt, substring(buffer, html-pos, epos)));
         pt-debug("parse-template: No tag-start, returning epos = %d.", epos);
         return(epos);
-      elseif (looking-at?("<!--", buffer, tag-start, epos))
+      elseif (string-equal-ic?("<!--", buffer, start2: tag-start, end2: epos))
         pt-debug("parse-template: Found HTML comment start. Skipping to end.");
         scan-pos := html-comment-end(buffer, tag-start + 4);
-      elseif (end-tag & looking-at?(end-tag, buffer, tag-start, epos))
+      elseif (end-tag & string-equal-ic?(end-tag, buffer, start2: tag-start, end2: epos))
         // done parsing the body of a tag as a subtemplate
         iff(html-pos < tag-start,
             add-entry!(tmplt, substring(buffer, html-pos, tag-start)));
@@ -1086,9 +1086,9 @@ define method extract-tag-args
                 args = list())
     if (start >= epos)
       values(args, #f, epos)
-    elseif (looking-at?(">", buffer, start, epos))
+    elseif (string-equal-ic?(">", buffer, start2: start, end2: epos))
       values(args, #t, start + 1)
-    elseif (looking-at?("/>", buffer, start, epos))
+    elseif (string-equal-ic?("/>", buffer, start2: start, end2: epos))
       values(args, #f, start + 2)
     else
       let (param, val, key/val-end) = extract-key/val(buffer, start);

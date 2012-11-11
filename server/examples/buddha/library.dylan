@@ -4,7 +4,8 @@ author: Hannes Mehnert <hannes@mehnert.org>
 define library buddha
   use common-dylan;
   use io;
-  use koala, import: { koala, dsp };
+  use koala, import: { koala };
+  use dsp;
   use dood;
   use strings;
   use regular-expressions;
