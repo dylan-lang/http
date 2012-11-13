@@ -89,7 +89,7 @@ define function quality-value (str :: <byte-string>,
   end
 end function quality-value;
 
-  
+
 define function parse-header (data) => (str :: <string>)
   if (instance?(data, <pair>))
     reduce(method (so-far :: <string>, datum :: <string>)
@@ -175,7 +175,7 @@ end;
 define table $parameter-parsers :: <string-table>
   = { "q"     => quality-value,
       "level" => parse-integer-value };
-                                                    
+
 define function extract-attribute+value (str :: <byte-string>,
                                          bpos :: <integer>,
                                          epos :: <integer>)

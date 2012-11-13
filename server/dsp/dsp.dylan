@@ -32,7 +32,7 @@ end;
 
 define class <tag-argument-parse-error> (<dsp-parse-error>) end;
 
-  
+
 //
 // Dylan Server Pages
 //
@@ -409,7 +409,7 @@ define method get-parameter-type
   end
 end;
 
-// The user may add methods to this generic in order to parse tag 
+// The user may add methods to this generic in order to parse tag
 // arguments automatically for a given type.
 define generic parse-tag-arg
     (name :: <object>, arg :: <object>, type :: <object>) => (value :: <object>);
@@ -611,7 +611,7 @@ define method as
   end;
 end;
 
-        
+
 // A <dsp-template> represents the items in a parsed .dsp file, or part thereof.
 //
 define class <dsp-template> (<object>)
@@ -651,7 +651,7 @@ define method modified?
          end,
          tmplt.entries)
 end method modified?;
-  
+
 
 
 // Default method on respond-to-get processes the DSP template and displays

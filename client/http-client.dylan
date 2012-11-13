@@ -154,7 +154,7 @@ end method chunked?;
 
 // Override this to create a progress meter for sending request data.
 // (Byte count is only for message body data, not headers, chunk wrappers, etc.)
-// 
+//
 define open generic note-bytes-sent
     (conn :: <http-connection>, byte-count :: <integer>);
 
@@ -282,7 +282,7 @@ define method finish-request
 end method finish-request;
 
 // Send Request-Line = Method SP Request-URI SP HTTP-Version CRLF
-// 
+//
 define method send-request-line
     (conn :: <http-connection>,
      request-method :: <request-method>,

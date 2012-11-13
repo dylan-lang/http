@@ -250,7 +250,7 @@ define inline function string-hash-2 (s :: <byte-string>,
   let epos :: <integer> = bpos + len;
   for (i :: <integer> from bpos below epos,
        hash :: <integer> = 0 then
-	 modulo(ash(hash, 6) + logand(as(<integer>, s[i]), #x9F), 970747))
+    modulo(ash(hash, 6) + logand(as(<integer>, s[i]), #x9F), 970747))
   finally
     hash
   end;
@@ -298,7 +298,7 @@ end;
 define sealed method parse-header-value (key == #"authorization", data :: <field-type>)
   => (credentials :: type-union(<pair>, <avalue>))
   //(define-header-keywords "realm" "nonce" "username" "uri" "response" "digest" "algorithm" "opaque"
-  //			"basic" "digest")
+  // "basic" "digest")
   parse-single-header(data, parse-authorization-value)
 end;
 
@@ -382,7 +382,7 @@ define sealed method parse-header-value (key == #"pragma", data :: <field-type>)
   parse-comma-separated-pairs(data, parse-attribute-value-pair)
 end;
 
-//	;deprecated 1.0 Extension
+// ;deprecated 1.0 Extension
 define sealed method parse-header-value (key == #"proxy-connection", data :: <field-type>)
   => (tokens :: <list>)
   parse-comma-separated-values(data, parse-token-value);
