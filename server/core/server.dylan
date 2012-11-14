@@ -590,7 +590,7 @@ define function do-http-listen
     let socket = block ()
                    unless (listener.listener-exit-requested?)
                      // use "element-type: <byte>" here?
-                     accept(listener.listener-socket) // blocks
+                     accept(listener.listener-socket, no-delay?: #t) // blocks
                    end
                  exception (error :: <blocking-call-interrupted>)
                    // Usually this means we're shutting down so we closed the
