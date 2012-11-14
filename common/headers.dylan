@@ -11,7 +11,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 define variable *max-single-header-size* :: false-or(<integer>) = 16384;
 
 // Grow header buffer by this much -- is this chosen arbitrarily? is there
-// any reasoning behing the 1024? I'd expect a bigger number to lower the
+// any reasoning behind the 1024? I'd expect a bigger number to lower the
 // amount of copying the whole header around -- Hannes 16.11.2007
 define variable *header-buffer-growth-amount* :: limited(<integer>, min: 1) = 1024;
 
