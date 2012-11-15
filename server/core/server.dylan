@@ -299,7 +299,8 @@ define method make-socket
     (listener :: <listener>) => (socket :: <tcp-server-socket>)
   listener.listener-socket := make(<tcp-server-socket>,
                                    host: listener.listener-host,
-                                   port: listener.listener-port);
+                                   port: listener.listener-port,
+                                   backlog: 128);
 end;
 
 
