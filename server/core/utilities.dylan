@@ -17,23 +17,15 @@ define variable *command-line-parser* :: <command-line-parser>
 define variable *max-post-size* :: false-or(<integer>) = 16 * 1024 * 1024;
 
 
-define function file-contents
-    (filename :: <pathname>, #key error? :: <boolean>)
+define function file-contents (filename :: <pathname>)
  => (contents :: false-or(<string>))
-  // In FD 2.0 SP1 if-does-not-exist: #f still signals an error if the file doesn't exist.
-  // Remove this block when fixed.  (Reported to Fun-O August 2001.)
   block ()
     with-open-file(input-stream = filename,
-                   direction: #"input",
-                   if-does-not-exist: if (error?) #"error" else #f end)
+                   direction: #"input")
       read-to-end(input-stream)
     end
   exception (ex :: <file-does-not-exist-error>)
-    if (error?)
-      signal(ex)
-    else
-      #f
-    end
+    #f
   end
 end function file-contents;
 

@@ -82,7 +82,7 @@ end method initialize;
 define method write-element
     (response :: <response>, char :: <byte-character>)
  => ()
-  // Let the method on <string-stream> do it's thing.
+  // Let the method on <string-stream> do its thing.
   next-method();
   maybe-send-chunk(response);
 end method write-element;
@@ -94,7 +94,7 @@ define method write
     (response :: <response>, chars :: <byte-string>,
      #key start: bpos = 0, end: epos)
  => ()
-  // Let the method on <string-stream> do it's thing.
+  // Let the method on <string-stream> do its thing.
   next-method();
   maybe-send-chunk(response);
 end method write;
@@ -171,7 +171,7 @@ define method set-header
                     "after some data has already been sent."));
     else
       // If a responder sets the content length then it's claiming it knows
-      // better than we do.  We turn off chunked tranfer encoding since it
+      // better than we do.  We turn off chunked transfer encoding since it
       // doesn't allow a Content-Length header.
       response-chunked?(response) := #f;
     end;

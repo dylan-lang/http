@@ -19,8 +19,6 @@ define function load-module
     (module-name :: <string>)
   let path = module-pathname(module-name);
   log-info("Loading module '%s' from %s...", module-name, path);
-  // Note that the linux definition of load-library does nothing right now.
-  // -cgay 2004.05.06
   let handle = load-library(path);
   $module-map[module-name] := handle;
 end function load-module;

@@ -114,7 +114,7 @@ define method process-config-element
   let redirect = get-attr(node, #"redirect") | "found";
   let terminal = get-attr(node, #"terminal") | "no";
   if (~(pattern & replacement))
-    warn("<rule> must have both 'pattern' and 'replacment' attributes.");
+    warn("<rule> must have both 'pattern' and 'replacement' attributes.");
   else
     let code = ignore-errors(string-to-integer(redirect));
     let redirect-code = code | element($redirect-code-map, as(<symbol>, redirect),

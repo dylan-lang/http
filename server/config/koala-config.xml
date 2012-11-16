@@ -25,7 +25,7 @@
 
      working-directory
          Change to this working directory.  The specified directory
-	 is merged against the 'root' attribute first.
+         is merged against the 'root' attribute first.
 
      debug
          Enabling this will make Koala not try to handle errors
@@ -41,7 +41,7 @@
          can be found.
      -->
 <server root="/foo"
-	working-directory="/foo/bar"
+        working-directory="/foo/bar"
         debug="no"
         use-default-virtual-host="yes"
         />
@@ -160,7 +160,7 @@
 <virtual-host name="127.0.0.1">
 
     <directory url="/"
-	       location="/my/seekret/documents"
+               location="/my/seekret/documents"
                allow-directory-listing="no" />
 
     <!-- Add an alias for the current virtual host. -->

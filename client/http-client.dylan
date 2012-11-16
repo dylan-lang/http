@@ -8,9 +8,9 @@ to-do list:
 * Request pipelining.
 * See todos in code below.
 * Optional strict mode in which reads/writes signal an error if the
-  chunk size is wrong or content length is wrong.  give the user a way
+  chunk size is wrong or content length is wrong.  Give the user a way
   to recover from the error.
-* This code isn't currently designed to support an HTTP over anything
+* This code isn't currently designed to support HTTP over anything
   other than a <tcp-socket>.  It does not support <ssl-socket>s. (It's
   also conceivable for there to be an <ipc-socket> class.)
 
@@ -131,7 +131,7 @@ define method initialize
   conn.write-buffer := make(<byte-string>,
                              size: conn.outgoing-chunk-size, fill: ' ');
 
-  // We store the GIVEN host name locally so we're not subject to the vaguaries
+  // We store the GIVEN host name locally so we're not subject to the vagaries
   // of the <tcp-socket> implementation.  The doc implies that it may be converted
   // to the canonical host name and we generally want to send Host headers with
   // the host name we were given by the user.  (The port number, on the other
@@ -154,7 +154,7 @@ end method chunked?;
 
 // Override this to create a progress meter for sending request data.
 // (Byte count is only for message body data, not headers, chunk wrappers, etc.)
-// 
+//
 define open generic note-bytes-sent
     (conn :: <http-connection>, byte-count :: <integer>);
 
@@ -282,7 +282,7 @@ define method finish-request
 end method finish-request;
 
 // Send Request-Line = Method SP Request-URI SP HTTP-Version CRLF
-// 
+//
 define method send-request-line
     (conn :: <http-connection>,
      request-method :: <request-method>,

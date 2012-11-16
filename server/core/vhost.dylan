@@ -8,7 +8,7 @@ Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 // A virtual host simply delegates to the router in its virtual-host-router
 // slot and provides for separate logging from other virtual hosts.  (It
-// uses delegation rather than inheritence so that the user can supply
+// uses delegation rather than inheritance so that the user can supply
 // a different kind of router when making a <virtual-host>.)
 //
 define class <virtual-host>

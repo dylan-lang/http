@@ -299,7 +299,8 @@ define method make-socket
     (listener :: <listener>) => (socket :: <tcp-server-socket>)
   listener.listener-socket := make(<tcp-server-socket>,
                                    host: listener.listener-host,
-                                   port: listener.listener-port);
+                                   port: listener.listener-port,
+                                   backlog: 128);
 end;
 
 
@@ -590,7 +591,7 @@ define function do-http-listen
     let socket = block ()
                    unless (listener.listener-exit-requested?)
                      // use "element-type: <byte>" here?
-                     accept(listener.listener-socket) // blocks
+                     accept(listener.listener-socket, no-delay?: #t) // blocks
                    end
                  exception (error :: <blocking-call-interrupted>)
                    // Usually this means we're shutting down so we closed the

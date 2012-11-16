@@ -128,7 +128,7 @@ define open generic content-length
 // byte-count is the number of NEW bytes received since last time this method
 // was called.  The byte count only includes the message body, not headers,
 // chunk wrappers, etc.
-// 
+//
 define open generic note-bytes-received
     (stream :: <chunking-input-stream>, byte-count :: <integer>);
 
@@ -250,15 +250,15 @@ define method read-into!
     if (i < limit)
       let elt = read-element(stream, on-end-of-stream: unfound());
       if (found?(elt))
-	sequence[i] := elt;
-	loop(i + 1);
+        sequence[i] := elt;
+        loop(i + 1);
       elseif (supplied?(on-end-of-stream))
-	i - start
+        i - start
       else
-	signal(make(<incomplete-read-error>,
-		    stream: stream,
-		    count: i - start, // seems kinda redundant...
-		    sequence: copy-sequence(sequence, start: start, end: i)))
+        signal(make(<incomplete-read-error>,
+                    stream: stream,
+                    count: i - start, // seems kinda redundant...
+                    sequence: copy-sequence(sequence, start: start, end: i)))
       end
     else
       i - start
@@ -481,7 +481,7 @@ define open class <base-http-response> (<message-headers-mixin>)
     init-value: "OK";
 
   // Chunked transfer encoding.  RFC 2616, 3.6.1
-  // 
+  //
   slot response-chunked? :: <boolean>,
     init-keyword: chunked:,
     init-value: #t;
