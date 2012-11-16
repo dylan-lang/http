@@ -201,12 +201,12 @@ define method forward-iteration-protocol
   let start-index = max(0, min((ptor.current-page-number - 1) * ptor.page-size,
                                (ptor.page-count - 1) * ptor.page-size));
   values(start-index,                                   // initial state
-	 min(ptor.paginator-sequence.size,              // limit
+         min(ptor.paginator-sequence.size,              // limit
              start-index + ptor.page-size),
          method (ptor, state) state + 1 end,            // next state
          method (ptor, state, limit) state >= limit end, // finished state?
          method (ptor, state) state end,                // current key
-	 method (ptor, state)                           // element
+         method (ptor, state)                           // element
            ptor.paginator-sequence[state]
          end,
          method (new-value, ptor, state)                // element setter

@@ -49,7 +49,7 @@ define tag url in dsp
 end;
 
 // This is for comments that you don't want to be seen by the user,
-// whereas HTML comments (<!-- ... -->) will be seen.  
+// whereas HTML comments (<!-- ... -->) will be seen.
 define body tag comment in dsp
     (page :: <dylan-server-page>, do-body :: <function>)
     ()
@@ -316,7 +316,7 @@ end method if-equal-internal;
 //// Iteration tags
 
 // loop
-// 
+//
 // This stores the current iteration value in the page context because
 // it's convenient to be able to use <dsp:get> to access it rather than
 // defining a new tag such as, for example, <dsp:loop-value>.
@@ -363,7 +363,7 @@ by supporting a syntax like test="user-group-names.empty?.not", where
 introduces a new mini-language, which is annoying, but it provides more
 expressivity. The set of supported functions, like "not", could be defined
 in a way similar to the way named-methods work, so that the user could
-extend the mini-language to some degree.  But at some point simple 
+extend the mini-language to some degree.  But at some point simple
 chaining with "." isn't expressive enough and we'll want more.  Does
 that way lie madness?
 */
@@ -533,7 +533,7 @@ define tag row-number in dsp
     output("%d", *table-row-number* + 1);
   end;
 end;
- 
+
 
 //// Form field tags
 
