@@ -12,7 +12,7 @@ URL Routing
   or a sequence of path elements such as #("", "foo", "bar", "").
 
 * add-resource divides the path into two parts: the prefix and suffix.
-  The suffix begins where the first path path variable, if any, is
+  The suffix begins where the first path variable, if any, is
   found.  For example, given the path
   ::
 
