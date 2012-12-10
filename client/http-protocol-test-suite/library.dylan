@@ -1,4 +1,5 @@
 Module: dylan-user
+Copyright: See LICENSE in this distribution for details.
 
 define library http-protocol-test-suite
   use common-dylan;

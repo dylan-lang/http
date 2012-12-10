@@ -1,8 +1,7 @@
 Module:    dsp
 Author:    Carl Gay
 Synopsis:  Dylan Server Pages
-License:      See License.txt in this distribution for details.
-Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
+Copyright: See LICENSE in this distribution for details.
 
 
 // See .../koala/sources/examples/koala-demo/ for example DSP usage.

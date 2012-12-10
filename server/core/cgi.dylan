@@ -1,9 +1,8 @@
 Module: httpi
 Synopsis:  CGI script handling
 Author:    Carl Gay
-Copyright: Copyright (c) 2009-2010 Carl L. Gay.  All rights reserved.
-License:      See License.txt in this distribution for details.
-Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
+Copyright: See LICENSE in this distribution for details.
+
 
 // I didn't really decide which one of these to support when I wrote
 // this code.  --cgay

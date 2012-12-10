@@ -1,4 +1,6 @@
 Module: http-common-test-suite
+Copyright: See LICENSE in this distribution for details.
+
 
 define suite http-common-test-suite ()
   suite parsing-test-suite;

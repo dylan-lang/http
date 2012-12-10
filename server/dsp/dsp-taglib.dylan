@@ -1,8 +1,7 @@
 Module:    dsp
 Author:    Carl Gay
+Copyright: See LICENSE in this distribution for details.
 Synopsis:  Tags in the "dsp" taglib
-License:      See License.txt in this distribution for details.
-Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
 
 
 //// Utils

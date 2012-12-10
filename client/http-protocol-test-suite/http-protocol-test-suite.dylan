@@ -1,6 +1,7 @@
 Module: http-protocol-test-suite
 Synopsis: Test suite to validate conformance to HTTP 1.1 protocol spec (RFC 2616)
 Author: Carl Gay
+Copyright: See LICENSE in this distribution for details.
 
 // This test suite is not in a usable state yet.
 

@@ -1,4 +1,5 @@
 Module: koala-test-suite
+Copyright: See LICENSE in this distribution for details.
 Synopsis: Tests for CGI functionality
 
 // CGI 1.2 specification draft: http://ken.coar.org/cgi/cgi-120-00a.html

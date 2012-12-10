@@ -1,6 +1,8 @@
 Module:   dylan-user
-Synopsis: Koala test suite
 Author:   Carl Gay
+Copyright: See LICENSE in this distribution for details.
+Synopsis: Koala test suite
+
 
 define library koala-test-suite
   use collection-extensions,

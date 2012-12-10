@@ -1,4 +1,5 @@
 Module: dylan-user
+Copyright: See LICENSE in this distribution for details.
 
 define library http-client
   use common-dylan;
