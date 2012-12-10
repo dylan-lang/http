@@ -1,5 +1,7 @@
 Module: dylan-user
 Synopsis: Code shared by HTTP client and server
+Copyright: See LICENSE in this distribution for details.
+
 
 define library http-common
   use base64;

@@ -1,5 +1,6 @@
 Module: http-client-internals
 Author: Carl Gay
+Copyright: See LICENSE in this distribution for details.
 
 /*
 

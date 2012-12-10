@@ -1,9 +1,7 @@
 Module:    httpi
 Synopsis:  Virtual hosts
 Author:    Carl Gay
-Copyright: Copyright (c) 2004-2010 Carl L. Gay.  All rights reserved.
-License:      See License.txt in this distribution for details.
-Warranty:  Distributed WITHOUT WARRANTY OF ANY KIND
+Copyright: See LICENSE in this distribution for details.
 
 
 // A virtual host simply delegates to the router in its virtual-host-router

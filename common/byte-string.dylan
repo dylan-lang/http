@@ -1,5 +1,6 @@
 Module:    %http-common-byte-string
 Author:    Gail Zacharias, Carl Gay
+Copyright: See LICENSE in this distribution for details.
 Synopsis:  Low-level string utilities designed to be as fast as possible.
            This code assumes <byte-string>s only.  It was originally written
            for use in the HTTP server.  (Note that a different definition of

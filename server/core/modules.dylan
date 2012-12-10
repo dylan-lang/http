@@ -1,4 +1,6 @@
-module: httpi
+Module: httpi
+Copyright: See LICENSE in this distribution for details.
+
 
 /// Modules
 
