@@ -1,5 +1,6 @@
 Module: dsp
 Author: Carl Gay
+Copyright: See LICENSE in this distribution for details.
 Synopsis: Utilities for DSP that otherwise can stand alone.
 
 define sideways method process-config-element

@@ -1,5 +1,7 @@
 Module: http-common-internals
 Synopsis: Code shared by HTTP client and server.
+Copyright: See LICENSE in this distribution for details.
+
 
 define constant $http-version :: <byte-string> = "HTTP/1.1";
 

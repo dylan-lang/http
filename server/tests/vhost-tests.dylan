@@ -1,4 +1,6 @@
 Module: koala-test-suite
+Copyright: See LICENSE in this distribution for details.
+
 
 define suite virtual-host-test-suite ()
     test test-vhost-add-resource;

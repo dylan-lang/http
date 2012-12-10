@@ -1,4 +1,6 @@
 Module: koala-test-suite
+Copyright: See LICENSE in this distribution for details.
+
 
 define constant $xml-header :: <string>
   = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n";

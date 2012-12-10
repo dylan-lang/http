@@ -1,5 +1,6 @@
 Module: koala-test-suite
 Author: Carl Gay
+Copyright: See LICENSE in this distribution for details.
 Synopsis: Tests for the content negotiation code
 
 define suite multi-views-test-suite ()

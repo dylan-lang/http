@@ -1,5 +1,7 @@
 Module: koala-test-suite
+Copyright: See LICENSE in this distribution for details.
 Synopsis: XML RPC testing
+
 
 // Test that we can create a server and add a resource for it.
 //

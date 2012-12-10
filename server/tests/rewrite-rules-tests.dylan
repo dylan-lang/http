@@ -1,4 +1,6 @@
 Module: koala-test-suite
+Copyright: See LICENSE in this distribution for details.
+
 
 //// Rewrite rules suite
 

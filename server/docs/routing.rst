@@ -1,6 +1,8 @@
 URL Routing
 -----------
 
+.. Copyright: See LICENSE in this distribution for details.
+
 * A URL path is represented internally as a sequence of path elements.
   For example the URL string "/foo/bar/" is #("", "foo", "bar", "").
   Note that this is exactly equilavent to split("/foo/bar/", '/').
