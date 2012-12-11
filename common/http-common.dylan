@@ -469,11 +469,6 @@ end method read-http-line;
 
 define open class <base-http-response> (<message-headers-mixin>)
 
-  // todo -- Move this slot into the server.  Client doesn't need this.
-  //         For now I just made it optional.
-  constant slot response-request :: <base-http-request>,
-    /* required- */ init-keyword: #"request";
-
   slot response-code :: <integer>,
     init-keyword: code:,
     init-value: 200;

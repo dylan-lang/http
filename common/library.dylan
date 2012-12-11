@@ -81,8 +81,7 @@ define module http-common
     response-code,
     response-code-setter,
     response-reason-phrase,
-    response-reason-phrase-setter,
-    response-request;
+    response-reason-phrase-setter;
 
   // HTTP status codes
   create

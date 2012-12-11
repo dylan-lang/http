@@ -49,6 +49,9 @@ define open primary class <response> (<string-stream>, <base-http-response>)
   inherited slot stream-sequence
     = make(<byte-string>, size: $chunk-size, fill: ' ');
 
+  constant slot response-request :: <base-http-request>,
+    required-init-keyword: #"request";
+
   // Transfer length as defined in RFC 2616, Section 4.4.
   // If this is > 0 then chunks have already been sent.
   //
