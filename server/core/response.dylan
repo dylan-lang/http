@@ -47,7 +47,7 @@ define constant $chunk-size :: <integer> = 16384;
 define open primary class <response> (<string-stream>, <base-http-response>)
 
   inherited slot stream-sequence
-    = make(<byte-string>, size: $chunk-size, fill: ' ');
+    = make(<byte-string>, size: $chunk-size);
 
   constant slot response-request :: <base-http-request>,
     required-init-keyword: #"request";
