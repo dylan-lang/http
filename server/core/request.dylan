@@ -147,7 +147,7 @@ define function parse-request-line
     let req-method = substring(buffer, 0, epos1);
     let url-string = substring(buffer, bpos2, epos2);
     let http-version = substring(buffer, bpos3, epos3);
-    log-info("%s %s %s", req-method, url-string, http-version);
+    log-debug("%s %s %s", req-method, url-string, http-version);
     request.request-method := validate-request-method(req-method);
     parse-request-url(server, request, url-string);
     request.request-version := validate-http-version(http-version);
