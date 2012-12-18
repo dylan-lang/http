@@ -821,7 +821,7 @@ define function html-comment-end
     let epos :: <integer> = size(buffer);
     iterate loop (pos = bpos)
       when (pos < epos - 3)       // 3 to account for "-->"
-        let potential-end = string-position(buffer, "--", pos, epos);
+        let potential-end = find-substring(buffer, "--", start: pos, end: epos);
         when (potential-end)
           let non-white = skip-whitespace(buffer, potential-end + 2, epos);
           iff(non-white < epos & buffer[non-white] = '>',
@@ -1032,7 +1032,7 @@ define function end-of-word (buffer :: <string>, bpos :: <integer>, epos :: <int
           char = '>' | whitespace?(char)
         end;
   min(char-position-if(delim?, buffer, bpos, epos),
-      string-position(buffer, "/>", bpos, epos) | epos)
+      find-substring(buffer, "/>", start: bpos, end: epos) | epos)
 end;
 
 // Parse the key1="val1" key2="val2" arguments from a call to a DSP tag.  Values may be
@@ -1054,7 +1054,7 @@ define method extract-tag-args
                                 key-start :: <integer>)
           let key-end = min(char-position-if(end-of-key?,
                                              buffer, key-start, epos),
-                            string-position(buffer, "/>", key-start, epos) | epos);
+                            find-substring(buffer, "/>", start: key-start, end: epos) | epos);
           if (~key-end | key-end = key-start)
             error("invalid dsp tag.  couldn't find end of keyword argument");
           else
