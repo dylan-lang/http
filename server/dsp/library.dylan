@@ -1,14 +1,17 @@
-Module:    dylan-user
-Author:    Carl Gay
+Module: dylan-user
+Synopsis: Web page templates
 Copyright: See LICENSE in this distribution for details.
 
 
 define library dsp
   use collections,
     import: { table-extensions };
-  use common-dylan;
-  use http-common;
-  use io;
+  use common-dylan,
+    import: { common-extensions, dylan, threads };
+  use http-common,
+    import: { http-common, %http-common-byte-string };
+  use io,
+    import: { format, streams };
   use logging;
   use strings;
   use system,
@@ -27,13 +30,25 @@ define module dsp
     rename: { table => make-table };
   use common-extensions,
     exclude: { false?, true? };
-  use date;
+  use date,
+    import: { current-date, <date> };
   use dylan;
-  use file-system;
+  use file-system,
+    import: { file-property, <pathname>, working-directory };
   use format,
+    import: { format, format-to-string },
     rename: { format-to-string => sformat };
-  use http-common;
-  use %http-common-byte-string;
+  use http-common,
+    import: { date-modified, date-modified-setter,
+              <expiring-mixin>,
+              get-attribute,
+              get-header,
+              quote-html,
+              remove-attribute,
+              resource-not-found-error,
+              set-attribute };
+  use %http-common-byte-string,
+    import: { char-position, char-position-if, skip-whitespace, substring };
   use koala;
   use locators,
     import: { <locator>,
@@ -49,13 +64,16 @@ define module dsp
               log-info => %log-info,
               log-warning => %log-warning,
               log-error => %log-error };
-  use operating-system;
-  use standard-io;
-  use streams;
-  use strings;
-  use threads;
-  use uncommon-dylan;
-  use uri;
+  use streams,
+    import: { format, with-output-to-string, write };
+  use strings,
+    import: { find-substring, string-equal?, string-equal-ic?, strip, whitespace? };
+  use threads,
+    import: { dynamic-bind };
+  use uncommon-dylan,
+    import: { iff, <positive-integer> };
+  use uri,
+    import: { percent-decode };
   use xml-parser,
     prefix: "xml$",
     import: { <element> };
