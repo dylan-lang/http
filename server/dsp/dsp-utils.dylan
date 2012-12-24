@@ -23,7 +23,7 @@ define open class <paginator> (<sequence>)
   slot current-page-number :: <positive-integer> = 1,
     init-keyword: current-page-number:;
 
-  slot page-size :: <positive-integer> = 20,
+  constant slot page-size :: <positive-integer> = 20,
     init-keyword: page-size:;
 end class <paginator>;
 

@@ -46,7 +46,7 @@ define open primary class <dylan-server-page> (<expiring-mixin>, <resource>)
 
   // This is merged against the working directory if it is not absolute.
   // (Note that koala has a --working-directory option.)
-  slot %page-source :: <file-locator>,
+  constant slot %page-source :: <file-locator>,
     required-init-keyword: #"source";
 end;
 
@@ -100,7 +100,7 @@ end;
 define class <taglib> (<object>)
   constant slot name :: <string>,
     required-init-keyword: name:;
-  slot default-prefix :: <string>,
+  constant slot default-prefix :: <string>,
     init-keyword: prefix:;
   constant slot tag-map :: <string-table>,
     init-function: curry(make, <string-table>);
@@ -631,6 +631,9 @@ define class <dsp-template> (<object>)
     init-value: #f,
     init-keyword: date-modified:;
 end class <dsp-template>;
+
+// Unused.  Only content-end-setter is used, so this needs looking into.
+ignore(content-end);
 
 define method add-entry!
     (tmplt :: <dsp-template>, entry :: <object>)
