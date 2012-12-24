@@ -738,14 +738,16 @@ define function parse-tag-prefix
     (buffer, taglib-specs, bpos, epos) => (prefix, taglib)
   local method parse-prefix (spec-index :: <integer>)
           if (spec-index >= size(taglib-specs))
-            iff(string-equal-ic?("%dsp:", buffer, start2: bpos, end2: epos),
+            iff(string-equal-ic?("%dsp:", buffer, start2: bpos, end2: bpos + 5),
                 values("%dsp", #"directive"),
                 values(#f, #f))
           else
             let spec = taglib-specs[spec-index];
             let prefix = head(spec);
             let taglib = tail(spec);
-            iff(string-equal-ic?(concatenate(prefix, ":"), buffer, start2: bpos, end2: epos),
+            let prefix-colon = concatenate(prefix, ":");
+            iff(string-equal-ic?(prefix-colon, buffer,
+                                 start2: bpos, end2: bpos + prefix-colon.size),
                 values(prefix, taglib),
                 parse-prefix(spec-index + 1))
           end
@@ -922,10 +924,12 @@ define method parse-template (page :: <dylan-server-page>,
             add-entry!(tmplt, substring(buffer, html-pos, epos)));
         pt-debug("parse-template: No tag-start, returning epos = %d.", epos);
         return(epos);
-      elseif (string-equal-ic?("<!--", buffer, start2: tag-start, end2: epos))
+      elseif (string-equal-ic?("<!--", buffer, start2: tag-start, end2: tag-start + 4))
         pt-debug("parse-template: Found HTML comment start. Skipping to end.");
         scan-pos := html-comment-end(buffer, tag-start + 4);
-      elseif (end-tag & string-equal-ic?(end-tag, buffer, start2: tag-start, end2: epos))
+      elseif (end-tag & string-equal-ic?(end-tag, buffer,
+                                         start2: tag-start,
+                                         end2: tag-start + end-tag.size))
         // done parsing the body of a tag as a subtemplate
         iff(html-pos < tag-start,
             add-entry!(tmplt, substring(buffer, html-pos, tag-start)));
@@ -1085,9 +1089,9 @@ define method extract-tag-args
                 args = list())
     if (start >= epos)
       values(args, #f, epos)
-    elseif (string-equal-ic?(">", buffer, start2: start, end2: epos))
+    elseif (string-equal-ic?(">", buffer, start2: start, end2: start + 1))
       values(args, #t, start + 1)
-    elseif (string-equal-ic?("/>", buffer, start2: start, end2: epos))
+    elseif (string-equal-ic?("/>", buffer, start2: start, end2: start + 2))
       values(args, #f, start + 2)
     else
       let (param, val, key/val-end) = extract-key/val(buffer, start);
