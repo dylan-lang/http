@@ -2,6 +2,7 @@ module: dylan-user
 author: Hannes Mehnert <hannes@mehnert.org>
 
 define library buddha
+  use base64;
   use common-dylan;
   use io;
   use koala, import: { koala };
@@ -11,7 +12,6 @@ define library buddha
   use regular-expressions;
   use network;
   use system, import: { file-system, date };
-  use xml-rpc-common;
   use xml-parser;
   use dylan;
   use web-framework;
@@ -51,7 +51,7 @@ define module buddha
 
   use dood;
   use file-system;
-  use xml-rpc-common, import: { base64-encode, base64-decode };
+  use base64, import: { base64-encode, base64-decode };
 
   use simple-xml;
   use web-framework;

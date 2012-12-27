@@ -32,8 +32,6 @@ define library koala-test-suite
   use testworks;
   use uncommon-dylan;
   use uri;
-  use xml-rpc-client;
-  use xml-rpc-server;
 
   export koala-test-suite;
 end library koala-test-suite;
@@ -76,8 +74,6 @@ define module koala-test-suite
   use threads;
   use uncommon-dylan;
   use uri;
-  use xml-rpc-client;
-  use xml-rpc-server;
 
   export koala-test-suite;
 end module koala-test-suite;

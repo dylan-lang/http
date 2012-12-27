@@ -312,27 +312,6 @@ end;
 
 
 
-//// Example: XML-RPC
-
-// TODO: move this to its own xml-rpc example  (once xml-rpc code is
-//       moved to its own library.
-
-define xml-rpc-server $xml-rpc-server
-    ()
-  "test.zero" => method () end;
-  "test.one"  => method () 1 end;
-  "test.two"  => method () "two" end;
-  "test.three" => method () vector(1, "two", 3.0) end;
-  "test.four" => method ()
-                   let result = make(<table>);
-                   result["x"] := vector(vector(7), 8);
-                   result["y"] := "my <dog> has fleas";
-                   result
-                 end;
-end xml-rpc-server $xml-rpc-server;
-
-
-
 /// Main
 
 define function map-resources
