@@ -25,6 +25,3 @@
 [submodule "submodules/meta"]
 	path = submodules/meta
 	url = git://github.com/dylan-lang/meta.git
-[submodule "submodules/xml-rpc"]
-	path = submodules/xml-rpc
-	url = git://github.com/dylan-lang/xml-rpc.git
