@@ -100,13 +100,16 @@ end;
 define class <taglib> (<object>)
   constant slot name :: <string>,
     required-init-keyword: name:;
-  constant slot default-prefix :: <string>,
+  slot default-prefix :: <string>,
     init-keyword: prefix:;
   constant slot tag-map :: <string-table>,
     init-function: curry(make, <string-table>);
   constant slot named-method-map :: <string-table>,
     init-function: curry(make, <string-table>);
 end class <taglib>;
+
+// This is used in a macro expansion below, but the compiler still warns.
+ignorable(default-prefix-setter);
 
 // Make the prefix default to the taglib name.
 //
