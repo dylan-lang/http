@@ -1,4 +1,4 @@
-Module: koala-test-suite
+Module: http-test-utils
 Copyright: See LICENSE in this distribution for details.
 
 
