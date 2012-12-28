@@ -1,4 +1,4 @@
-Module: koala-test-suite
+Module: http-server-test-suite
 Copyright: See LICENSE in this distribution for details.
 
 
@@ -6,21 +6,21 @@ define constant $xml-header :: <string>
   = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n";
 
 // Make an XML document string that contains the given string.
-define function koala-document
+define function config-document
     (content :: <string>, #key listener?)
  => (doc :: <string>)
   concatenate($xml-header,
-              "<koala>\n",
+              "<http-server>\n",
               iff(listener?,
                   fmt("<listener address=\"%s\" port=\"%s\" />\n",
                       *test-host*, *test-port*),
                   ""),
               content,
-              "\n</koala>\n")
+              "\n</http-server>\n")
 end;
 
 // Try to configure a server with the given document (a string containing
-// a Koala XML configuration description).  
+// an XML configuration description).  
 define function configure
     (configuration :: <string>)
  => (server :: <http-server>)
@@ -32,17 +32,17 @@ end function configure;
 define test basic-config-test ()
   let texts = #("",
                 "<barbaloot>",
-                "<koala>gubbish</koala>",
+                "<http-server>gubbish</http-server>",
                 "&!*#)!^%");
   for (text in texts)
     check-condition(fmt("Invalid config (%=) causes <configuration-error>", text),
                     <configuration-error>,
                     configure(text));
   end for;
-  check-no-errors("Empty <koala> element",
-                  configure(koala-document("")));
+  check-no-errors("Empty <http-server> element",
+                  configure(config-document("")));
   check-no-errors("Unknown element ignored",
-                  configure(koala-document("<unknown></unknown>")));
+                  configure(config-document("<unknown></unknown>")));
 end test basic-config-test;
 
 define test listener-config-test ()
@@ -56,7 +56,7 @@ define test listener-config-test ()
                 "<listener />",
                 "<listener address=\"xxx\" port=\"2222\" />");
   for (text in texts)
-    check-no-errors(text, configure(koala-document(text)));
+    check-no-errors(text, configure(config-document(text)));
   end;
 end test listener-config-test;
 
@@ -64,7 +64,7 @@ define test alias-config-test ()
   let server = make-server();
   add-resource(server, "/abc", make(<echo-resource>));
   let text = "<alias url=\"/def\" target=\"/abc\"/>";
-  configure-from-string(server, koala-document(text, listener?: #t));
+  configure-from-string(server, config-document(text, listener?: #t));
   with-http-server (server = server)
     with-http-connection(conn = test-url("/"))
       send-request(conn, "GET", "/def");
@@ -92,7 +92,7 @@ define test test-directory-resource ()
   let dir = as(<string>, locator-directory(app));
   let text = fmt("<directory url=\"/\" location=\"%s\"/>\n", dir);
   let server = make-server();
-  configure-from-string(server, koala-document(text, listener?: #t));
+  configure-from-string(server, config-document(text, listener?: #t));
   with-http-server (server = server)
     let app-url = test-url(concatenate("/", locator-name(app)));
     with-http-connection (conn = app-url)
@@ -115,7 +115,7 @@ define test test-directory-resource-default-documents ()
                         "           url=\"/\"\n"
                         "           default-documents = \"%s\" />",
                         temp-directory(), default-docs);
-          configure-from-string(server, koala-document(str));
+          configure-from-string(server, config-document(str));
           server
         end;
 

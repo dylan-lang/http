@@ -5,8 +5,8 @@ Synopsis:  Variables and utilities
 
 
 // Command-line arguments parser.  The expectation is that libraries that use
-// and extend koala (e.g., wiki) may want to add their own <option-parser>s to
-// this before calling koala-main().
+// and extend this server (e.g., wiki) may want to add their own <option-parser>s to
+// this before calling http-server-main().
 define variable *command-line-parser* :: <command-line-parser>
   = make(<command-line-parser>);
 
@@ -131,19 +131,19 @@ end;
 
 //// Errors
 
-define class <koala-error> (<format-string-condition>, <error>)
+define class <http-server-error> (<format-string-condition>, <error>)
 end;
 
-// Signalled when a library uses the Koala API incorrectly. i.e., user
+// Signaled when a library uses the server API incorrectly. i.e., user
 // errors such as registering a page that has already been registered.
 // Not for errors that will be reported to the HTTP client.
 //
-define open class <koala-api-error> (<koala-error>)
+define open class <http-server-api-error> (<http-server-error>)
 end;
 
-define function koala-api-error
+define function http-server-api-error
     (format-string :: <string>, #rest format-arguments)
-  signal(make(<koala-api-error>,
+  signal(make(<http-server-api-error>,
               format-string: format-string,
               format-arguments: format-arguments));
 end;

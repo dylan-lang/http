@@ -4,7 +4,7 @@ Synopsis:  Dylan Server Pages
 Copyright: See LICENSE in this distribution for details.
 
 
-// See .../koala/sources/examples/koala-demo/ for example DSP usage.
+// See .../http/server/examples/http-server-demo/ for example DSP usage.
 
 // TODO: separate out the template parsing so that it's possible to
 //       use different template parsers easily.
@@ -45,7 +45,7 @@ define open primary class <dylan-server-page> (<expiring-mixin>, <resource>)
   slot page-template :: false-or(<dsp-template>) = #f;
 
   // This is merged against the working directory if it is not absolute.
-  // (Note that koala has a --working-directory option.)
+  // (Note that the server has a --working-directory option.)
   constant slot %page-source :: <file-locator>,
     required-init-keyword: #"source";
 end;
@@ -63,7 +63,7 @@ define method default-content-type
   "text/html"
 end;
 
-// This is here (rather than in "make" or "initialize") because koala has an
+// This is here (rather than in "make" or "initialize") because there is an
 // option to set the working directory and we want to respect it, and we don't
 // want to depend on file load order.
 define method page-source

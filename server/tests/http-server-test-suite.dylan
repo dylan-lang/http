@@ -1,4 +1,4 @@
-Module: koala-test-suite
+Module: http-server-test-suite
 Copyright: See LICENSE in this distribution for details.
 
 
@@ -149,14 +149,11 @@ define suite http-server-test-suite ()
   suite multi-views-test-suite;
   suite resources-test-suite;
   suite virtual-host-test-suite;
-end;
-
-// exported
-define suite koala-test-suite
-    (setup-function: start-sockets)
-  suite http-server-test-suite;
+  // The client test suite depends on the server test suite and vise versa,
+  // so for now they need to be combined.  This could be fixed by moving
+  // http-test-utils into its own library and using it in both places.
   suite http-client-test-suite;
-end suite koala-test-suite;
+end;
 
 // This library may be used as a dll or as an executable.  If an executable,
 // it does different things depending on the environment so that it can be
@@ -164,14 +161,14 @@ end suite koala-test-suite;
 //
 define method main () => ()
   let filename = locator-name(as(<file-locator>, application-name()));
-  if (split(filename, ".")[0] = "koala-test-suite")
+  if (split(filename, ".")[0] = "http-server-test-suite")
     let query = environment-variable("QUERY_STRING");
     if (~query)
       // Show all request/response headers and message content.
       *http-common-log*.log-level := $trace-level;
       *http-client-log*.log-level := $trace-level;
-      *log-content?* := #f;  // koala variable, not yet configurable.
-      run-test-application(koala-test-suite);
+      *log-content?* := #f;  // http-server variable, not yet configurable.
+      run-test-application(http-server-test-suite);
     else
       // We're being invoked as a CGI script.
       // Note: don't log anything in this branch since it will become

@@ -26,8 +26,8 @@ Configuring buddha
 ==================
  first copy and modify the http server config:
   mkdir config
-  cp libraries/koala/config/koala-config.xml config/
-  edit config/koala-config.xml
+  cp libraries/http/server/config/config.xml config/
+  edit config/config.xml
 
 At least
 <buddha content-directory = "/home/hannes/dylan/libraries/koala/www/" />

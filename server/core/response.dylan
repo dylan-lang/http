@@ -158,13 +158,13 @@ define method set-header
     (response :: <response>, header :: <byte-string>, value :: <object>,
      #key if-exists? = #"replace")
   if (headers-sent?(response))
-    signal(make(<koala-api-error>,
+    signal(make(<http-server-api-error>,
                 format-string: "Attempt to add a %s header after headers have "
                   "already been sent.",
                 format-arguments: list(header)));
   elseif (string-equal?(header, "Content-Length"))
     if (response.response-transfer-length > 0)
-      signal(make(<koala-api-error>,
+      signal(make(<http-server-api-error>,
                   format-string: "Attempt to add the Content-Length header "
                     "after some data has already been sent."));
     else

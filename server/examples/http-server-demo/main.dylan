@@ -1,6 +1,6 @@
-Module:    koala-demo
-Synopsis:  Examples of how to use the Koala HTTP server and DSP
-Author:    Carl Gay
+Module: http-server-demo
+Synopsis: Examples of how to use the http-server and dsp libraries
+Author: Carl Gay
 
 // TODO: Need an example of using a paginator and some other DSP utilities.
 
@@ -8,17 +8,17 @@ Author:    Carl Gay
 
 To use this example compile this library and invoke the executable with
 
-    --working-directory <svn>/libraries/network/http/server/examples/koala-demo/dsp
+    --working-directory .../http/server/examples/http-server-demo/dsp
 
 Point your browser at http://127.0.0.1/ to view the demo pages.
 
-Each page demonstrates a feature of Koala or Dylan Server Pages.  You should
+Each page demonstrates a feature of the server or Dylan Server Pages.  You should
 be able to find the code corresponding to a particular URL by searching for
 that URL in this file.  Some XML-RPC methods are defined near the bottom.
 
 */
 
-//// Low-level Koala API examples
+//// Low-level server API examples
 
 // To respond to a URL, define a subclass of <resource> and define a
 // method on respond or one of the respond-to-{get,post,...} methods:
@@ -336,12 +336,12 @@ end function map-resources;
 define function main
     ()
   // If you don't need to add any new command-line arguments you can just
-  // call koala-main directly.  It allows you to pass --config <filename>
+  // call http-server-main directly.  It allows you to pass --config <filename>
   // and other args on the command line.  Use --help to see options.
   // start-server can also be used directly if you want to do your own
   // command-line parsing.
-  koala-main(server: make(<http-server>),
-             before-startup: map-resources);
+  http-server-main(server: make(<http-server>),
+                   before-startup: map-resources);
 end function main;
 
 main();

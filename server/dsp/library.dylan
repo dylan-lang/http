@@ -19,7 +19,7 @@ define library dsp
   use uncommon-dylan;
   use uri;
   use xml-parser;
-  use koala;
+  use http-server;
 
   export dsp;
 end library dsp;
@@ -49,7 +49,7 @@ define module dsp
               set-attribute };
   use %http-common-byte-string,
     import: { char-position, char-position-if, skip-whitespace, substring };
-  use koala;
+  use http-server;
   use locators,
     import: { <locator>,
               <file-locator>,

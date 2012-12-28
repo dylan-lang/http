@@ -1,3 +1,3 @@
-library: koala-demo
+library: http-server-demo
 files: library
        main

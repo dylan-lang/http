@@ -3,7 +3,7 @@ Author:    Gail Zacharias, Carl Gay
 Copyright: See LICENSE in this distribution for details.
 
 
-define library koala
+define library http-server
   use base64;
   use collections,
     import: { table-extensions };
@@ -27,19 +27,19 @@ define library koala
   use uri;
   use xml-parser;
 
-  export koala-unit;
-  export koala;
-end library koala;
+  export http-server-unit;
+  export http-server;
+end library http-server;
 
 
-define module koala
+define module http-server
   // Server startup/shutdown
   create
     <http-server>,
     configure-server,
     start-server,
     stop-server,
-    koala-main,
+    http-server-main,
     *command-line-parser*;
 
   // Servers
@@ -159,7 +159,7 @@ define module koala
 
   // Errors
   create
-    <koala-api-error>,
+    <http-server-api-error>,
     <configuration-error>;
 
   // Rewrite rules
@@ -168,10 +168,10 @@ define module koala
     <rewrite-rule>,
     rewrite-url;
 
-end module koala;
+end module http-server;
 
 // Additional interface for unit tests.
-define module koala-unit
+define module http-server-unit
   create
     *server*,
     configure-from-string,
@@ -193,7 +193,7 @@ define module koala-unit
       path-variable-required?,
     <star-path-variable>,
     <plus-path-variable>;
-end module koala-unit;
+end module http-server-unit;
 
 define module httpi                             // http internals
   use base64;
@@ -207,8 +207,8 @@ define module httpi                             // http internals
   use format-out;
   use http-common;
   use %http-common-byte-string;
-  use koala;
-  use koala-unit;
+  use http-server;
+  use http-server-unit;
   use locators,
     rename: { <http-server> => <http-server-url>,
               <ftp-server> => <ftp-server-url>,

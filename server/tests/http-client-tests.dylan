@@ -1,4 +1,4 @@
-Module: koala-test-suite
+Module: http-server-test-suite
 Copyright: See LICENSE in this distribution for details.
 
 
@@ -30,7 +30,7 @@ end;
 /////////////////////////////
 
 
-// Test GETs with responses of various sizes.  For Koala, the largest
+// Test GETs with responses of various sizes.  For http-server, the largest
 // one causes a chunked response.
 //
 define test test-http-get-to-string ()
@@ -124,7 +124,7 @@ define test test-streaming-request ()
   with-http-server (server = make-server(/* debug: #t */))
     register-test-resources(server);
     with-http-connection(conn = root-url())
-      // This uses a content-length header because currently Koala doesn't
+      // This uses a content-length header because currently http-server doesn't
       // support requests with chunked encoding.
       start-request(conn, #"post", "/echo",
                     headers: #[#["Content-Length", "7"],
@@ -178,7 +178,7 @@ define test test-read-chunked-response ()
     register-test-resources(server);
     with-http-connection(conn = root-url())
       // currently no way to set response chunk size so make data bigger
-      // than koala's $chunk-size.  koala adds Content-Length header if
+      // than http-server's $chunk-size.  http-server adds Content-Length header if
       // entire response < $chunk-size.
       let data = make(<byte-string>, size: 100000, fill: 'x');
       send-request(conn, "POST", "/echo", content: data);
