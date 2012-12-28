@@ -1,4 +1,4 @@
-Module: http-server-test-suite
+Module: http-server-tests
 Copyright: See LICENSE in this distribution for details.
 
 

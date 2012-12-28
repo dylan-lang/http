@@ -4,7 +4,7 @@ Copyright: See LICENSE in this distribution for details.
 Synopsis: HTTP server test suite
 
 
-define library http-server-test-suite
+define library http-server-tests
   use collection-extensions,
     import: { collection-utilities };
   use common-dylan,
@@ -34,9 +34,9 @@ define library http-server-test-suite
   use uri;
 
   export
-    http-server-test-suite,
+    http-server-tests,
     http-test-utils;
-end library http-server-test-suite;
+end library http-server-tests;
 
 define module http-test-utils
   use common-dylan;
@@ -64,7 +64,7 @@ define module http-test-utils
     with-http-server;
 end module http-test-utils;
 
-define module http-server-test-suite
+define module http-server-tests
   use collection-utilities,
     import: { key-exists? };
   use common-dylan;
@@ -105,5 +105,4 @@ define module http-server-test-suite
   use uri;
 
   export http-server-test-suite;
-end module http-server-test-suite;
-
+end module http-server-tests;

@@ -1,4 +1,4 @@
-Module: http-server-test-suite
+Module: http-server-tests
 Copyright: See LICENSE in this distribution for details.
 
 
@@ -161,7 +161,7 @@ end;
 //
 define method main () => ()
   let filename = locator-name(as(<file-locator>, application-name()));
-  if (split(filename, ".")[0] = "http-server-test-suite")
+  if (split(filename, ".")[0] = "http-server-tests")
     let query = environment-variable("QUERY_STRING");
     if (~query)
       // Show all request/response headers and message content.

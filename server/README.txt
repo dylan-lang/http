@@ -22,10 +22,10 @@ code for this library.
   big fan of test-driven development.  Writing the tests BEFORE you
   write the code is even better.  There are two test suites:
 
-    + http-server-test-suite -- for server
+    + http-server-tests -- for server
     + http-protocol-test-suite -- to validate conformance to HTTP standard
       (This doesn't have much in it and should just be integrated with
-      http-server-test-suite anyway.  Separate test suites was a bad idea.)
+      http-server-tests anyway.  Separate test suites was a bad idea.)
 
 * If you make incompatible changes to the API, update references to
   it.  That means, at the very least, searching for uses of that API

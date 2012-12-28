@@ -1,4 +1,4 @@
-Library: http-server-test-suite
+Library: http-server-tests
 Files: library
        utilities
        config-tests
@@ -8,4 +8,4 @@ Files: library
        http-client-tests
        resources-tests
        rewrite-rules-tests
-       http-server-test-suite
+       http-server-tests

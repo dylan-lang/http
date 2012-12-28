@@ -1,4 +1,4 @@
-Module: http-server-test-suite
+Module: http-server-tests
 Copyright: See LICENSE in this distribution for details.
 Synopsis: Tests for CGI functionality
 
@@ -61,7 +61,7 @@ begin
 end;
 
 define function cgi-directory ()
-  // We invoke http-server-test-suite as a CGI script, hence using application-filename.
+  // We invoke http-server-tests as a CGI script, hence using application-filename.
   as(<string>, locator-directory(as(<file-locator>, application-filename())))
 end;
 
@@ -72,7 +72,7 @@ end;
 //
 define test cgi-required-environment-variables-test ()
   with-http-server (server = make-cgi-server(server-root: cgi-directory()))
-    let url = test-url("/http-server-test-suite.exe?cgi=env");
+    let url = test-url("/http-server-tests?cgi=env");
 
     with-http-connection (conn = url)
       send-request(conn, "GET", url);
@@ -134,7 +134,7 @@ define test cgi-location-header-test ()
                "/cgi-location-header-test",
                make(<function-resource>, function: responder));
   with-http-server (server = server)
-    let url = test-url("/http-server-test-suite.exe?cgi=location");
+    let url = test-url("/http-server-tests?cgi=location");
 
     with-http-connection (conn = url)
       send-request(conn, "GET", url);
@@ -166,7 +166,7 @@ define test cgi-status-header-test ()
                make(<function-resource>,
                     function: curry(output, expected-content)));
   with-http-server (server = server)
-    let url = test-url("/http-server-test-suite.exe?cgi=status");
+    let url = test-url("/http-server-tests?cgi=status");
 
     with-http-connection (conn = url)
       send-request(conn, "GET", url);
@@ -205,7 +205,7 @@ define test cgi-non-parsed-headers-test ()
                 "/cgi-nph-test",
                 curry(output, expected-content));
   with-http-server (server = server)
-    let url = test-url("/nph-http-server-test-suite.exe?cgi=nph");
+    let url = test-url("/nph-http-server-tests?cgi=nph");
     with-http-connection (conn = url)
       send-request(conn, "GET", url);
       let full-response-text = read-to-end(conn.connection-socket);
@@ -229,7 +229,7 @@ end test cgi-command-line-test;
 define test cgi-working-directory-test ()
   let server = make-cgi-server(server-root: cgi-directory());
   with-http-server (server = server)
-    let url = test-url("/http-server-test-suite.exe?cgi=cwd");
+    let url = test-url("/http-server-tests?cgi=cwd");
     with-http-connection (conn = url)
       send-request(conn, "GET", url);
       let response :: <http-response> = read-response(conn);
@@ -257,7 +257,7 @@ end;
 define test cgi-http-header-test ()
   let server = make-cgi-server(server-root: cgi-directory());
   with-http-server (server = server)
-    let url = test-url("/http-server-test-suite.exe?cgi=HTTP_");
+    let url = test-url("/http-server-tests?cgi=HTTP_");
     with-http-connection (conn = url)
       send-request(conn, "GET", url,
                    headers: #[#("X-test-header-1", "blah")]);
