@@ -50,7 +50,6 @@ These are pretty random.  See also the bugzilla list.
 * If the port is in use on startup, it still says "Koala 0.9 ready for service"
 * get rid of koala-main's before-startup parameter.  subclass <http-server>
   and override a method instead.
-* The xml-rpc config file option has gone missing.
 
 * Add command-line option --log so that Koala can be started up
   without doing any logging to stdout.  This should also be the

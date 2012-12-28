@@ -145,7 +145,6 @@ define suite http-server-test-suite ()
   suite start-stop-test-suite;
   suite chunking-test-suite;
   suite configuration-test-suite;
-  suite xml-rpc-test-suite;
   suite cgi-test-suite;
   suite multi-views-test-suite;
   suite resources-test-suite;
