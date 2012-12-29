@@ -1,4 +1,4 @@
-* Start the code-browser app with one command-line argument: the koala
+* Start the code-browser app with one command-line argument: the server
   config file pathname.
 
 * Use a config file that points to

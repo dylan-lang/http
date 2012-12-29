@@ -1,5 +1,5 @@
 Module:    httpi
-Synopsis:  A command-line interface to start Koala as an application.
+Synopsis:  A command-line interface to start http-server as an application.
 Author:    Carl Gay
 Copyright: See LICENSE in this distribution for details.
 
@@ -20,14 +20,14 @@ add-option(*command-line-parser*,
 // --config <file>
 add-option(*command-line-parser*,
            make(<parameter-option>,
-                help: "Location of the koala configuration file.  "
+                help: "Location of the server configuration file.  "
                       "[default: None]",
                 names: #("config", "c")));
 
 // --debug
 add-option(*command-line-parser*,
            make(<flag-option>,
-                help: "Enable debug mode.  Causes Koala to not handle "
+                help: "Enable debug mode.  Causes the server to not handle "
                       "most errors during request handling.",
                 names: #("debug")));
 
@@ -65,9 +65,9 @@ config file settings
 command-line args
 */
 
-define function koala-main
+define function http-server-main
     (#key server :: false-or(<http-server>),
-          description :: <string> = "The Koala web server.",
+          description :: <string> = "An HTTP server",
           before-startup :: false-or(<function>))
  => ()
   let parser = *command-line-parser*;
@@ -156,11 +156,11 @@ define function koala-main
       start-server(*server*);
     end dynamic-bind;
   end if;
-end function koala-main;
+end function http-server-main;
 
 begin
   let filename = locator-name(as(<file-locator>, application-name()));
-  if (split(filename, ".")[0] = "koala")
-    koala-main();
+  if (split(filename, ".")[0] = "http-server")
+    http-server-main();
   end;
 end;

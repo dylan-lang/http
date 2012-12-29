@@ -5,7 +5,7 @@ web site content using the Dylan language.  They are similar in spirit
 to JavaServer Pages.  All dynamic content is
 invoked via DSP custom tag calls.">
 
-  <title>Koala -- Dylan Server Pages Documentation</title>
+  <title>Dylan Server Pages Documentation</title>
 
   <style><!--
   body        { font-family: Arial,Helvetica,Sans-serif; font-size: 10pt; }
@@ -22,6 +22,8 @@ invoked via DSP custom tag calls.">
 
 <body text="#000000" bgcolor="#F0F0FF">
 
+<!-- TODO: replace all this with generated RST API docs -->
+
 <h1 align="center">Dylan Server Pages Documentation</h1>
 
 <h2>Contents</h2>
@@ -36,7 +38,7 @@ invoked via DSP custom tag calls.">
     </ol>
   <li><a href="#dsp-programming">DSP Programming</a></li>
     <ol>
-      <li><a href="#programming-overview">Overview  (pointer to Koala doc for sessions, exporting, query args, requests, responses, page life cycle, etc)</a></li>
+      <li><a href="#programming-overview">Overview  (pointer to server doc for sessions, exporting, query args, requests, responses, page life cycle, etc)</a></li>
       <li><a href="#page-classes">Page Classes</a></li>
       <li><a href="#taglibs">Tag Libraries</a></li>
       <li><a href="#tags">Tags</a></li>
@@ -67,9 +69,9 @@ often don't even need to restart your application to compile new
 custom tags and try them out.)</font>
 
 <p>Currently, a DSP application is implemented as a Dylan project that
-uses the Koala HTTP server library.  This effectively means that each
-DSP application has to run on a different Koala server and therefore on
-a different HTTP port.  (The plan is to eventually fix Koala to load DSP
+uses the HTTP server library.  This effectively means that each
+DSP application has to run on a different server and therefore on
+a different HTTP port.  (The plan is to eventually fix it to load DSP
 application libraries at runtime, based on configuration files.)
 
 

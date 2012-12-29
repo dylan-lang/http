@@ -10,7 +10,7 @@ define library code-browser
     import: { format, format-out, streams };
   use system,
     import: { locators, threads, file-system };
-  use koala;
+  use http-server;
   use dsp;
 
   use environment-protocols;

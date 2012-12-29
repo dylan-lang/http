@@ -5,7 +5,7 @@ Copyright: See LICENSE in this distribution for details.
 define constant $log :: <logger>
   = make(<logger>, name: "http.test-suite");
 
-// Would this be useful in koala itself?
+// Would this be useful in http-server itself?
 //
 define macro with-http-server
   { with-http-server (?server:variable = ?ctor:expression) ?body:body end }

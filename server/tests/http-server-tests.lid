@@ -1,4 +1,4 @@
-Library: koala-test-suite
+Library: http-server-tests
 Files: library
        utilities
        config-tests
@@ -8,4 +8,4 @@ Files: library
        http-client-tests
        resources-tests
        rewrite-rules-tests
-       koala-test-suite
+       http-server-tests

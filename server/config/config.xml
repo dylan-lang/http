@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<koala>
+<http-server>
 
-<!-- Koala configuration file
+<!-- Dylan HTTP server configuration file
 
-     Pass this file to the koala executable with the "config"
+     Pass this file to the http-server executable with the "config"
      command-line option.
 
-     Anything directly inside the <koala> element in this file affects
-     Koala's global environment or the default virtual host.  Anything
+     Anything directly inside the <http-server> element in this file affects
+     the server's global environment or the default virtual host.  Anything
      inside a <virtual-host> element applies only to that virtual
      host.
 
@@ -28,7 +28,7 @@
          is merged against the 'root' attribute first.
 
      debug
-         Enabling this will make Koala not try to handle errors
+         Enabling this will make the server not try to handle errors
          thrown during the execution of a server request.  Only
          turn this on when running inside a development environment,
          or the server will crash.  This should also be near the
@@ -100,7 +100,7 @@
   -->
 <debug-log
    name="http.server"
-   location="logs/koala.log"
+   location="logs/http-server.log"
    level="trace" />
 
 <!-- log errors to the same place as debug messages -->
@@ -138,7 +138,7 @@
 <listener address="0.0.0.0" port="80" ssl="no"/>
 
 <!-- Location of the mime-type file.  By default the contents of the
-     file augment Koala's default mime-type map.  If clear is enabled
+     file augment the server's default mime-type map.  If clear is enabled
      then the defaults will be removed first.-->
 <mime-type-map location="mime-type-map.xml" clear="no" />
 
@@ -153,7 +153,7 @@
      Top-level settings apply to the default virtual host.  Here we define
      a new vhost for '127.0.0.1' with a different document root.  With this
      definition in place you will get different document root when you
-     access Koala with http://127.0.0.1/ than when you access it via any
+     access the server with http://127.0.0.1/ than when you access it via any
      other name (e.g. 'localhost').
   -->
 
@@ -174,4 +174,4 @@
      wiki pages, user database, etc to be stored. -->
 <web-framework content-directory="www/wiki" />
 
-</koala>
+</http-server>

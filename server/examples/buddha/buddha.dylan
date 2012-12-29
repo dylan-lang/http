@@ -1198,7 +1198,7 @@ define function main () => ()
   make(<thread>, function: xmpp-worker);
   register-url("/buddha.css", maybe-serve-static-file);
   block()
-    koala-main();
+    http-server-main();
   exception (e :: <condition>)
     format-out("error: %=\n", e);
   end

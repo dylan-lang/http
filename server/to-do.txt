@@ -1,5 +1,5 @@
-Koala To-Do List
-----------------
+http-server To-Do List
+----------------------
 
 These are pretty random.  See also the bugzilla list.
 
@@ -7,7 +7,7 @@ These are pretty random.  See also the bugzilla list.
 * Add tests for <redirecting-resource> (and config <alias/>)
 * Add tests for new config stuff (#"directory", #"cgi-directory", #"alias")
 * Need a way to specify that "if this resource is chosen there must be
-  no URL path suffix".  e.g., in koala-demo ANY UNRECOGNIZED URL currently
+  no URL path suffix".  e.g., in http-server-demo ANY UNRECOGNIZED URL currently
   takes you to /.  leaf?
 * url-map-definer or site-definer
 * resource-not-found-error blows up if there's no active request.
@@ -15,7 +15,7 @@ These are pretty random.  See also the bugzilla list.
   internal "original-url:" keyword argument, starting with the
   find-resource method on <uri>.
 * virtual hosts
-  . fix resource tree display in koala-main
+  . fix resource tree display in http-server-main
   . restore per-host logging
 * Re-evaluate <abstract-request-router>.  Does it do its job?
 * Rename server.request-router to root-resource?
@@ -47,11 +47,11 @@ These are pretty random.  See also the bugzilla list.
 * move form and query value related code to a different file?
 * rename variables.dylan to utilities.dylan
 * Provide a way to register a resource to handle 404 errors.
-* If the port is in use on startup, it still says "Koala 0.9 ready for service"
-* get rid of koala-main's before-startup parameter.  subclass <http-server>
+* If the port is in use on startup, it still says "HTTP Server 0.9 ready for service"
+* get rid of http-server-main's before-startup parameter.  subclass <http-server>
   and override a method instead.
 
-* Add command-line option --log so that Koala can be started up
+* Add command-line option --log so that the server can be started up
   without doing any logging to stdout.  This should also be the
   place we log messages that are related to the server and not
   any particular vhost.

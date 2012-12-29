@@ -287,8 +287,8 @@ define function main () => ()
                                       foo.symbol-entry-name)),
              name-type(foo.symbol-entry-project,
                        foo.symbol-entry-name));
-  koala-main(server: make(<http-server>, url-map: $code-browser-url-map),
-             description: "Dylan Code Browser");
+  http-server-main(server: make(<http-server>, url-map: $code-browser-url-map),
+                   description: "Dylan Code Browser");
 end;
 
 define function collect-projects () => (res :: <collection>)

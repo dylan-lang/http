@@ -253,7 +253,7 @@ end function request-content-type;
 // But, if you pass on-end-of-stream: #"blah" and then arrange to close the stream somehow
 // you'll get an invalid return type error.
 // Uncomment either (1) or (2) and comment out the "let n ..." and "assert..." below and
-// then start koala example, go to http://localhost:7020/foo/bar/form.html and
+// then start http-server-demo, go to http://localhost:7020/foo/bar/form.html and
 // click the Submit button.  As long as neither of these gets an error in the trunk
 // build we're better off than before at least, if not 100% fixed.
 

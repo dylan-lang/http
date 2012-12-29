@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <mime-type-map>
 
-<!-- MIME type mappings in this file (if any) override the default Koala mappings.
+<!-- MIME type mappings in this file (if any) override the default server mappings.
      Each entry should look like this, with any number of <extension>s per mime type.
 
     <mime-type id="application/andrew-inset">

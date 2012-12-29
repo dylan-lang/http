@@ -57,12 +57,12 @@ Here's the full code listing::
 
     define library web60-static-routing
       use common-dylan;
-      use koala;
+      use http-server;
     end;
 
     define module web60-static-routing
       use common-dylan;
-      use koala;
+      use http-server;
     end;
 
     -----------static-routing.dylan------------

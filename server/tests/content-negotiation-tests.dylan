@@ -1,4 +1,4 @@
-Module: koala-test-suite
+Module: http-server-tests
 Author: Carl Gay
 Copyright: See LICENSE in this distribution for details.
 Synopsis: Tests for the content negotiation code

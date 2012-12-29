@@ -4,7 +4,7 @@ Author:    Gail Zacharias, Carl Gay
 Copyright: See LICENSE in this distribution for details.
 
 
-define constant $server-name = "Koala";
+define constant $server-name = "HTTP Server";
 
 define constant $server-version = "0.9";
 
@@ -86,7 +86,7 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   // The top of the directory tree under which the server's configuration, error,
   // and log files are kept.  Other pathnames are merged against this one, so if
   // they're relative they will be relative to this.  The server-root pathname is
-  // relative to the koala executable, unless changed in the config file.
+  // relative to the server executable, unless changed in the config file.
   slot server-root :: <directory-locator>
     = parent-directory(locator-directory(as(<file-locator>, application-filename()))),
     init-keyword: server-root:;
@@ -109,7 +109,7 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
     init-keyword: session-max-age:;
 
   constant slot server-session-id :: <byte-string>,
-    init-value: "koala_session_id",
+    init-value: "http_server_session_id",
     init-keyword: session-id:;
 
 end class <http-server>;
@@ -174,7 +174,7 @@ define method add-virtual-host
  => ()
   let name = as-lowercase(fqdn);
   if (element(server.virtual-hosts, fqdn, default: #f))
-    koala-api-error("Attempt to add a virtual host named %= to %= but "
+    http-server-api-error("Attempt to add a virtual host named %= to %= but "
                     "a virtual host by that name already exists.",
                     name, server);
   else
@@ -265,7 +265,7 @@ define method make-listener
 end;
 
 // #(host, port)
- define method make-listener
+define method make-listener
     (host-and-port :: <sequence>) => (listener :: <listener>)
   if (host-and-port.size = 2)
     let (host, port) = apply(values, host-and-port);
@@ -274,11 +274,11 @@ end;
     end;
     make(<listener>, host: host, port: port)
   else
-    error(make(<koala-api-error>,
+    error(make(<http-server-api-error>,
                format-string: "Invalid listener spec: %s",
                format-arguments: list(host-and-port)));
   end
- end method make-listener;
+end method make-listener;
 
 // "host:port"
 define method make-listener
@@ -361,7 +361,7 @@ end function current-server;
 
 // This is what client libraries call to start the server, which is
 // assumed to have been already configured via configure-server.
-// (Client applications might want to call koala-main instead.)
+// (Client applications might want to call http-server-main instead.)
 // Returns #f if there is an error during startup; otherwise #t.
 // If background is #t then run the server in a thread and return
 // immediately.  Otherwise wait until all listeners have shut down.
