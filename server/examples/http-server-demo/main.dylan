@@ -15,8 +15,7 @@ end;
 
 define method respond-to-get
     (resource :: <basic-resource-1>, #key)
-  // No need to set the Content-Type header here because the
-  // default is text/html if not otherwise set.
+  set-header(current-response(), "Content-Type", "text/html");
   output("<html><body>This is the output of respond-to-get(&lt;basic-resource-1&gt;)."
          "<p>Use your browser's Back button to return to the example.</p>"
          "</body></html>");
@@ -35,17 +34,26 @@ define method respond
   end;
 end;
 
+
+// For this resource to work as expected, add-resource is called with
+// a URL that accepts a variable number of path elements.  i.e., it
+// has ".../{vars*}" in the URL.  (The name 'vars' can be anything,
+// but must match the keyword argument in the respond-to-get method.)
 define class <basic-resource-3> (<resource>)
 end;
 
 define method respond-to-get
-    (resource :: <basic-resource-3>, #key)
+    (resource :: <basic-resource-3>, #key vars)
   let request :: <request> = current-request();
+  set-header(current-response(), "Content-Type", "text/html");
   output("<html><body>"
-         "<p>URL prefix: %s</p>"
-         "<p>URL suffix: %s</p>",
+           "<p>URL prefix: %s</p>"
+           "<p>URL suffix: %s</p>"
+           "<p>vars: %s</p>"
+           "</body></html>",
          request.request-url-path-prefix,
-         request.request-url-path-suffix);
+         request.request-url-path-suffix,
+         vars);
 end;
 
 // Note the use of do-query-values to find all the values passed in
@@ -309,7 +317,7 @@ define function map-resources
   add-resource(server, "/home", home);
   add-resource(server, "/resource-1", make(<basic-resource-1>));
   add-resource(server, "/resource-2", make(<basic-resource-2>));
-  add-resource(server, "/resource-3", make(<basic-resource-3>));
+  add-resource(server, "/resource-3/{vars*}", make(<basic-resource-3>));
   add-resource(server, "/resource-4", make(<basic-resource-4>));
   add-resource(server, "/hello", make(<demo-page>, source: "hello.dsp"));
   add-resource(server, "/args", make(<demo-page>, source: "args.dsp"));
