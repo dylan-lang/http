@@ -1,12 +1,9 @@
-                    README for Koala HTTP Server
-
-
 GETTING STARTED
 ---------------
 
 Not much here yet.  Best bet for learning how to develop a web
 application is to look at one of the existing examples.  The
-koala-demo library is probably the best one to start with.
+http-server-demo library is probably the best one to start with.
 
 
 
@@ -14,7 +11,7 @@ DEVELOPMENT
 -----------
 
 Here are a few things you should be aware of if you want to contribute
-code for Koala.
+code for this library.
 
 * Please more-or-less follow the coding conventions in the existing
   code.  That means keeping line lengths to around 90 (80 preferred),
@@ -25,10 +22,10 @@ code for Koala.
   big fan of test-driven development.  Writing the tests BEFORE you
   write the code is even better.  There are two test suites:
 
-    + koala-test-suite -- for server
+    + http-server-tests -- for server
     + http-protocol-test-suite -- to validate conformance to HTTP standard
       (This doesn't have much in it and should just be integrated with
-      koala-test-suite anyway.  Separate test suites was a bad idea.)
+      http-server-tests anyway.  Separate test suites was a bad idea.)
 
 * If you make incompatible changes to the API, update references to
   it.  That means, at the very least, searching for uses of that API
@@ -45,7 +42,7 @@ code for Koala.
   Right now (April, 2008) conformance to the standard is very poor, but
   I (cgay) plan to start improving it.
 
-* Annotate definitions exported in the public API module (koala) with
+* Annotate definitions exported in the public API module with
 
     // Exported
 

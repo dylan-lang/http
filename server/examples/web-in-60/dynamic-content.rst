@@ -7,19 +7,19 @@ Serving Dynamic Content
 
 This example will show how to dynamically generate the contents of a web page.
 
-First, the ever-exciting library and module definitions.  In addition to ``common-dylan`` and ``koala`` (the HTTP server) we need ``streams`` for writing data to the response and ``date`` so we can show something dynamic happening::
+First, the ever-exciting library and module definitions.  In addition to ``common-dylan`` and ``http-server`` we need ``streams`` for writing data to the response and ``date`` so we can show something dynamic happening::
 
     define library web60-dynamic-content
       use common-dylan;
       use io, import: { streams };
-      use koala;
+      use http-server;
       use system, import: { date };
     end;
 
     define module web60-dynamic-content
       use common-dylan;
       use date, import: { as-iso8601-string, current-date };
-      use koala;
+      use http-server;
       use streams, import: { write };
     end;
 
@@ -54,14 +54,14 @@ Here's the complete code::
     define library web60-dynamic-content
       use common-dylan;
       use io, import: { streams };
-      use koala;
+      use http-server;
       use system, import: { date };
     end;
 
     define module web60-dynamic-content
       use common-dylan;
       use date, import: { as-iso8601-string, current-date };
-      use koala;
+      use http-server;
       use streams, import: { write };
     end;
 

@@ -1,5 +1,5 @@
 Module:    httpi
-Synopsis:  For processing the configuration init file, koala-config.xml
+Synopsis:  Process the configuration file
 Author:    Carl Gay
 Copyright: See LICENSE in this distribution for details.
 
@@ -7,23 +7,23 @@ Copyright: See LICENSE in this distribution for details.
 /*
  * TODO: warn() should note whether it has been called (perhaps with a
  *       fatal? flag) and then after the entire config has been processed
- *       Koala should exit if there were errors.  It's a good way to debug
+ *       the server should exit if there were errors.  It's a good way to debug
  *       the config file.  Many of the current warnings should be fatal.
  *
  * TODO: Should warn when unrecognized attributes are used.
  *       Makes debugging your config file much easier sometimes.
  */
 
-define constant $koala-config-dir :: <string> = "config";
+define constant $config-dir :: <string> = "config";
 
-define constant $default-config-filename :: <string> = "koala-config.xml";
+define constant $default-config-filename :: <string> = "config.xml";
 
 define thread variable %server = #f;
 
 // Holds the current vhost while config elements are being processed.
 define thread variable %vhost = #f;
 
-define class <configuration-error> (<koala-api-error>)
+define class <configuration-error> (<http-server-api-error>)
 end;
 
 define function config-error
@@ -44,15 +44,15 @@ end;
 // API
 // Process the server config file, config.xml.
 // Assume a user directory structure like:
-// koala/
-// koala/bin               // server executable and dlls
-// koala/www               // default web document root
-// koala/config            // koala-config.xml etc
+// http-server/
+// http-server/bin               // server executable and dlls
+// http-server/www               // default web document root
+// http-server/config            // config.xml etc
 define method configure-server
     (server :: <http-server>, config-file :: false-or(<string>))
   let defaults
     = merge-locators(merge-locators(as(<file-locator>, $default-config-filename),
-                                    as(<directory-locator>, $koala-config-dir)),
+                                    as(<directory-locator>, $config-dir)),
                      server.server-root);
   let config-loc
     = as(<string>, merge-locators(as(<file-locator>, config-file | defaults),
@@ -150,10 +150,10 @@ end;
 
 
 
-//// koala-config.xml elements.  One method for each element name.
+//// config.xml elements.  One method for each element name.
 
 define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"koala")
+    (server :: <http-server>, node :: xml$<element>, name == #"http-server")
   for (child in xml$node-children(node))
     process-config-node(server, child);
   end;
@@ -237,7 +237,7 @@ define method process-config-element
 end;
 
 // There's a separate <server> element (rather than putting these
-// settings in the <koala> element) so that it's possible for logging
+// settings in the <http-server> element) so that it's possible for logging
 // to be initialized before these settings are processed.
 //
 define method process-config-element
@@ -411,7 +411,7 @@ define method process-config-element
   let mime-type-loc
     = as(<string>,
          merge-locators(merge-locators(as(<file-locator>, filename),
-                                       as(<directory-locator>, $koala-config-dir)),
+                                       as(<directory-locator>, $config-dir)),
                         server.server-root));
   log-info("Loading mime-type map from %s", mime-type-loc);
   let mime-text = file-contents(mime-type-loc);

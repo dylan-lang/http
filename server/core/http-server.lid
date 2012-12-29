@@ -1,4 +1,4 @@
-library: koala
+library: http-server
 files:	library
 	utilities
 	rewrite-rules

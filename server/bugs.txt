@@ -34,7 +34,7 @@ This file seems to be mostly about DSP issues.
 * "define page" should expand to some method definition that gets called
   on startup rather than expanding directly to calls to make.  This
   would avoid some of the dependency problems, like having to call
-  start-server early.  (How will this problem be affected when Koala
+  start-server early.  (How will this problem be affected when http-server
   loads DLLs at runtime?)
 
 * Will need something like process-html to use in iteration tags.

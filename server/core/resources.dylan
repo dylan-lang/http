@@ -40,7 +40,7 @@ define open generic find-resource
 
 
 // Generate a URL from a name and path variables.
-// If the given name doesn't exist signal <koala-api-error>.
+// If the given name doesn't exist signal <http-server-api-error>.
 define open generic generate-url
     (router :: <abstract-router>, name :: <string>, #key, #all-keys)
  => (url);
@@ -173,8 +173,8 @@ define method add-resource
   if (member?('/', url))
     add-resource(parent, split(url, '/'), child, url-name: url-name);
   elseif (path-variable?(url))
-    koala-api-error("Attempt to call add-resource with a path "
-                    "variable (%=) as the URL.", url);
+    http-server-api-error("Attempt to call add-resource with a path "
+                            "variable (%=) as the URL.", url);
   else
     let name = url;
     let existing-child = element(parent.resource-children, name, default: #f);
@@ -186,9 +186,9 @@ define method add-resource
           add-resource(child, kid-name, kid);
         end;
       else
-        koala-api-error("A child resource, %=, is already mapped "
-                        "to this URL: %s",
-                        existing-child, existing-child.resource-url-path);
+        http-server-api-error("A child resource, %=, is already mapped "
+                                "to this URL: %s",
+                              existing-child, existing-child.resource-url-path);
       end;
     else
       parent.resource-children[name] := child;
@@ -215,12 +215,12 @@ define method add-resource
   let path = iff(path = #("", ""), #(""), path);
 
   if (empty?(path))
-    koala-api-error("Empty sequence, %=, passed to add-resource.", path);
+    http-server-api-error("Empty sequence, %=, passed to add-resource.", path);
   elseif (path[0] = "" & parent.resource-parent)
-    koala-api-error("Attempt to add resource %= to non-root resource"
-                    " %= using a URL with a leading slash %=.  This"
-                    " will result in an unreachable URL path.",
-                    resource, parent, join(path, "/"));
+    http-server-api-error("Attempt to add resource %= to non-root resource"
+                            " %= using a URL with a leading slash %=.  This"
+                            " will result in an unreachable URL path.",
+                          resource, parent, join(path, "/"));
   else
     let (prefix, vars) = parse-path-variables(path);
     resource.resource-path-variables := vars;
@@ -277,10 +277,10 @@ define function parse-path-variables
   for (item in copy-sequence(vars, end: max(0, vars.size - 1)))
     if (instance?(item, <star-path-variable>)
           | instance?(item, <plus-path-variable>))
-      koala-api-error("Path variables of the form \"{var*}\" or \"{var+}\""
-                      " may only occur as the last element in the URL path."
-                      " URL: %s",
-                      join(path, "/"));
+      http-server-api-error("Path variables of the form \"{var*}\" or \"{var+}\""
+                              " may only occur as the last element in the URL path."
+                              " URL: %s",
+                            join(path, "/"));
     end;
   end;
 
@@ -310,9 +310,10 @@ define function parse-path-variable
       make(class, name: as(<symbol>, spec), required?: required?)
     end
   else
-    koala-api-error("%= is not a path variable.  All URL path elements"
-                    " following the first path variable must also be path "
-                    " variables.", path-element);
+    http-server-api-error("%= is not a path variable.  All URL path elements"
+                            " following the first path variable must also be path "
+                            " variables.",
+                          path-element);
   end
 end function parse-path-variable;
 
@@ -452,7 +453,7 @@ define open generic add-resource-name
 define method add-resource-name
     (name :: <string>, resource :: <resource>) => ()
   if (element($named-resources, name, default: #f))
-    koala-api-error("Duplicate URL name: %s (resource = %s)", name, resource);
+    http-server-api-error("Duplicate URL name: %s (resource = %s)", name, resource);
   else
     $named-resources[name] := resource;
   end;
@@ -466,7 +467,7 @@ define method generate-url
     // TODO: generate a full url not just the path.
     resource.resource-url-path
   else
-    koala-api-error("Named resource not found: %s", name);
+    http-server-api-error("Named resource not found: %s", name);
   end;
 end method generate-url;
 

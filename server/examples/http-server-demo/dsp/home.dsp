@@ -12,13 +12,13 @@
   <h2>Home</h2>
 
   Each page of this demo demonstrates at least one different feature
-  of Koala or Dylan Server Pages.  There's no preset order to the
+  of the HTTP server or Dylan Server Pages.  There's no preset order to the
   pages; just click on one to see what happens and then look at the
   Dylan source code to see how it's implemented.  There are comments
   in the source that should be helpful.
 
   <p>
-  <h3>Low-level Koala API</h3>
+  <h3>Low-level HTTP Server API</h3>
 
   Click these and then use your browser's back button to return to here.
 

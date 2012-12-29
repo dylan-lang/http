@@ -1,24 +1,11 @@
-Module:    koala-demo
-Synopsis:  Examples of how to use the Koala HTTP server and DSP
-Author:    Carl Gay
+Module: http-server-demo
+Synopsis: Examples of how to use the http-server and dsp libraries
+Author: Carl Gay
 
 // TODO: Need an example of using a paginator and some other DSP utilities.
 
-/*
 
-To use this example compile this library and invoke the executable with
-
-    --working-directory <svn>/libraries/network/http/server/examples/koala-demo/dsp
-
-Point your browser at http://127.0.0.1/ to view the demo pages.
-
-Each page demonstrates a feature of Koala or Dylan Server Pages.  You should
-be able to find the code corresponding to a particular URL by searching for
-that URL in this file.  Some XML-RPC methods are defined near the bottom.
-
-*/
-
-//// Low-level Koala API examples
+//// Low-level server API examples
 
 // To respond to a URL, define a subclass of <resource> and define a
 // method on respond or one of the respond-to-{get,post,...} methods:
@@ -28,8 +15,7 @@ end;
 
 define method respond-to-get
     (resource :: <basic-resource-1>, #key)
-  // No need to set the Content-Type header here because the
-  // default is text/html if not otherwise set.
+  set-header(current-response(), "Content-Type", "text/html");
   output("<html><body>This is the output of respond-to-get(&lt;basic-resource-1&gt;)."
          "<p>Use your browser's Back button to return to the example.</p>"
          "</body></html>");
@@ -48,17 +34,26 @@ define method respond
   end;
 end;
 
+
+// For this resource to work as expected, add-resource is called with
+// a URL that accepts a variable number of path elements.  i.e., it
+// has ".../{vars*}" in the URL.  (The name 'vars' can be anything,
+// but must match the keyword argument in the respond-to-get method.)
 define class <basic-resource-3> (<resource>)
 end;
 
 define method respond-to-get
-    (resource :: <basic-resource-3>, #key)
+    (resource :: <basic-resource-3>, #key vars)
   let request :: <request> = current-request();
+  set-header(current-response(), "Content-Type", "text/html");
   output("<html><body>"
-         "<p>URL prefix: %s</p>"
-         "<p>URL suffix: %s</p>",
+           "<p>URL prefix: %s</p>"
+           "<p>URL suffix: %s</p>"
+           "<p>vars: %s</p>"
+           "</body></html>",
          request.request-url-path-prefix,
-         request.request-url-path-suffix);
+         request.request-url-path-suffix,
+         vars);
 end;
 
 // Note the use of do-query-values to find all the values passed in
@@ -322,7 +317,7 @@ define function map-resources
   add-resource(server, "/home", home);
   add-resource(server, "/resource-1", make(<basic-resource-1>));
   add-resource(server, "/resource-2", make(<basic-resource-2>));
-  add-resource(server, "/resource-3", make(<basic-resource-3>));
+  add-resource(server, "/resource-3/{vars*}", make(<basic-resource-3>));
   add-resource(server, "/resource-4", make(<basic-resource-4>));
   add-resource(server, "/hello", make(<demo-page>, source: "hello.dsp"));
   add-resource(server, "/args", make(<demo-page>, source: "args.dsp"));
@@ -336,12 +331,12 @@ end function map-resources;
 define function main
     ()
   // If you don't need to add any new command-line arguments you can just
-  // call koala-main directly.  It allows you to pass --config <filename>
+  // call http-server-main directly.  It allows you to pass --config <filename>
   // and other args on the command line.  Use --help to see options.
   // start-server can also be used directly if you want to do your own
   // command-line parsing.
-  koala-main(server: make(<http-server>),
-             before-startup: map-resources);
+  http-server-main(server: make(<http-server>),
+                   before-startup: map-resources);
 end function main;
 
 main();

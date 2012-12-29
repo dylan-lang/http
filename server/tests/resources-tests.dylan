@@ -1,4 +1,4 @@
-Module: koala-test-suite
+Module: http-server-tests
 Copyright: See LICENSE in this distribution for details.
 
 
@@ -47,7 +47,7 @@ define test test-add-resource-basics ()
   add-and-find("foo/{x}", #("foo"));
 
   check-condition("add-resource with empty (non-string) path errs?",
-                  <koala-api-error>,
+                  <http-server-api-error>,
                   add-resource(make(<resource>), #(), make(<resource>)));
 
   // Finding by string (a bit more fuzzy than by sequence)
@@ -105,10 +105,10 @@ define test test-add-resource-path-variables ()
   let root = make(<resource>);
   let child = make(<resource>);
   check-condition("constant path elements after path variables signal error?",
-                  <koala-api-error>,
+                  <http-server-api-error>,
                   add-resource(root, "a/{b}/c", child));
   check-condition("trailing slash after path variables signals error?",
-                  <koala-api-error>,
+                  <http-server-api-error>,
                   add-resource(root, "b/{x}/{y}/", child));
 end test test-add-resource-path-variables;
 
@@ -155,7 +155,7 @@ end;
 
 define test test-parse-path-variable ()
   check-condition("no path variable",
-                  <koala-api-error>,
+                  <http-server-api-error>,
                   parse-path-variable("x"));
 
   for (item in list(list("{x}", <path-variable>, #"x", #t),
