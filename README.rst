@@ -8,3 +8,14 @@ have everything you need for building.
 
 When using Open Dylan 2011.1 or earlier, add http/registry to the
 OPEN_DYLAN_USER_REGISTRIES environment variable before building.
+
+Documentation
+=============
+
+Building the documentation requires that Python be able to find the
+`Dylan extensions to Sphinx <https://github.com/dylan-lang/sphinx-extensions>`_.
+
+The easiest way to do this is to check them out somewhere and put
+them on your ``PYTHONPATH``:
+
+    export PYTHONPATH=path/to/sphinx-extensions:$PYTHONPATH
