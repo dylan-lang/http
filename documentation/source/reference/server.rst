@@ -1,12 +1,12 @@
-*****************
-The KOALA library
-*****************
+***********************
+The HTTP-SERVER library
+***********************
 
-.. current-library:: koala
-.. current-module:: koala
+.. current-library:: http-server
+.. current-module:: http-server
 
-The KOALA module
-================
+The HTTP-SERVER module
+======================
 
 .. variable:: *command-line-parser*
 
@@ -51,7 +51,7 @@ The KOALA module
 
 .. class:: <configuration-error>
 
-   :superclasses: <koala-api-error>
+   :superclasses: <http-server-api-error>
 
 
 .. class:: <directory-resource>
@@ -92,10 +92,10 @@ The KOALA module
    :keyword use-default-virtual-host?:
    :keyword virtual-hosts:
 
-.. class:: <koala-api-error>
+.. class:: <http-server-api-error>
    :open:
 
-   :superclasses: <koala-error>:httpi
+   :superclasses: <http-server-error>:httpi
 
 
 .. class:: <page-context>
@@ -364,9 +364,9 @@ The KOALA module
    :parameter request: An instance of ``<object>``.
    :value #rest results: An instance of ``<object>``.
 
-.. function:: koala-main
+.. function:: http-server-main
 
-   :signature: koala-main (#key server description before-startup) => ()
+   :signature: http-server-main (#key server description before-startup) => ()
 
    :parameter #key server: An instance of ``false-or(<http-server>)``.
    :parameter #key description: An instance of ``false-or(<string>)``.
