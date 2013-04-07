@@ -25,13 +25,13 @@ First, the ever-exciting library and module definitions.  In addition to ``commo
       use streams, import: { write };
     end;
 
-A web page is a resource mapped to a URL inside the web server.  To create a resource we subclass ``<resource>``:
+A web page is a resource mapped to a URL inside the web server.  To create a resource we subclass :class:`<resource>`:
 
 .. code-block:: dylan
 
     define class <clock-page> (<resource>) end;
 
-To make our resource do something we define a method on ``respond``.  (If we only wanted to implement the GET request method we could define a method on ``respond-to-get`` instead.)
+To make our resource do something we define a method on :func:`respond`.  (If we only wanted to implement the GET request method we could define a method on :func:`respond-to-get` instead.)
 
 .. code-block:: dylan
 
@@ -41,7 +41,7 @@ To make our resource do something we define a method on ``respond``.  (If we onl
       write(stream, concatenate("<html><body>", date, "</body></html>"));
     end;
 
-``current-response()`` returns the active ``<response>`` object.  To send data back to the client we write to the current response.
+:func:`current-response` returns the active :class:`<response>` object.  To send data back to the client we write to the current response.
 
 .. code-block:: dylan
 
@@ -50,7 +50,7 @@ To make our resource do something we define a method on ``respond``.  (If we onl
     add-resource(server, "/", make(<clock-page>));
     start-server(server);
 
-In the `previous example <static-content.html>`_ we already saw how to create and start a server, so the new bit here is using ``add-resource`` to map a URL to a ``<resource>``.  The first argument to ``add-resource`` is the URL router.  (In `Routes <http://routes.groovie.org>`_ terminology it would be a "mapper".)  For convenience, an ``<http-server>`` is a kind of router so we can add resources directly to the server.  In a future example, I will show how to do more complex URL routing, which will explain the reason for the mysterious ``#key`` in the ``respond`` definition above.
+In the `previous example <static-content.html>`_ we already saw how to create and start a server, so the new bit here is using :func:`add-resource` to map a URL to a :class:`<resource>`.  The first argument to :func:`add-resource` is the URL router.  (In `Routes <http://routes.groovie.org>`_ terminology it would be a "mapper".)  For convenience, an :class:`<http-server>` is a kind of router so we can add resources directly to the server.  In a future example, I will show how to do more complex URL routing, which will explain the reason for the mysterious ``#key`` in the ``respond`` definition above.
 
 Here's the complete code:
 
