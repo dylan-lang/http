@@ -36,6 +36,7 @@ In order to define the behavior of our various resources we define methods on th
 
     define method respond
         (resource :: <page>, #key action, title, version)
+      set-header(current-response(), "Content-Type", "text/html");
       output("<html><body>action = %s, title = %s, version = %s</body></html>",
              action, title, version);
     end;
@@ -66,11 +67,13 @@ Here's the full code listing:
 
     define library web60-static-routing
       use common-dylan;
+      use http-common;
       use http-server;
     end;
 
     define module web60-static-routing
       use common-dylan;
+      use http-common;
       use http-server;
     end;
 
@@ -89,12 +92,14 @@ Here's the full code listing:
 
     define method respond
 	(resource :: <page>, #key action, title, version)
+      set-header(current-response(), "Content-Type", "text/html");
       output("<html><body>action = %s, title = %s, version = %s</body></html>",
 	     action, title, version);
     end;
 
     define method respond
 	(resource :: type-union(<user>, <group>), #key action, name)
+      set-header(current-response(), "Content-Type", "text/html");
       output("<html><body>action = %s, name = %s</body></html>",
 	     action, name);
     end;

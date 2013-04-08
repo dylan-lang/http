@@ -14,6 +14,7 @@ First, the ever-exciting library and module definitions.  In addition to ``commo
     define library web60-dynamic-content
       use common-dylan;
       use io, import: { streams };
+      use http-common;
       use http-server;
       use system, import: { date };
     end;
@@ -21,6 +22,7 @@ First, the ever-exciting library and module definitions.  In addition to ``commo
     define module web60-dynamic-content
       use common-dylan;
       use date, import: { as-iso8601-string, current-date };
+      use http-common;
       use http-server;
       use streams, import: { write };
     end;
@@ -37,6 +39,7 @@ To make our resource do something we define a method on :func:`respond`.  (If we
 
     define method respond (page :: <clock-page>, #key)
       let stream = current-response();
+      set-header(stream, "Content-Type", "text/html");
       let date = as-iso8601-string(current-date());
       write(stream, concatenate("<html><body>", date, "</body></html>"));
     end;
@@ -62,6 +65,7 @@ Here's the complete code:
     define library web60-dynamic-content
       use common-dylan;
       use io, import: { streams };
+      use http-common;
       use http-server;
       use system, import: { date };
     end;
@@ -69,6 +73,7 @@ Here's the complete code:
     define module web60-dynamic-content
       use common-dylan;
       use date, import: { as-iso8601-string, current-date };
+      use http-common;
       use http-server;
       use streams, import: { write };
     end;
@@ -81,6 +86,7 @@ Here's the complete code:
 
     define method respond (page :: <clock-page>, #key)
       let stream = current-response();
+      set-header(stream, "Content-Type", "text/html");
       let date = as-iso8601-string(current-date());
       write(stream, concatenate("<html><body>", date, "</body></html>"));
     end;
