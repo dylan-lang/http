@@ -24,6 +24,6 @@ define method respond
          action, name);
 end;
 
-define constant $server = make(<http-server>, listeners: #("0.0.0.0:8000"));
+define constant $server = make(<http-server>, listeners: #("0.0.0.0:8888"));
 add-resource($server, "/", $wiki-app);
 start-server($server);
