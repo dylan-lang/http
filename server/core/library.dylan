@@ -10,6 +10,7 @@ define library http-server
   use command-line-parser;
   use common-dylan,
     import: { dylan, common-extensions, threads, simple-random };
+  use concurrency;
   use http-common;
   use io,
     import: { format, format-out, standard-io, streams, streams-internals };
@@ -200,6 +201,7 @@ define module httpi                             // http internals
   use command-line-parser;
   use common-extensions,
     exclude: { format-to-string };
+  use concurrency;
   use date;                    // from system lib
   use dylan;
   use file-system;             // from system lib

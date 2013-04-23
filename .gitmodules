@@ -25,3 +25,6 @@
 [submodule "submodules/meta"]
 	path = submodules/meta
 	url = git://github.com/dylan-lang/meta.git
+[submodule "submodules/concurrency"]
+	path = submodules/concurrency
+	url = git://github.com/dylan-foundry/concurrency.git
