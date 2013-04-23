@@ -50,6 +50,7 @@ end;
 define constant $default-logger
   = make(<logger>,
          name: "http.server",
+         level: $info-level,
          targets: list($stdout-log-target));
 
 define thread variable *debug-logger* :: <logger> = $default-logger;
