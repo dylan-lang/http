@@ -254,7 +254,88 @@ The DSP module
 
 .. macro:: tag-definer
 
+   Defines a new tag in the given tag library.
+
+   :signature: define [modifiers] tag tag-name [in taglib-name] (method-parameters) (tag-call-parameters) body end
+
+   :parameter modifiers: The only valid modifier is ``body``, which must be
+     used if the tag allows nested body elements. If ``body`` is not specified
+     then the tag call must end in ``/>`` or an error will be signalled when
+     the DSP template is parsed. If ``body`` is specified, ``method-parameters``
+     must have a third parameter (see below).
+   :parameter tag-name: The name of the tag, as it will appear in the .dsp file.
+   :parameter taglib-name: The name of the taglib the tag should be added to.
+   :parameter method-parameters: Each tag definition creates a method that will
+     be called when the tag is invoked. This is the parameter list for that
+     method. The basic form of the parameter list is ``(page[, process-body])``.
+     ``page`` is an instance of :class:`<dylan-server-page>`. ``process-body``
+     is an instance of :func:`<function>`. The ``process-body`` argument should
+     be specified if and only if the ``body`` modifier is supplied.
+   :parameter tag-call-parameters: ``tag-call-parameters`` allows you to
+     receive named keyword arguments from a tag call. For example, if your
+     tag call looks like ``<xx:foo arg1="one" arg2="2">`` then
+     ``tag-call-parameters`` might look like ``(arg1, arg2)`` in which case
+     ``body`` code may refer to ``arg1`` and ``arg2``. If the tag call
+     doesn't specify a given ``tag-call-parameter`` then ``#f`` will be used.
+     If a ``tag-call-parameter`` has a type specifier, then the passed argument
+     will be parsed into the appropriate type before it is passed. See the
+     :func:`parse-tag-arg` generic function. Note that this means specifying a
+     type of which ``#f`` is not a member effectively makes the
+     ``tag-call-parameter required``. For example, ``(arg1, arg2 :: <integer>)``
+     specifies that ``arg1`` is optional (it will be a :class:`<string>` if
+     supplied) and ``arg2`` is required and must be parsable to an :class:`<integer>`.
+   :parameter body: The body of the tag definition. ``method-parameter`` and
+     ``tag-call-parameters`` are bound within the body.
+
+   :description:
+
+     Defines a new tag named ``tag-name`` in the ``taglib-name`` tag library.
+     For simple DSP tags with no body elements, the ``body`` code normally just
+     does output to the output stream of the current response, generating dynamic
+     output in place of the literal tag call in the source file. Tags that have
+     body elements may additionally want to setup state for nested tags to use.
+     This may be done, for example, through the use of dynamically bound thread
+     variables or storing information in the session or page context.
+
+     When the DSP engine invokes the tag to generate dynamic content it passes
+     arguments that match ``method-parameters``. ``tag-call-parameters`` receive
+     arguments specified in the tag call, in the DSP source file, after they
+     have been parsed to the specified types.
+
+   :example:
+
+     A simple tag in the "demo" taglib that displays "Hello, world!" in the
+     page. It is invoked with ``<demo:hello/>``:
+
+     .. code-block:: dylan
+
+       define tag hello in demo
+           (page :: <dylan-server-page>)
+           ()
+         format(output-stream(current-response()), "Hello, world!");
+       end;
+
+     A tag that allows body elements, and processes the body elements three
+     times. It is invoked with ``<demo:three-times>...whatever...</demo:three-times>``:
+
+     .. code-block:: dylan
+
+       define body tag three-times in demo
+           (page :: <dylan-server-page>,
+            do-body :: <function>)
+           ()
+         for (i from 1 to 3)
+           do-body();
+         end;
+       end;
+
 .. macro:: taglib-definer
+
+   Defines a new tag library.
+
+   :signature: define taglib taglib-name () end
+
+   :parameter taglib-name: The name of the tag library.
 
 .. generic-function:: validate-form-field
 
