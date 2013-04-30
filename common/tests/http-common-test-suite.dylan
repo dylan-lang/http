@@ -140,11 +140,17 @@ define test test-match-media-types ()
                match-media-types(text/plain, make-media-type(t, s)));
   end;
 
-  for (item in list(list("text", "html"),
-                    list("image", "plain"),
+  for (item in list(list("text", "html", 100),
+                    list($mime-wild, "html", 1),
+                    list($mime-wild, "plain", 101)))
+    let (t, s, d) = apply(values, item);
+    check-equal(format-to-string("media-types-match?(text/plain, %s/%s) has degree %s", t, s, d),
+                match-media-types(text/plain, make-media-type(t, s)), d);
+  end;
+
+  for (item in list(list("image", "plain"),
                     list("image", "png"),
-                    list("image", $mime-wild),
-                    list($mime-wild, "html")))
+                    list("image", $mime-wild)))
     let (t, s) = apply(values, item);
     check-false(format-to-string("media-types-match?(text/plain, %s/%s) is false?", t, s),
                 match-media-types(text/plain, make-media-type(t, s)));
