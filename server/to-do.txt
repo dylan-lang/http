@@ -40,7 +40,7 @@ These are pretty random.  See also the bugzilla list.
   based on virtual host will no longer work.  this should be cleaner anyway.
 * Implement prom's idea of passing path variables either in the URL path
   (i.e., positional) OR in the query values (keyword args).
-* does default-content-type actuall get used for anything other than
+* does default-content-type actually get used for anything other than
   <directory-locator>?
 * move static-files.dylan out of server core (or just to its own module)
 * put dsp parser into its own file
@@ -66,7 +66,7 @@ These are pretty random.  See also the bugzilla list.
 
 * Thread pool.  Can be expensive to allocate/deallocate threads.
 
-* The request-method is case sensivite yet we intern it as a symbol.
+* The request-method is case sensitive yet we intern it as a symbol.
   Probably want to define a class for it just to intern them and to
   continue to be able to dispatch on them.
 
