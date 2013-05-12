@@ -12,7 +12,7 @@ server:
 	dylan-compiler -build http-server
 
 client-test:
-	dylan-compiler -build http-protocol-test-suite
+	dylan-compiler -build http-protocol-test-suite-app
 
 common-test:
 	dylan-compiler -build http-common-test-suite

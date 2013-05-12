@@ -405,6 +405,52 @@ define method convert-headers
   new-headers
 end method convert-headers;
 
+// The HTML spec section 17.13.4 says to escape the reserved characters, then
+// convert spaces to +
+define constant $http-form :: <byte-string> = concatenate($uri-pchar, " /?");
+
+define method form-encode
+    (unencoded :: <byte-string>)
+ => (encoded :: <string>)
+  let encoded-with-spaces = percent-encode($http-form, unencoded);
+  let encoded = "";
+  for (char in encoded-with-spaces)
+    encoded := concatenate(encoded, iff(char = ' ', "+", list(char)));
+  end for;
+  encoded;
+end method form-encode;
+
+define method build-urlencoded-form
+    (form :: <string-table>)
+ => (encoded-form :: <string>)
+  let parts = make(<stretchy-vector>);
+  for (value keyed-by key in form)
+    let encoded-value = form-encode(value);
+    let encoded-key = form-encode(key);
+    add!(parts, concatenate(encoded-key, "=", encoded-value));
+  end for;
+  join(parts, "&");
+end method build-urlencoded-form;
+
+// Content can be of different types, these methods convert them all
+// to <byte-string>.
+// convert-content needs the request headers to change its content-type.
+
+define method convert-content
+    (content :: <string-table>, #key headers)
+  headers["Content-Type"] := "application/x-www-form-urlencoded";
+  build-urlencoded-form(content);
+end method convert-content;
+
+define method convert-content
+    (content == #f, #key headers)
+  ""
+end method convert-content;
+
+define method convert-content
+    (content :: <byte-string>, #key headers)
+  content
+end method convert-content;
 
 //////////////////////////////////////////
 // Response
@@ -417,6 +463,10 @@ define open primary class <http-response>
   slot response-content :: false-or(<byte-string>),
     init-value: #f,
     init-keyword: content:;
+
+  slot response-headers :: false-or(<header-table>),
+    init-value: #f,
+    init-keyword: headers:;
 end class <http-response>;
 
 define method make
@@ -550,77 +600,6 @@ define macro with-http-connection
          end }
 end macro with-http-connection;
 
-// Do a complete HTTP GET request and response.
-// Arguments:
-//   url - The URL to get.
-//   headers - Any additional headers to send with the request.  The same headers
-//     are sent in subsequent requests if redirects are followed.
-//   stream - A stream on which to output the response message body.  This is useful
-//     when an extremely large response is expected.  If not provided, then the
-//     response message body is stored in the returned response object.
-//   follow-redirects - If #f, then don't follow redirects.  This is allowed in order
-//     to simplify the caller.  If #t, then follow an indefinite number of redirects.
-//     If 0, then raise <maximum-redirects-exceeded>.  If > 0, follow that many
-//     redirects.
-// Values:
-//   An <http-response> object.
-define open generic http-get
-    (url :: <object>, #key headers, follow-redirects, stream)
- => (response :: <http-response>);
-
-define method http-get
-    (url :: <byte-string>, #key headers, follow-redirects, stream)
- => (response :: <http-response>)
-  http-get(parse-uri(url),
-           headers: headers,
-           follow-redirects: follow-redirects,
-           stream: stream)
-end method http-get;
-
-define method http-get
-    (url :: <uri>,
-     #key headers,
-          follow-redirects :: type-union(<boolean>, <nonnegative-integer>),
-          stream :: false-or(<stream>))
- => (response :: <http-response>)
-  with-http-connection(conn = url)
-    let headers = convert-headers(headers);
-    let original-headers = convert-headers(headers);  // copy
-
-    iterate loop (follow = follow-redirects, url = url, seen = #())
-      send-request(conn, #"get", url, headers: original-headers);
-      let read-content? = ~stream;
-      let response :: <http-response> = read-response(conn, read-content: #f);
-      let code = response.response-code;
-      if (follow & code >= 300 & code <= 399)
-        // Discard the body of the redirect message.
-        read-and-discard-to-end(response);
-        let location = get-header(response, "Location");
-        if (follow = 0)
-          signal(make(<maximum-redirects-exceeded>,
-                      format-string: "Maximum number of redirects exceeded."));
-        elseif (member?(location, seen, test: string-equal?))
-          // RFC 2616, 10.3
-          signal(make(<redirect-loop-detected>,
-                      format-string: "Redirect loop detected: %s",
-                      format-arguments: list(location)));
-        else
-          loop(iff(follow = #t, #t, follow - 1),
-               location,
-               pair(location, seen))
-        end
-      else
-        if (stream)
-          copy-message-body-to-stream(response, stream);
-        else
-          response.response-content := read-to-end(response);
-        end;
-        response
-      end
-    end iterate
-  end with-http-connection
-end method http-get;
-
 // does something like this exist already?
 define method copy-message-body-to-stream
     (response :: <http-response>, to-stream :: <stream>)
@@ -655,3 +634,192 @@ define method read-and-discard-to-end
   end;
 end method read-and-discard-to-end;
 
+// Do a complete HTTP request and response.
+// Arguments:
+//   url - The URL for the request.
+//   request-method - The HTTP method for the request.
+//   headers - Any additional headers to send with the request.  The same headers
+//     are sent in subsequent requests if redirects are followed.
+//   data - Content to send in the body of the request.
+//   follow-redirects - If #f, then don't follow redirects.  This is allowed in order
+//     to simplify the caller.  If #t, then follow an indefinite number of redirects.
+//     If 0, then raise <maximum-redirects-exceeded>.  If > 0, follow that many
+//     redirects.
+//   nobody - If #t, then don't read the response body.
+//   stream - A stream on which to output the response message body.  This is useful
+//     when an extremely large response is expected.  If not provided, then the
+//     response message body is stored in the returned response object.
+// Values:
+//   An <http-response> object.
+define sealed generic http-request
+    (url :: <object>,
+     request-method :: <request-method>,
+     #key headers,
+          params,
+          data,
+          follow-redirects,
+          nobody,
+          stream)
+ => (response :: <http-response>);
+
+define method http-request
+    (url :: <byte-string>,
+     request-method :: <request-method>,
+     #key headers,
+          params,
+          data,
+          follow-redirects,
+          nobody,
+          stream)
+ => (response :: <http-response>)
+  http-request(parse-uri(url),
+               request-method,
+               headers: headers,
+               params: params,
+               data: data,
+               follow-redirects: follow-redirects,
+               nobody: nobody,
+               stream: stream)
+end method http-request;
+
+define method http-request
+    (url :: <uri>,
+     request-method :: <request-method>,
+     #key headers,
+          params :: false-or(<string-table>),
+          data,
+          follow-redirects :: type-union(<boolean>, <nonnegative-integer>) = #t,
+          nobody :: <boolean>,
+          stream :: false-or(<stream>))
+ => (response :: <http-response>)
+  with-http-connection(conn = url)
+    let headers = convert-headers(headers);
+    let original-headers = convert-headers(headers);  // copy
+    let content = convert-content(data, headers: original-headers);
+
+    if (params)
+      url := transform-uris(url, make(<url>, query: params));
+    end;
+
+    iterate loop (follow = follow-redirects, url = url, seen = #())
+      send-request(conn, request-method, url, headers: original-headers, content: content);
+
+      let read-content? = ~stream;
+      let response :: <http-response> = read-response(conn, read-content: #f);
+      let code = response.response-code;
+      if (follow & code >= 300 & code <= 399)
+        // Discard the body of the redirect message.
+        read-and-discard-to-end(response);
+        let location = get-header(response, "Location");
+        if (follow = 0)
+          signal(make(<maximum-redirects-exceeded>,
+                      format-string: "Maximum number of redirects exceeded."));
+        elseif (member?(location, seen, test: string-equal?))
+          // RFC 2616, 10.3
+          signal(make(<redirect-loop-detected>,
+                      format-string: "Redirect loop detected: %s",
+                      format-arguments: list(location)));
+        else
+          loop(iff(follow = #t, #t, follow - 1),
+               location,
+               pair(location, seen))
+        end
+      else
+        if (stream)
+          copy-message-body-to-stream(response, stream);
+        elseif (~nobody)
+          response.response-content := read-to-end(response);
+        end;
+        response
+      end
+    end iterate
+  end with-http-connection
+end method http-request;
+
+define function http-get
+    (url,
+     #key headers,
+          params,
+          follow-redirects = #t,
+          stream)
+ => (response :: <http-response>)
+  http-request(url, #"get",
+               headers: headers,
+               params: params,
+               follow-redirects: follow-redirects,
+               stream: stream);
+end function http-get;
+
+define function http-post
+    (url,
+     #key headers,
+          params,
+          data,
+          follow-redirects,
+          stream)
+ => (response :: <http-response>)
+  http-request(url, #"post",
+               headers: headers,
+               params: params,
+               data: data,
+               follow-redirects: follow-redirects,
+               stream: stream);
+end function http-post;
+
+define function http-put
+    (url,
+     #key headers,
+          params,
+          data,
+          follow-redirects,
+          stream)
+ => (response :: <http-response>)
+  http-request(url, #"put",
+               headers: headers,
+               params: params,
+               data: data,
+               follow-redirects: follow-redirects,
+               stream: stream);
+end function http-put;
+
+define function http-options
+    (url,
+     #key headers,
+          params,
+          follow-redirects,
+          stream)
+ => (response :: <http-response>)
+  http-request(url, #"options",
+               headers: headers,
+               params: params,
+               follow-redirects: follow-redirects,
+               stream: stream);
+end function http-options;
+
+define function http-head
+    (url,
+     #key headers,
+          params,
+          follow-redirects)
+ => (response :: <http-response>)
+  http-request(url, #"head",
+               headers: headers,
+               params: params,
+               follow-redirects: follow-redirects,
+               nobody: #t);
+end function http-head;
+
+define function http-delete
+    (url,
+     #key headers,
+          params,
+          data,
+          follow-redirects,
+          stream)
+ => (response :: <http-response>)
+  http-request(url, #"delete",
+               headers: headers,
+               params: params,
+               follow-redirects: follow-redirects,
+               stream: stream);
+end function http-delete;

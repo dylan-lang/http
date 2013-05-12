@@ -8,6 +8,8 @@ define library http-protocol-test-suite
   use http-common;
   use testworks;
   use uri;
+  use strings;
+  use io, import: { format-out };
 
   export http-protocol-test-suite;
 end library http-protocol-test-suite;
@@ -19,6 +21,8 @@ define module http-protocol-test-suite
   use http-common;
   use testworks;
   use uri;
+  use strings;
+  use format-out;
 
   export http-protocol-test-suite;
 end module http-protocol-test-suite;

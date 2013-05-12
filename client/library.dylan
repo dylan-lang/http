@@ -46,7 +46,13 @@ define module http-client
     read-response,
     <http-response>,
     response-content,
+    response-headers,
     http-get,
+    http-post,
+    http-put,
+    http-options,
+    http-head,
+    http-delete,
     <maximum-redirects-exceeded>,
     <redirect-loop-detected>;
 

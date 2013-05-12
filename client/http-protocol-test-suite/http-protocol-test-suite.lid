@@ -1,3 +1,3 @@
 library: http-protocol-test-suite
-files: library.dylan
+files: http-protocol-test-suite-library.dylan
        http-protocol-test-suite.dylan
