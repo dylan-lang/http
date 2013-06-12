@@ -412,12 +412,11 @@ define constant $http-form :: <byte-string> = concatenate($uri-pchar, " /?");
 define method form-encode
     (unencoded :: <byte-string>)
  => (encoded :: <string>)
-  let encoded-with-spaces = percent-encode($http-form, unencoded);
-  let encoded = "";
-  for (char in encoded-with-spaces)
-    encoded := concatenate(encoded, iff(char = ' ', "+", list(char)));
-  end for;
-  encoded;
+  let encoded = percent-encode($http-form, unencoded);
+  for (char in encoded, i from 0)
+    if (char = ' ') encoded[i] := '+' end;
+  end;
+  encoded
 end method form-encode;
 
 define method build-urlencoded-form
@@ -429,7 +428,7 @@ define method build-urlencoded-form
     let encoded-key = form-encode(key);
     add!(parts, concatenate(encoded-key, "=", encoded-value));
   end for;
-  join(parts, "&");
+  join(parts, "&")
 end method build-urlencoded-form;
 
 // Content can be of different types, these methods convert them all
@@ -437,7 +436,7 @@ end method build-urlencoded-form;
 // convert-content needs the request headers to change its content-type.
 
 define method convert-content
-    (content :: <string-table>, #key headers)
+    (content :: <string-table>, #key headers :: <header-table>)
   headers["Content-Type"] := "application/x-www-form-urlencoded";
   build-urlencoded-form(content);
 end method convert-content;
@@ -463,10 +462,6 @@ define open primary class <http-response>
   slot response-content :: false-or(<byte-string>),
     init-value: #f,
     init-keyword: content:;
-
-  slot response-headers :: false-or(<header-table>),
-    init-value: #f,
-    init-keyword: headers:;
 end class <http-response>;
 
 define method make
@@ -645,7 +640,10 @@ end method read-and-discard-to-end;
 //     to simplify the caller.  If #t, then follow an indefinite number of redirects.
 //     If 0, then raise <maximum-redirects-exceeded>.  If > 0, follow that many
 //     redirects.
-//   nobody - If #t, then don't read the response body.
+//   read-response-body? - If #t, read the response body and store it in the
+//     response-content slot. Otherwise, the caller is responsible for reading
+//     the response body. If the response is expected to be large (e.g. a file
+//     download) you probably want to use #f.
 //   stream - A stream on which to output the response message body.  This is useful
 //     when an extremely large response is expected.  If not provided, then the
 //     response message body is stored in the returned response object.
@@ -658,7 +656,7 @@ define sealed generic http-request
           params,
           data,
           follow-redirects,
-          nobody,
+          read-response-body?,
           stream)
  => (response :: <http-response>);
 
@@ -669,7 +667,7 @@ define method http-request
           params,
           data,
           follow-redirects,
-          nobody,
+          read-response-body?,
           stream)
  => (response :: <http-response>)
   http-request(parse-uri(url),
@@ -678,7 +676,7 @@ define method http-request
                params: params,
                data: data,
                follow-redirects: follow-redirects,
-               nobody: nobody,
+               read-response-body?: read-response-body?,
                stream: stream)
 end method http-request;
 
@@ -689,7 +687,7 @@ define method http-request
           params :: false-or(<string-table>),
           data,
           follow-redirects :: type-union(<boolean>, <nonnegative-integer>) = #t,
-          nobody :: <boolean>,
+          read-response-body? :: <boolean> = #t,
           stream :: false-or(<stream>))
  => (response :: <http-response>)
   with-http-connection(conn = url)
@@ -727,7 +725,7 @@ define method http-request
       else
         if (stream)
           copy-message-body-to-stream(response, stream);
-        elseif (~nobody)
+        elseif (read-response-body?)
           response.response-content := read-to-end(response);
         end;
         response
@@ -806,7 +804,7 @@ define function http-head
                headers: headers,
                params: params,
                follow-redirects: follow-redirects,
-               nobody: #t);
+               read-response-body?: #f);
 end function http-head;
 
 define function http-delete

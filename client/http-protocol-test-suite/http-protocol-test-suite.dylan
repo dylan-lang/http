@@ -25,7 +25,7 @@ define test test-options-method ()
   let response = http-options(full-url("/"));
   check-equal("200 OK", response.response-code, 200);
   check-equal("Allowed methods",
-              response.response-headers["Allow"],
+              get-header(response, "Allow"),
               "HEAD, OPTIONS, GET");
 end test test-options-method;
 
@@ -161,6 +161,6 @@ define variable *test-port* :: <integer> = 80;
 
 define function full-url
     (#rest segments) => (full-url :: <url>)
-  parse-url(format-to-string
-    ("http://%s:%d%s", *test-host*, *test-port*, join(segments, "/")));
+  parse-url(format-to-string("http://%s:%d%s", *test-host*, *test-port*,
+                             join(segments, "/")));
 end function full-url;

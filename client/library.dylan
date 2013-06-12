@@ -46,7 +46,6 @@ define module http-client
     read-response,
     <http-response>,
     response-content,
-    response-headers,
     http-get,
     http-post,
     http-put,
