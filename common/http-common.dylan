@@ -403,7 +403,7 @@ define method make
     (request :: subclass(<base-http-request>), #rest args, #key url)
  => (request :: subclass(<base-http-request>))
   if (instance?(url, <string>))
-    apply(next-method, request, raw-url: url, url: parse-uri(url), args)
+    apply(next-method, request, raw-url: url, url: parse-url(url), args)
   else
     // url is a <url> or #f
     next-method()
