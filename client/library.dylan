@@ -80,6 +80,8 @@ define module http-client-internals
 
   // Internals
   export
+    convert-content,
+    convert-headers,
     connection-socket;
 
 end module http-client-internals;

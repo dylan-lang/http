@@ -18,6 +18,7 @@ define module http-client-test-suite
   use common-dylan;
   use date;
   use http-client;
+  use http-client-internals;
   use http-common;
   use testworks;
   use uri;
