@@ -81,13 +81,6 @@ define thread variable *http-client-log* :: <logger>
          level: $info-level);
 
 
-// By the spec request methods are case-sensitive, but for convenience
-// we let them be specified as symbols as well.  If a symbol is used it
-// is uppercased before sending to the server.  Similarly for HTTP version.
-//
-define constant <request-method> = type-union(<symbol>, <byte-string>);
-define constant <http-version> = type-union(<symbol>, <byte-string>);
-
 // This error is signaled if the number of redirects exceeds n for n in
 // http-get(conn, follow-redirects: n).
 define open class <maximum-redirects-exceeded> (<http-error>)

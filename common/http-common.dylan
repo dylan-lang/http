@@ -9,6 +9,14 @@ define constant $default-http-port :: <integer> = 80;
 
 define constant $default-https-port :: <integer> = 443;
 
+
+// By the spec request methods are case-sensitive, but for convenience
+// we let them be specified as symbols as well.  If a symbol is used it
+// is uppercased before sending to the server.  Similarly for HTTP version.
+//
+define constant <request-method> = type-union(<symbol>, <byte-string>);
+define constant <http-version> = type-union(<symbol>, <byte-string>);
+
 // Clients can bind this if they want to combine this library's logs with
 // there own.  Adding a log target to the default value here doesn't work
 // for the HTTP server, which wants to log to different targets for different
@@ -386,12 +394,10 @@ define open class <base-http-request> (<message-headers-mixin>)
   slot request-raw-url-string :: false-or(<byte-string>) = #f,
     init-keyword: raw-url:;
 
-  // todo -- RFC 2616, 5.1.1 -- The request method is case-sensitive.
-  //         So it shouldn't be a <symbol>.
-  slot request-method :: <symbol> = #"not-set",
+  slot request-method :: <request-method> = #"not-set",
     init-keyword: method:;
 
-  slot request-version :: <symbol> = #"not-set",
+  slot request-version :: <http-version> = #"not-set",
     init-keyword: version:;
 
   slot request-content :: <byte-string> = "",
