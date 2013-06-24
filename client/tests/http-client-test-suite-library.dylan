@@ -3,6 +3,8 @@ Copyright: See LICENSE in this distribution for details.
 
 define library http-client-test-suite
   use common-dylan;
+  use collections,
+    import: { table-extensions };
   use system;
   use http-client;
   use http-common;
@@ -16,6 +18,7 @@ end library http-client-test-suite;
 
 define module http-client-test-suite
   use common-dylan;
+  use table-extensions;
   use date;
   use http-client;
   use http-client-internals;

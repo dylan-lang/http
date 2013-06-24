@@ -162,6 +162,81 @@ end;
 // Writing requests
 //////////////////////////////////////////
 
+// An high-level request object.
+//
+// This class contains abstractions like parameters, data, cookies and
+// response streams.
+// To use this class set the slots as you need, then convert it to a
+// <base-http-request> and send it.
+// TODO: Merge with server's <request> -fracek
+define open class <http-request> (<base-http-request>)
+  // Duplicate of headers contained in <message-headers-mixin>
+  slot request-headers :: <header-table>,
+    init-keyword: headers:;
+
+  slot request-params :: <string-table>,
+    init-function: curry(make, <string-table>),
+    init-keyword: params:;
+  // TODO cookies, auth -fracek
+end class <http-request>;
+
+define method prepare-request-method
+    (base-request :: <base-http-request>, request :: <http-request>)
+  base-request.request-method := request.request-method;
+end method prepare-request-method;
+
+define method prepare-request-url
+    (base-request :: <base-http-request>, request :: <http-request>)
+  let params = request.request-params;
+  let url-with-params = transform-uris(request.request-url,
+                                       make(<url>, query: params));
+  base-request.request-url := parse-url(build-uri(url-with-params));
+  //base-request.request-url := url-with-params;
+end method prepare-request-url;
+
+define method prepare-request-headers
+    (base-request :: <base-http-request>, request :: <http-request>)
+  // This is pretty much useless I think, we need a <header-table> when
+  // sending the request.
+  for (header-value keyed-by header-name in request.request-headers)
+    set-header(base-request, header-name, header-value);
+  end;
+end method prepare-request-headers;
+
+// TODO: read content from file and add it to the content? -fracek
+define method prepare-request-content
+    (base-request :: <base-http-request>, request :: <http-request>)
+  base-request.request-content := request.request-content
+end method prepare-request-content;
+
+define method prepare-request
+    (request :: <http-request>)
+ => (base-request :: <base-http-request>)
+  let base-http-request = make(<base-http-request>);
+  prepare-request-method(base-http-request, request);
+  prepare-request-url(base-http-request, request);
+  prepare-request-headers(base-http-request, request);
+  // TODO: prepare-request-cookies
+  prepare-request-content(base-http-request, request);
+  // TODO: prepare-request-auth
+  base-http-request
+end method prepare-request;
+
+define method perform-request
+    (request :: <base-http-request>)
+ => (response :: <http-response>)
+  // Deconstruct the request, then send it like we do (currently) in
+  // http-request
+  make(<http-response>)
+end method perform-request;
+
+define method perform-request
+    (request :: <http-request>)
+ => (response :: <http-response>)
+  let base-http-request = prepare-request(request);
+  perform-request(base-http-request)
+end method perform-request;
+
 // Start a request by sending the request line and headers.  The caller
 // may then write the message body data to the connection and call finish-request.
 // If you have a small amount of data to send you may want to use send-request

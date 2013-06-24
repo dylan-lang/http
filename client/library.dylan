@@ -17,8 +17,9 @@ define library http-client
   use uncommon-dylan;
   use uri;
 
-  export http-client;
-  export http-client-internals;
+  export
+    http-client,
+    http-client-internals;
 end library http-client;
 
 // See also the exports from http-common
@@ -40,6 +41,11 @@ define module http-client
 
   // Request/response
   create
+    <http-request>,
+    request-params,
+    request-params-setter,
+    request-headers,
+    request-headers-setter,
     send-request,
     start-request,
     finish-request,
@@ -80,9 +86,17 @@ define module http-client-internals
 
   // Internals
   export
-    convert-content,
     convert-headers,
-    connection-socket;
+    connection-socket,
+    convert-content;
+
+  // Request
+  export
+    prepare-request,
+    prepare-request-method,
+    prepare-request-url,
+    prepare-request-headers,
+    prepare-request-content;
 
 end module http-client-internals;
 
