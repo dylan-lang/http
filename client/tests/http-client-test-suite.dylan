@@ -16,8 +16,7 @@ define test test-make ()
   let request = make(<base-http-request>, url: "http://httpbin.org/");
   check-instance?("Parse the url", <uri>, request.request-url);
 
-  let h = make(<string-table>);
-  h["X-Test-Header"] := "test-value";
+  let h = table(<string-table>, "X-Test-Header" => "test-value");
   request := make(<base-http-request>, headers: convert-headers(h));
   check-equal("Acts like a <message-headers-mixin>",
               get-header(request, "X-Test-Header"),
@@ -31,9 +30,7 @@ define test test-convert-headers-method ()
   headers := convert-headers(#(#("k1", "v1"), #("k2", "v2")));
   check-instance?("<header-table> from a <sequence>", <header-table>, headers);
 
-  let h = make(<string-table>);
-  h["k1"] := "v1";
-  h["k2"] := "v2";
+  let h = table(<string-table>, "k1" => "v1", "k2" => "v2");
   headers := convert-headers(h);
   check-instance?("<header-table> from a <table>", <header-table>, headers);
 end test test-convert-headers-method;
