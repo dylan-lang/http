@@ -92,6 +92,12 @@ define module http-client-internals
 
   // Request
   export
+    <raw-http-request>,
+    raw-request-url,
+    raw-request-method,
+    raw-request-version,
+    raw-request-version-setter,
+    raw-request-content,
     prepare-request,
     prepare-request-method,
     prepare-request-url,

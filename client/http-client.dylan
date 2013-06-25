@@ -162,6 +162,56 @@ end;
 // Writing requests
 //////////////////////////////////////////
 
+// A low-level request object.
+//
+// This class is a lot like <base-http-request> but it's not a subclass of
+// <message-headers-mixin> so we don't have to have 3 slots to contain
+// headers.
+// The problem with <message-headers-mixin> is that's not easy to iterate
+// over all the headers, for example when sending the request.
+define open class <raw-http-request> (<object>)
+
+  slot raw-request-url :: false-or(<url>) = #f,
+    init-keyword: url:;
+
+  slot raw-request-method :: <request-method> = #"not-set",
+    init-keyword: method:;
+
+  slot raw-request-version :: <http-version> = #"not-set",
+    init-keyword: version:;
+
+  slot request-headers :: <header-table>,
+    init-keyword: headers:,
+    init-function: curry(make, <header-table>);
+
+  slot raw-request-content :: <byte-string> = "",
+    init-keyword: content:;
+
+end class <raw-http-request>;
+
+define method make
+    (request :: subclass(<raw-http-request>), #rest args, #key url)
+ => (request :: subclass(<raw-http-request>))
+  if (instance?(url, <string>))
+    apply(next-method, request, url: parse-url(url), args)
+  else
+    // url is a <url> or #f
+    next-method()
+  end
+end method make;
+
+define method set-header
+    (request :: <raw-http-request>, header :: <byte-string>, value :: <object>,
+     #key if-exists? = #"replace")
+  set-header(request.request-headers, header, value, if-exists?: if-exists?)
+end method set-header;
+
+define method get-header
+    (request :: <raw-http-request>, name :: <byte-string>, #key parsed)
+ => (header-value :: <object>)
+  request.request-headers[name]
+end method get-header;
+
 // An high-level request object.
 //
 // This class contains abstractions like parameters, data, cookies and
@@ -169,33 +219,32 @@ end;
 // To use this class set the slots as you need, then convert it to a
 // <base-http-request> and send it.
 // TODO: Merge with server's <request> -fracek
-define open class <http-request> (<base-http-request>)
-  // Duplicate of headers contained in <message-headers-mixin>
-  slot request-headers :: <header-table>,
-    init-keyword: headers:;
+define open class <http-request> (<raw-http-request>)
 
   slot request-params :: <string-table>,
     init-function: curry(make, <string-table>),
     init-keyword: params:;
+
   // TODO cookies, auth -fracek
+
 end class <http-request>;
 
 define method prepare-request-method
-    (base-request :: <base-http-request>, request :: <http-request>)
-  base-request.request-method := request.request-method;
+    (base-request :: <raw-http-request>, request :: <http-request>)
+  base-request.raw-request-method := request.raw-request-method;
 end method prepare-request-method;
 
 define method prepare-request-url
-    (base-request :: <base-http-request>, request :: <http-request>)
+    (base-request :: <raw-http-request>, request :: <http-request>)
   let params = request.request-params;
-  let url-with-params = transform-uris(request.request-url,
+  let url-with-params = transform-uris(request.raw-request-url,
                                        make(<url>, query: params));
-  base-request.request-url := parse-url(build-uri(url-with-params));
+  base-request.raw-request-url := parse-url(build-uri(url-with-params));
   //base-request.request-url := url-with-params;
 end method prepare-request-url;
 
 define method prepare-request-headers
-    (base-request :: <base-http-request>, request :: <http-request>)
+    (base-request :: <raw-http-request>, request :: <http-request>)
   // This is pretty much useless I think, we need a <header-table> when
   // sending the request.
   for (header-value keyed-by header-name in request.request-headers)
@@ -205,14 +254,14 @@ end method prepare-request-headers;
 
 // TODO: read content from file and add it to the content? -fracek
 define method prepare-request-content
-    (base-request :: <base-http-request>, request :: <http-request>)
-  base-request.request-content := request.request-content
+    (base-request :: <raw-http-request>, request :: <http-request>)
+  base-request.raw-request-content := request.raw-request-content
 end method prepare-request-content;
 
 define method prepare-request
     (request :: <http-request>)
- => (base-request :: <base-http-request>)
-  let base-http-request = make(<base-http-request>);
+ => (base-request :: <raw-http-request>)
+  let base-http-request = make(<raw-http-request>);
   prepare-request-method(base-http-request, request);
   prepare-request-url(base-http-request, request);
   prepare-request-headers(base-http-request, request);
@@ -222,20 +271,20 @@ define method prepare-request
   base-http-request
 end method prepare-request;
 
-define method perform-request
-    (request :: <base-http-request>)
- => (response :: <http-response>)
-  // Deconstruct the request, then send it like we do (currently) in
-  // http-request
-  make(<http-response>)
-end method perform-request;
-
-define method perform-request
-    (request :: <http-request>)
- => (response :: <http-response>)
-  let base-http-request = prepare-request(request);
-  perform-request(base-http-request)
-end method perform-request;
+define method explode-request
+    (request :: <raw-http-request>)
+ => (url :: <url>,
+     request-method :: <request-method>,
+     version :: <http-version>,
+     headers :: <header-table>,
+     content :: <byte-string>)
+  let url = request.raw-request-url;
+  let request-method = request.raw-request-method;
+  let version = request.raw-request-version;
+  let headers = request.request-headers;
+  let content = request.raw-request-content;
+  values(url, request-method, version, headers, content)
+end method explode-request;
 
 // Start a request by sending the request line and headers.  The caller
 // may then write the message body data to the connection and call finish-request.
@@ -473,6 +522,16 @@ define method convert-headers
   new-headers
 end method convert-headers;
 
+define method convert-params
+    (params == #f)
+  make(<string-table>)
+end method convert-params;
+
+define method convert-params
+    (params :: <string-table>)
+  params
+end method convert-params;
+
 // The HTML spec section 17.13.4 says to escape the reserved characters, then
 // convert spaces to +
 define constant $http-form :: <byte-string> = concatenate($uri-pchar, " /?");
@@ -697,6 +756,63 @@ define method read-and-discard-to-end
   end;
 end method read-and-discard-to-end;
 
+define method perform-request
+    (request :: <raw-http-request>,
+     #key follow-redirects :: type-union(<boolean>, <nonnegative-integer>) = #t,
+          read-response-body? :: <boolean> = #t,
+          stream :: false-or(<stream>))
+ => (response :: <http-response>)
+  let (url, request-method, version, headers, content) = explode-request(request);
+
+  with-http-connection(conn = url)
+    iterate loop (follow = follow-redirects, url = url, seen = #())
+      send-request(conn, request-method, url, headers: headers, content: content);
+
+      let read-content? = ~stream;
+      let response :: <http-response> = read-response(conn, read-content: #f);
+      let code = response.response-code;
+      if (follow & code >= 300 & code <= 399)
+        // Discard the body of the redirect message.
+        read-and-discard-to-end(response);
+        let location = get-header(response, "Location");
+        if (follow = 0)
+          signal(make(<maximum-redirects-exceeded>,
+                      format-string: "Maximum number of redirects exceeded."));
+        elseif (member?(location, seen, test: string-equal?))
+          // RFC 2616, 10.3
+          signal(make(<redirect-loop-detected>,
+                      format-string: "Redirect loop detected: %s",
+                      format-arguments: list(location)));
+        else
+          loop(iff(follow = #t, #t, follow - 1),
+               location,
+               pair(location, seen))
+        end
+      else
+        if (stream)
+          copy-message-body-to-stream(response, stream);
+        elseif (read-response-body?)
+          response.response-content := read-to-end(response);
+        end;
+        response
+      end
+    end iterate
+  end with-http-connection
+end method perform-request;
+
+define method perform-request
+    (request :: <http-request>,
+     #key follow-redirects :: type-union(<boolean>, <nonnegative-integer>) = #t,
+          read-response-body? :: <boolean> = #t,
+          stream :: false-or(<stream>))
+ => (response :: <http-response>)
+  let base-http-request = prepare-request(request);
+  perform-request(base-http-request,
+                  follow-redirects: follow-redirects,
+                  read-response-body?: read-response-body?,
+                  stream: stream)
+end method perform-request;
+
 // Do a complete HTTP request and response.
 // Arguments:
 //   url - The URL for the request.
@@ -758,48 +874,20 @@ define method http-request
           read-response-body? :: <boolean> = #t,
           stream :: false-or(<stream>))
  => (response :: <http-response>)
-  with-http-connection(conn = url)
     let headers = convert-headers(headers);
-    let original-headers = convert-headers(headers);  // copy
-    let content = convert-content(data, headers: original-headers);
-
-    if (params)
-      url := transform-uris(url, make(<url>, query: params));
-    end;
-
-    iterate loop (follow = follow-redirects, url = url, seen = #())
-      send-request(conn, request-method, url, headers: original-headers, content: content);
-
-      let read-content? = ~stream;
-      let response :: <http-response> = read-response(conn, read-content: #f);
-      let code = response.response-code;
-      if (follow & code >= 300 & code <= 399)
-        // Discard the body of the redirect message.
-        read-and-discard-to-end(response);
-        let location = get-header(response, "Location");
-        if (follow = 0)
-          signal(make(<maximum-redirects-exceeded>,
-                      format-string: "Maximum number of redirects exceeded."));
-        elseif (member?(location, seen, test: string-equal?))
-          // RFC 2616, 10.3
-          signal(make(<redirect-loop-detected>,
-                      format-string: "Redirect loop detected: %s",
-                      format-arguments: list(location)));
-        else
-          loop(iff(follow = #t, #t, follow - 1),
-               location,
-               pair(location, seen))
-        end
-      else
-        if (stream)
-          copy-message-body-to-stream(response, stream);
-        elseif (read-response-body?)
-          response.response-content := read-to-end(response);
-        end;
-        response
-      end
-    end iterate
-  end with-http-connection
+    let content = convert-content(data, headers: headers);
+    let params = convert-params(params);
+    let request = make(<http-request>,
+                       url: url,
+                       method: request-method,
+                       version: #"HTTP/1.1",
+                       params: params,
+                       headers: headers,
+                       content: content);
+    perform-request(request,
+                    follow-redirects: follow-redirects,
+                    read-response-body?: read-response-body?,
+                    stream: stream)
 end method http-request;
 
 define function http-get

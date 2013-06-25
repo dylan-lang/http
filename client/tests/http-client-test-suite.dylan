@@ -13,11 +13,11 @@ define suite request-test-suite ()
 end suite request-test-suite;
 
 define test test-make ()
-  let request = make(<base-http-request>, url: "http://httpbin.org/");
-  check-instance?("Parse the url", <uri>, request.request-url);
+  let request = make(<raw-http-request>, url: "http://httpbin.org/");
+  check-instance?("Parse the url", <uri>, request.raw-request-url);
 
   let h = table(<string-table>, "X-Test-Header" => "test-value");
-  request := make(<base-http-request>, headers: convert-headers(h));
+  request := make(<raw-http-request>, headers: convert-headers(h));
   check-equal("Acts like a <message-headers-mixin>",
               get-header(request, "X-Test-Header"),
               "test-value");
@@ -44,18 +44,18 @@ define suite prepare-request-test-suite ()
 end suite prepare-request-test-suite;
 
 define test test-prepare-request-method-method ()
-  let base-request = make(<base-http-request>);
+  let base-request = make(<raw-http-request>);
   let request = make(<http-request>, method: #"get");
 
   prepare-request-method(base-request, request);
 
   check-equal("Just copy the request method",
-              base-request.request-method,
-              request.request-method);
+              base-request.raw-request-method,
+              request.raw-request-method);
 end test test-prepare-request-method-method;
 
 define test test-prepare-request-url-method ()
-  let base-request = make(<base-http-request>);
+  let base-request = make(<raw-http-request>);
   let params = table(<string-table>, "key1" => "value1", "key2" => "value2");
   let request = make(<http-request>,
                      url: "http://httpbin.org/get",
@@ -65,12 +65,12 @@ define test test-prepare-request-url-method ()
   prepare-request-url(base-request, request);
 
   check-equal("Append the query params to the url",
-              build-uri(base-request.request-url),
+              build-uri(base-request.raw-request-url),
               "http://httpbin.org/get?key2=value2&key1=value1");
 end test test-prepare-request-url-method;
 
 define test test-prepare-request-headers-method ()
-  let base-request = make(<base-http-request>);
+  let base-request = make(<raw-http-request>);
   let headers = table(<header-table>,
                       "header1" => "value1", "header2" => "value2");
   let request = make(<http-request>,
@@ -89,7 +89,7 @@ define test test-prepare-request-headers-method ()
 end test test-prepare-request-headers-method;
 
 define test test-prepare-request-content-method ()
-  let base-request = make(<base-http-request>);
+  let base-request = make(<raw-http-request>);
   let request = make(<http-request>,
                      url: "http://httpbin.org/get",
                      content: "test content");
@@ -97,12 +97,12 @@ define test test-prepare-request-content-method ()
   prepare-request-content(base-request, request);
 
   check-equal("Just copy request content",
-              base-request.request-content,
+              base-request.raw-request-content,
               "test content");
 end test test-prepare-request-content-method;
 
 define test test-prepare-request-method ()
-  let base-request = make(<base-http-request>);
+  let base-request = make(<raw-http-request>);
   let headers = table(<header-table>,
                       "header1" => "value1", "header2" => "value2");
   let params = table(<string-table>, "key1" => "value1", "key2" => "value2");
@@ -116,16 +116,16 @@ define test test-prepare-request-method ()
   let base-request = prepare-request(request);
 
   check-equal("Prepare request method",
-              base-request.request-method,
-              request.request-method);
+              base-request.raw-request-method,
+              request.raw-request-method);
   check-equal("Prepare request url",
-              build-uri(base-request.request-url),
+              build-uri(base-request.raw-request-url),
               "http://httpbin.org/get?key2=value2&key1=value1");
   check-equal("Prepare request headers",
               get-header(base-request, "header1"),
               "value1");
   check-equal("Prepare request content",
-              base-request.request-content,
+              base-request.raw-request-content,
               "test content");
 end test test-prepare-request-method;
 
