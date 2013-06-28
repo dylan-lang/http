@@ -38,13 +38,13 @@ define test test-get-method ()
   p["key2"] := "value2";
   response := http-get(full-url("/get"), params: p);
   check-equal("200 OK", response.response-code, 200);
-  check-true("Send params", response-contain?(response, "key1"));
+  check-true("Send params", response-content-contains?(response, "key1"));
 
   let h = make(<string-table>);
   h["X-Test-Header"] := "test-value";
   response := http-get(full-url("/get"), headers: h);
   check-equal("200 OK", response.response-code, 200);
-  check-true("Send headers", response-contain?(response, "X-Test-Header"));
+  check-true("Send headers", response-content-contains?(response, "X-Test-Header"));
 end test test-get-method;
 
 define test test-get-method-allow-redirect ()
@@ -62,13 +62,13 @@ end test test-get-method-allow-redirect;
 
 define test test-post-method ()
   let response = http-post(full-url("/post"), data: "{\"key1\": \"value1\"}");
-  check-true("Send data as is", response-contain?(response, "key1"));
+  check-true("Send data as is", response-content-contains?(response, "key1"));
 
   let payload = make(<string-table>, size: 2);
   payload["key1"] := "value1";
   payload["key2"] := "value with space";
   response := http-post(full-url("/post"), data: payload);
-  check-true("Send data as form-encoded (key)", response-contain?(response, "key1"));
+  check-true("Send data as form-encoded (key)", response-content-contains?(response, "key1"));
   check-true("Send data as form-encoded (value)",
              find-substring(response.response-content,
                             concatenate("\"key2\":", " \"", payload["key2"], "\"")));
@@ -84,7 +84,7 @@ define test test-put-method ()
   payload["key1"] := "value1";
   payload["key2"] := "value with space";
   let response = http-put(full-url("/put"), data: payload);
-  check-true("Send data as form-encoded (key)", response-contain?(response, "key1"));
+  check-true("Send data as form-encoded (key)", response-content-contains?(response, "key1"));
   check-equal("200 OK", response.response-code, 200);
 end test test-put-method;
 
@@ -151,10 +151,10 @@ end test test-cookies-on-redirect;
 //
 // This is done by checking if the content contains `"str":`, this mean that
 // str is a key in the json returned by httpbin.
-define method response-contain?
+define method response-content-contains?
     (response :: <http-response>, str :: <string>) => (p :: <boolean>)
   find-substring(response.response-content, concatenate("\"", str, "\":")) ~= #f;
-end method response-contain?;
+end method response-content-contains?;
 
 define variable *test-host* :: <string> = "httpbin.org";
 define variable *test-port* :: <integer> = 80;
