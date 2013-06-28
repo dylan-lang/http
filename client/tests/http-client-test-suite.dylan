@@ -1,5 +1,5 @@
 Module: http-client-test-suite
-Author: Carl Gay
+Author: Francesco Ceccon
 Copyright: See LICENSE in this distribution for details.
 
 define suite http-client-test-suite ()
