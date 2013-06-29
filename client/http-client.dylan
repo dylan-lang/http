@@ -162,56 +162,6 @@ end;
 // Writing requests
 //////////////////////////////////////////
 
-// A low-level request object.
-//
-// This class is a lot like <base-http-request> but it's not a subclass of
-// <message-headers-mixin> so we don't have to have 3 slots to contain
-// headers.
-// The problem with <message-headers-mixin> is that's not easy to iterate
-// over all the headers, for example when sending the request.
-define open class <raw-http-request> (<object>)
-
-  slot raw-request-url :: false-or(<url>) = #f,
-    init-keyword: url:;
-
-  slot raw-request-method :: <request-method> = #"not-set",
-    init-keyword: method:;
-
-  slot raw-request-version :: <http-version> = #"not-set",
-    init-keyword: version:;
-
-  slot request-headers :: <header-table>,
-    init-keyword: headers:,
-    init-function: curry(make, <header-table>);
-
-  slot raw-request-content :: <byte-string> = "",
-    init-keyword: content:;
-
-end class <raw-http-request>;
-
-define method make
-    (request :: subclass(<raw-http-request>), #rest args, #key url)
- => (request :: subclass(<raw-http-request>))
-  if (instance?(url, <string>))
-    apply(next-method, request, url: parse-url(url), args)
-  else
-    // url is a <url> or #f
-    next-method()
-  end
-end method make;
-
-define method set-header
-    (request :: <raw-http-request>, header :: <byte-string>, value :: <object>,
-     #key if-exists? = #"replace")
-  set-header(request.request-headers, header, value, if-exists?: if-exists?)
-end method set-header;
-
-define method get-header
-    (request :: <raw-http-request>, name :: <byte-string>, #key parsed)
- => (header-value :: <object>)
-  request.request-headers[name]
-end method get-header;
-
 // An high-level request object.
 //
 // This class contains abstractions like parameters, data, cookies and
@@ -219,49 +169,64 @@ end method get-header;
 // To use this class set the slots as you need, then convert it to a
 // <base-http-request> and send it.
 // TODO: Merge with server's <request> -fracek
-define open class <http-request> (<raw-http-request>)
+define open class <http-request> (<base-http-request>)
 
-  slot request-params :: <string-table>,
+  slot request-parameters :: <string-table>,
     init-function: curry(make, <string-table>),
-    init-keyword: params:;
+    init-keyword: parameters:;
 
   // TODO cookies, auth -fracek
 
 end class <http-request>;
 
+define method initialize
+    (request :: <http-request>, #rest args, #key headers)
+  next-method();
+  if (headers)
+    for (header-value keyed-by header-key in headers)
+      set-header(request, header-key, header-value);
+    end;
+  end;
+end method initialize;
+
+define method request-headers
+    (message :: <base-http-request>)
+ => (headers :: <header-table>)
+  message.raw-headers
+end method request-headers;
+
 define method prepare-request-method
-    (base-request :: <raw-http-request>, request :: <http-request>)
-  base-request.raw-request-method := request.raw-request-method;
+    (base-request :: <base-http-request>, request :: <http-request>)
+  base-request.request-method := request.request-method;
 end method prepare-request-method;
 
 define method prepare-request-url
-    (base-request :: <raw-http-request>, request :: <http-request>)
-  let params = request.request-params;
-  let url-with-params = transform-uris(request.raw-request-url,
-                                       make(<url>, query: params));
-  base-request.raw-request-url := parse-url(build-uri(url-with-params));
-  //base-request.request-url := url-with-params;
+    (base-request :: <base-http-request>, request :: <http-request>)
+  let parameters = request.request-parameters;
+  let url-with-parameters = transform-uris(request.request-url,
+                                           make(<url>, query: parameters));
+  base-request.request-url := parse-url(build-uri(url-with-parameters));
 end method prepare-request-url;
 
 define method prepare-request-headers
-    (base-request :: <raw-http-request>, request :: <http-request>)
+    (base-request :: <base-http-request>, request :: <http-request>)
   // This is pretty much useless I think, we need a <header-table> when
   // sending the request.
-  for (header-value keyed-by header-name in request.request-headers)
+  for (header-value keyed-by header-name in request.raw-headers)
     set-header(base-request, header-name, header-value);
   end;
 end method prepare-request-headers;
 
 // TODO: read content from file and add it to the content? -fracek
 define method prepare-request-content
-    (base-request :: <raw-http-request>, request :: <http-request>)
-  base-request.raw-request-content := request.raw-request-content
+    (base-request :: <base-http-request>, request :: <http-request>)
+  base-request.request-content := request.request-content
 end method prepare-request-content;
 
 define method prepare-request
     (request :: <http-request>)
- => (base-request :: <raw-http-request>)
-  let base-http-request = make(<raw-http-request>);
+ => (base-request :: <base-http-request>)
+  let base-http-request = make(<base-http-request>);
   prepare-request-method(base-http-request, request);
   prepare-request-url(base-http-request, request);
   prepare-request-headers(base-http-request, request);
@@ -272,17 +237,17 @@ define method prepare-request
 end method prepare-request;
 
 define method explode-request
-    (request :: <raw-http-request>)
+    (request :: <base-http-request>)
  => (url :: <url>,
      request-method :: <request-method>,
      version :: <http-version>,
      headers :: <header-table>,
      content :: <byte-string>)
-  let url = request.raw-request-url;
-  let request-method = request.raw-request-method;
-  let version = request.raw-request-version;
+  let url = request.request-url;
+  let request-method = request.request-method;
+  let version = request.request-version;
   let headers = request.request-headers;
-  let content = request.raw-request-content;
+  let content = request.request-content;
   values(url, request-method, version, headers, content)
 end method explode-request;
 
@@ -522,15 +487,15 @@ define method convert-headers
   new-headers
 end method convert-headers;
 
-define method convert-params
-    (params == #f)
+define method convert-parameters
+    (parameters == #f)
   make(<string-table>)
-end method convert-params;
+end method convert-parameters;
 
-define method convert-params
-    (params :: <string-table>)
-  params
-end method convert-params;
+define method convert-parameters
+    (parameters :: <string-table>)
+  parameters
+end method convert-parameters;
 
 // The HTML spec section 17.13.4 says to escape the reserved characters, then
 // convert spaces to +
@@ -757,7 +722,7 @@ define method read-and-discard-to-end
 end method read-and-discard-to-end;
 
 define method perform-request
-    (request :: <raw-http-request>,
+    (request :: <base-http-request>,
      #key follow-redirects :: type-union(<boolean>, <nonnegative-integer>) = #t,
           read-response-body? :: <boolean> = #t,
           stream :: false-or(<stream>))
@@ -837,7 +802,7 @@ define sealed generic http-request
     (url :: <object>,
      request-method :: <request-method>,
      #key headers,
-          params,
+          parameters,
           data,
           follow-redirects,
           read-response-body?,
@@ -848,7 +813,7 @@ define method http-request
     (url :: <byte-string>,
      request-method :: <request-method>,
      #key headers,
-          params,
+          parameters,
           data,
           follow-redirects,
           read-response-body?,
@@ -857,7 +822,7 @@ define method http-request
   http-request(parse-uri(url),
                request-method,
                headers: headers,
-               params: params,
+               parameters: parameters,
                data: data,
                follow-redirects: follow-redirects,
                read-response-body?: read-response-body?,
@@ -868,7 +833,7 @@ define method http-request
     (url :: <uri>,
      request-method :: <request-method>,
      #key headers,
-          params :: false-or(<string-table>),
+          parameters :: false-or(<string-table>),
           data,
           follow-redirects :: type-union(<boolean>, <nonnegative-integer>) = #t,
           read-response-body? :: <boolean> = #t,
@@ -876,12 +841,12 @@ define method http-request
  => (response :: <http-response>)
     let headers = convert-headers(headers);
     let content = convert-content(data, headers: headers);
-    let params = convert-params(params);
+    let parameters = convert-parameters(parameters);
     let request = make(<http-request>,
                        url: url,
                        method: request-method,
                        version: #"HTTP/1.1",
-                       params: params,
+                       parameters: parameters,
                        headers: headers,
                        content: content);
     perform-request(request,
@@ -893,13 +858,13 @@ end method http-request;
 define function http-get
     (url,
      #key headers,
-          params,
+          parameters,
           follow-redirects = #t,
           stream)
  => (response :: <http-response>)
   http-request(url, #"get",
                headers: headers,
-               params: params,
+               parameters: parameters,
                follow-redirects: follow-redirects,
                stream: stream);
 end function http-get;
@@ -907,14 +872,14 @@ end function http-get;
 define function http-post
     (url,
      #key headers,
-          params,
+          parameters,
           data,
           follow-redirects,
           stream)
  => (response :: <http-response>)
   http-request(url, #"post",
                headers: headers,
-               params: params,
+               parameters: parameters,
                data: data,
                follow-redirects: follow-redirects,
                stream: stream);
@@ -923,14 +888,14 @@ end function http-post;
 define function http-put
     (url,
      #key headers,
-          params,
+          parameters,
           data,
           follow-redirects,
           stream)
  => (response :: <http-response>)
   http-request(url, #"put",
                headers: headers,
-               params: params,
+               parameters: parameters,
                data: data,
                follow-redirects: follow-redirects,
                stream: stream);
@@ -939,13 +904,13 @@ end function http-put;
 define function http-options
     (url,
      #key headers,
-          params,
+          parameters,
           follow-redirects,
           stream)
  => (response :: <http-response>)
   http-request(url, #"options",
                headers: headers,
-               params: params,
+               parameters: parameters,
                follow-redirects: follow-redirects,
                stream: stream);
 end function http-options;
@@ -953,12 +918,12 @@ end function http-options;
 define function http-head
     (url,
      #key headers,
-          params,
+          parameters,
           follow-redirects)
  => (response :: <http-response>)
   http-request(url, #"head",
                headers: headers,
-               params: params,
+               parameters: parameters,
                follow-redirects: follow-redirects,
                read-response-body?: #f);
 end function http-head;
@@ -966,14 +931,14 @@ end function http-head;
 define function http-delete
     (url,
      #key headers,
-          params,
+          parameters,
           data,
           follow-redirects,
           stream)
  => (response :: <http-response>)
   http-request(url, #"delete",
                headers: headers,
-               params: params,
+               parameters: parameters,
                follow-redirects: follow-redirects,
                stream: stream);
 end function http-delete;

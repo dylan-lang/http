@@ -36,9 +36,9 @@ define test test-get-method ()
   let p = make(<string-table>, size: 2);
   p["key1"] := "value1";
   p["key2"] := "value2";
-  response := http-get(full-url("/get"), params: p);
+  response := http-get(full-url("/get"), parameters: p);
   check-equal("200 OK", response.response-code, 200);
-  check-true("Send params", response-content-contains?(response, "key1"));
+  check-true("Send parameters", response-content-contains?(response, "key1"));
 
   let h = make(<string-table>);
   h["X-Test-Header"] := "test-value";

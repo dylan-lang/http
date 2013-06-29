@@ -42,10 +42,9 @@ define module http-client
   // Request/response
   create
     <http-request>,
-    request-params,
-    request-params-setter,
+    request-parameters,
+    request-parameters-setter,
     request-headers,
-    request-headers-setter,
     send-request,
     start-request,
     finish-request,
@@ -92,12 +91,6 @@ define module http-client-internals
 
   // Request
   export
-    <raw-http-request>,
-    raw-request-url,
-    raw-request-method,
-    raw-request-version,
-    raw-request-version-setter,
-    raw-request-content,
     prepare-request,
     prepare-request-method,
     prepare-request-url,
@@ -105,4 +98,3 @@ define module http-client-internals
     prepare-request-content;
 
 end module http-client-internals;
-
