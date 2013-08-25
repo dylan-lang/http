@@ -213,10 +213,11 @@ end method respond-to-post;
 define tag current-username in demo
     (page :: <demo-page>)
     ()
+  let request = current-request();
   let response = current-response();
   let username
     = get-query-value("username")
-        | get-attribute(get-session(response.response-request), "username");
+        | get-attribute(get-session(request), "username");
   username & output(username);
 end;
 
