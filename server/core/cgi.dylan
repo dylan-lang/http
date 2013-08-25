@@ -83,10 +83,10 @@ define method respond-to-post
           if (file-exists?(script))
             select (script.file-type)
               #"file", #"link" =>
-                let path-info = iff(empty?(rest(remainder)),
+                let path-info = iff(empty?(remainder.tail),
                                     "",
                                     // note added leading slash, per spec
-                                    join(pair("", rest(remainder)), "/"));
+                                    join(pair("", remainder.tail), "/"));
                 // The SCRIPT_NAME env var...
                 let script-name = join(concatenate(list(request.request-url-path-prefix),
                                                    reverse!(seen),
@@ -99,7 +99,7 @@ define method respond-to-post
                 return();
               #"directory" =>
                 loop(pair(filename, seen),
-                     rest(remainder),
+                     remainder.tail,
                      subdirectory-locator(directory, filename));
             end select;
           end;

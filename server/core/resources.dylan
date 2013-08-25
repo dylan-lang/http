@@ -238,7 +238,7 @@ define method add-resource
           child := make(<placeholder-resource>);
           add-resource(parent, name, child, url-name: #f);
         end;
-        loop(child, rest(path))
+        loop(child, path.tail)
       end if;
     end iterate;
   end if;
@@ -333,7 +333,7 @@ define method path-variable-bindings
      leftover-suffix :: <list>)
   let bindings = make(<stretchy-vector>);
   for (pvar in resource.resource-path-variables,
-       suffix = path-suffix then rest(suffix))
+       suffix = path-suffix then suffix.tail)
     select (pvar by instance?)
       <star-path-variable> =>
         add!(bindings, pvar.path-variable-name);
@@ -428,9 +428,9 @@ define method find-resource
         if (~instance?(child, <placeholder-resource>))
           resource := child;
           prefix := pair(key, seen);
-          suffix := rest(path);
+          suffix := path.tail;
         end;
-        loop(child, rest(path), pair(key, seen))
+        loop(child, path.tail, pair(key, seen))
       end;
     end;
   end;
