@@ -3,7 +3,7 @@ Serving Static Content
 
 `Next: Serving Dynamic Content <dynamic-content.html>`_
 
-`Back to top <00-index.html>`_
+`Back to top <index.html>`_
 
 This example will show you how to use the Dylan web server (http-server) to
 serve static content from the file-system.  First I'll go through the
@@ -109,4 +109,4 @@ accomplish the same thing::
 
 `Next: Serving Dynamic Content <dynamic-content.html>`_
 
-`Back to top <00-index.html>`_
+`Back to top <index.html>`_

@@ -3,7 +3,7 @@ Serving Dynamic Content
 
 `Previous: Serving Static Content <static-content.html>`_
 
-`Back to top <00-index.html>`_
+`Back to top <index.html>`_
 
 This example will show how to dynamically generate the contents of a web page.
 
@@ -100,4 +100,4 @@ Here's the complete code:
 | `Previous: Serving Static Content <static-content.html>`_
 | `Next: Static URL Routing <static-routing.html>`_
 
-`Back to top <00-index.html>`_
+`Back to top <index.html>`_
