@@ -570,7 +570,7 @@ define tag show-date in dsp
     (page :: <dylan-server-page>)
     (date :: <date> = current-date(), format, key, scope)
   //---TODO: Finish this.  For now it can only show the current date.
-  date-to-stream(current-response(), date);
+  write(current-response(), as-iso8601-string(date));
 end;
 
 //// Form Field Errors
