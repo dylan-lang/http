@@ -40,7 +40,7 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   constant slot server-lock :: <simple-lock>,
     required-init-keyword: lock:;
 
-  // lowercase fqdn -> <virtual-host>
+  // lowercase fqdn (fully qualified domain name) -> <virtual-host>
   constant slot virtual-hosts :: <string-table> = make(<string-table>),
     init-keyword: virtual-hosts:;
 
@@ -115,6 +115,10 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   constant slot server-session-id :: <byte-string>,
     init-value: "http_server_session_id",
     init-keyword: session-id:;
+
+  /// Sampler for tracing
+  slot sampler :: <function>,
+    init-keyword: sampler:;
 
 end class <http-server>;
 
@@ -674,45 +678,53 @@ define function %respond-top-level
     block (exit-respond-top-level)
       while (#t)                      // keep alive loop
         with-simple-restart("Skip this request and continue with the next")
-          *request* := make(client.client-server.request-class, client: client);
-          let request :: <basic-request> = *request*;
-          block (finish-request)
-            // More recently installed handlers take precedence...
-            let handler <error> = rcurry(htl-error-handler, finish-request);
-            let handler <stream-error>
-              = rcurry(htl-error-handler, exit-respond-top-level,
-                       send-response: #f,
-                       decline-if-debugging: #f);
-            // This handler casts too wide of a net.  There's no reason to catch
-            // all the subclasses of <recoverable-socket-condition> such as
-            // <host-not-found> here.  But it's not clear what it SHOULD be catching
-            // either.  --cgay Feb 2009
-            let handler <socket-condition>
-              = rcurry(htl-error-handler, exit-respond-top-level,
-                       send-response: #f,
-                       decline-if-debugging: #f);
-            let handler <http-error> = rcurry(htl-error-handler, finish-request,
-                                              decline-if-debugging: #f);
+          with-tracing("HTTP Request", sampler: client.client-server.sampler)
+            *request* := make(client.client-server.request-class, client: client);
+            let request :: <basic-request> = *request*;
+            block (finish-request)
+              // More recently installed handlers take precedence...
+              let handler <error> = rcurry(htl-error-handler, finish-request);
+              let handler <stream-error>
+                = rcurry(htl-error-handler, exit-respond-top-level,
+                         send-response: #f,
+                         decline-if-debugging: #f);
+              // This handler casts too wide of a net.  There's no reason to catch
+              // all the subclasses of <recoverable-socket-condition> such as
+              // <host-not-found> here.  But it's not clear what it SHOULD be catching
+              // either.  --cgay Feb 2009
+              let handler <socket-condition>
+                = rcurry(htl-error-handler, exit-respond-top-level,
+                         send-response: #f,
+                         decline-if-debugging: #f);
+              let handler <http-error> = rcurry(htl-error-handler, finish-request,
+                                                decline-if-debugging: #f);
 
-            read-request(request);
-            let headers = make(<header-table>);
-            if (request.request-keep-alive?)
-              set-header(headers, "Connection", "Keep-Alive");
-            end if;
-            dynamic-bind (*response* = make(<response>,
-                                            request: request,
-                                            headers: headers),
-                          // Bound to a <page-context> when first requested.
-                          *page-context* = #f)
-              route-request(*server*, request);
-              finish-response(*response*);
+              with-tracing("Reading Request", sampler: request.request-server.sampler)
+                trace-add-data("request-method", request.request-method);
+                trace-add-data("request-url", request.request-url);
+                read-request(request);
+              end with-tracing;
+              let headers = make(<header-table>);
+              if (request.request-keep-alive?)
+                set-header(headers, "Connection", "Keep-Alive");
+              end if;
+              dynamic-bind (*response* = make(<response>,
+                                              request: request,
+                                              headers: headers),
+                            // Bound to a <page-context> when first requested.
+                            *page-context* = #f)
+                with-tracing("Routing Request", sampler: request.request-server.sampler)
+                  route-request(*server*, request);
+                end with-tracing;
+                finish-response(*response*);
+              end;
+              force-output(request.request-socket);
+            end block; // finish-request
+            if (client.client-listener.listener-exit-requested?
+                | ~request-keep-alive?(request))
+              exit-respond-top-level();
             end;
-            force-output(request.request-socket);
-          end block; // finish-request
-          if (client.client-listener.listener-exit-requested?
-              | ~request-keep-alive?(request))
-            exit-respond-top-level();
-          end;
+          end with-tracing;
         end with-simple-restart;
       end while;
     end block; // exit-respond-top-level

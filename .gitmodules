@@ -28,3 +28,6 @@
 [submodule "submodules/concurrency"]
 	path = submodules/concurrency
 	url = git://github.com/dylan-foundry/concurrency.git
+[submodule "submodules/tracing"]
+	path = submodules/tracing
+	url = https://github.com/dylan-foundry/tracing.git
