@@ -24,7 +24,6 @@ define function make-cgi-server
              "<cgi-directory location=\".\" url=\"/\" extensions=\"cgi,bat,exe\" />\n";
   let document = config-document(fmt(text, server-root),
                                  listener?: #t);
-  test-output("config: %s", document);
   let server = make-server();
   configure-from-string(server, document);
   server

@@ -276,7 +276,9 @@ define inline function log-request
                             request-raw-url-string(req) | "-",
                             " ",
                             as-uppercase(as(<string>, req.request-version)));
-  let date = as-common-logfile-date(current-date());
+  //Common Logfile Format Date: "28/Mar/2004:04:47:19 +0200"
+  //http://www.w3.org/Daemon/User/Config/Logging.html
+  let date = format-date("%d/%b/%Y:%T %z", current-date());
   let remoteaddr = host-address(remote-host(request-socket(req)));
 
   // TODO: make the logfile format configurable.  e.g., the user

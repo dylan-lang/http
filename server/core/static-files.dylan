@@ -360,7 +360,7 @@ end;
 
 define method display-file-property
     (stream, key, property :: <date>, file-type :: <file-type>) => ()
-  date-to-stream(stream, property);
+  write(stream, as-iso8601-string(property));
 end;
 
 define method display-file-property
