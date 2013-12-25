@@ -1,2 +1,4 @@
 *.hdp
+*.iml
 _build
+.idea
