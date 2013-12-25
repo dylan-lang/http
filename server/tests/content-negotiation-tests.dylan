@@ -6,7 +6,7 @@ Synopsis: Tests for the content negotiation code
 define suite multi-views-test-suite ()
   test test-media-type-from-header;
   test test-locators-matching;
-  test test-<document-variant>;
+  test test-document-variant;
   test test-find-multi-view-file;
 end;
 
@@ -31,7 +31,7 @@ end test test-media-type-from-header;
 define test test-locators-matching ()
 end;
 
-define test test-<document-variant> ()
+define test test-document-variant ()
 end;
 
 define test test-find-multi-view-file ()
