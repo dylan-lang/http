@@ -678,7 +678,17 @@ end;
 define open class <sse-resource> (<resource>)
   constant slot sse-queue :: <deque> = make(<deque>);
   constant slot sse-queue-lock :: <lock> = make(<simple-lock>);
+  slot sse-queue-notification :: <notification>;
 end;
+
+define method initialize (sse :: <sse-resource>,
+                          #next next-method,
+                          #rest rest, #key,
+                          #all-keys)
+  next-method();
+  sse.sse-queue-notification := make(<notification>, lock: sse.sse-queue-lock);
+end;
+
 
 define method respond
     (resource :: <sse-resource>, #rest path-bindings, #key)
@@ -693,13 +703,14 @@ define method respond
   send-headers(response, socket);
 
   while (#t)
-    wait-for(resource.sse-queue-lock);
-    if (resource.sse-queue.size > 0)
+    with-lock (resource.sse-queue-lock)
+      while (resource.sse-queue.empty?)
+        wait-for(resource.sse-queue-notification)
+      end;
       write(socket, resource.sse-queue.pop);
       write(socket, "\r\n\r\n");
       force-output(socket);
-    end;
-    release(resource.sse-queue-lock);
-  end;
+    end with-lock
+  end while
 end;
 
