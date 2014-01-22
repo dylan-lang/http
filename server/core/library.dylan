@@ -94,6 +94,8 @@ define module http-server
       <cgi-directory-resource>,
       <function-resource>,
       <redirecting-resource>,
+      <sse-resource>,
+          sse-queue, sse-queue-lock, sse-queue-notification,
       add-resource-name,
       do-resources,
       function-resource;
