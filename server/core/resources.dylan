@@ -691,6 +691,18 @@ define method initialize (sse :: <sse-resource>,
   make(<thread>, function: curry(broadcast-stream, sse))
 end;
 
+define function sse-push-event (sse :: <sse-resource>, data)
+  let queue = sse.sse-queue;
+  let lock = sse.sse-queue-lock;
+  let notification = sse.sse-queue-notification;
+  with-lock (lock)
+    if (queue.empty?)
+      release-all(notification)
+    end;
+    push-last(queue, data);
+  end;
+end;
+
 
 define function broadcast-stream (sse :: <sse-resource>)
   while (#t)
