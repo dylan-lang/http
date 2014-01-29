@@ -679,6 +679,7 @@ define open class <sse-resource> (<resource>)
   constant slot sse-queue :: <deque> = make(<deque>);
   constant slot sse-queue-lock :: <lock> = make(<simple-lock>);
   slot sse-queue-notification :: <notification>;
+  constant slot sse-clients :: <stretchy-vector> = make(<stretchy-vector>);
 end;
 
 define method initialize (sse :: <sse-resource>,
@@ -687,8 +688,29 @@ define method initialize (sse :: <sse-resource>,
                           #all-keys)
   next-method();
   sse.sse-queue-notification := make(<notification>, lock: sse.sse-queue-lock);
+  make(<thread>, function: curry(broadcast-stream, sse))
 end;
 
+
+define function broadcast-stream (sse :: <sse-resource>)
+  while (#t)
+    with-lock (sse.sse-queue-lock)
+      while (sse.sse-queue.empty?)
+        wait-for(sse.sse-queue-notification)
+      end;
+      let msg = sse.sse-queue.pop;
+      for (socket in sse.sse-clients)
+        block ()
+          write(socket, msg);
+          write(socket, "\r\n\r\n");
+          force-output(socket);
+        exception (e :: <condition>)
+          remove!(sse.sse-clients, socket);
+        end
+      end;
+    end with-lock
+  end while
+end;
 
 define method respond
     (resource :: <sse-resource>, #rest path-bindings, #key)
@@ -701,16 +723,7 @@ define method respond
 
   send-response-line(response, socket);
   send-headers(response, socket);
-
-  while (#t)
-    with-lock (resource.sse-queue-lock)
-      while (resource.sse-queue.empty?)
-        wait-for(resource.sse-queue-notification)
-      end;
-      write(socket, resource.sse-queue.pop);
-      write(socket, "\r\n\r\n");
-      force-output(socket);
-    end with-lock
-  end while
+  force-output(socket);
+  add!(resource.sse-clients, socket);
 end;
 
