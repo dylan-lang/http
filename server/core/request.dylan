@@ -284,15 +284,13 @@ define method process-request-content
   // do nothing
 end;
 
-define constant $plus :: <regex> = compile-regex("[+]");
-
 define method process-request-content
     (request :: <request>, content-type == #"application/x-www-form-urlencoded")
   // By the time we get here request-query-values has already
   // been bound to a <string-table> containing the URL query
   // values. Now we augment it with any form values.
-  let parsed-query = split-query(request-content(request),
-                                 replacements: list(pair($plus, " ")));
+  let content = replace-substrings(request-content(request), "+", " ");
+  let parsed-query = split-query(content);
   for (value keyed-by key in parsed-query)
     request.request-query-values[key] := value;
   end for;
