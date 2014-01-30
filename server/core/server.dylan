@@ -702,9 +702,10 @@ define function %respond-top-level
             if (request.request-keep-alive?)
               set-header(headers, "Connection", "Keep-Alive");
             end if;
-            dynamic-bind (*response* = make(<response>,
-                                            request: request,
-                                            headers: headers),
+            let response = make(<response>,
+                                request: request,
+                                headers: headers);
+            dynamic-bind (*response* = response,
                           // Bound to a <page-context> when first requested.
                           *page-context* = #f)
               route-request(*server*, request);
