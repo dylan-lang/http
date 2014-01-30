@@ -38,6 +38,8 @@ define module http-common
     $http-version,
     $default-http-port,
     $default-https-port,
+    <request-method>,
+    <http-version>,
     *http-common-log*,
     quote-html,
     <chunking-input-stream>,
