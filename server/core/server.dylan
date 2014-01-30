@@ -339,6 +339,7 @@ define class <client> (<object>)
   constant slot client-socket :: <tcp-socket>,
     required-init-keyword: socket:;
 
+  slot client-stays-alive? :: <boolean> = #f;
 end class <client>;
 
 
@@ -657,9 +658,11 @@ define function respond-top-level
       %respond-top-level(client);
     end;
   cleanup
-    ignore-errors(<socket-condition>,
-                  close(client.client-socket, abort: #t));
-    release-client(client);
+    unless (client.client-stays-alive?)
+      ignore-errors(<socket-condition>,
+                    close(client.client-socket, abort: #t));
+      release-client(client);
+    end;
   end;
 end function respond-top-level;
 
@@ -705,7 +708,9 @@ define function %respond-top-level
                           // Bound to a <page-context> when first requested.
                           *page-context* = #f)
               route-request(*server*, request);
-              finish-response(*response*);
+              unless (client.client-stays-alive?)
+                finish-response(*response*);
+              end;
             end;
             force-output(request.request-socket);
           end block; // finish-request
@@ -749,6 +754,9 @@ define method route-request
       unmatched-url-suffix(resource, leftovers);
     end;
     %respond(resource, bindings);
+    if (instance?(resource, <sse-resource>))
+      request.request-client.client-stays-alive? := #t;
+    end;
   end;
 end method route-request;
 
