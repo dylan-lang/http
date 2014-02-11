@@ -79,11 +79,6 @@ end test alias-config-test;
 
 
 
-define suite directory-resource-test-suite ()
-  test test-directory-resource;
-  test test-directory-resource-default-documents;
-end;
-
 // Verify that the <document-root> setting is respected, by setting it
 // to the directory containing application-filename() and then requesting
 // the executable file.
@@ -132,6 +127,11 @@ define test test-directory-resource-default-documents ()
                    as(<file-locator>, "two")),
               resource.default-documents);
 end test test-directory-resource-default-documents;
+
+define suite directory-resource-test-suite ()
+  test test-directory-resource;
+  test test-directory-resource-default-documents;
+end;
 
 
 

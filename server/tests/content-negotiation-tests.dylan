@@ -3,12 +3,6 @@ Author: Carl Gay
 Copyright: See LICENSE in this distribution for details.
 Synopsis: Tests for the content negotiation code
 
-define suite multi-views-test-suite ()
-  test test-media-type-from-header;
-  test test-locators-matching;
-  test test-document-variant;
-  test test-find-multi-view-file;
-end;
 
 define test test-media-type-from-header ()
   let raw-header = ("text/*;q=0.3, text/html;q=0.7, text/html;level=1,"
@@ -113,3 +107,9 @@ define test test-find-multi-view-file ()
   end block;
 end test test-find-multi-view-file;
 
+define suite multi-views-test-suite ()
+  test test-media-type-from-header;
+  test test-locators-matching;
+  test test-document-variant;
+  test test-find-multi-view-file;
+end;

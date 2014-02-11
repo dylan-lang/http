@@ -2,19 +2,7 @@ Module: http-common-test-suite
 Copyright: See LICENSE in this distribution for details.
 
 
-define suite http-common-test-suite ()
-  suite parsing-test-suite;
-  suite headers-test-suite;
-  suite errors-test-suite;
-  suite media-type-test-suite;
-end;
-
-
 //// --- parsing test suite ---
-
-define suite parsing-test-suite ()
-  test test-quality-value;
-end;
 
 define test test-quality-value ()
   for (pair in #[#["0.2", 0.2],
@@ -30,12 +18,12 @@ define test test-quality-value ()
   end;
 end test test-quality-value;
 
+define suite parsing-test-suite ()
+  test test-quality-value;
+end;
+
 
 //// --- headers test suite ---
-
-define suite headers-test-suite ()
-  test test-accept-header;
-end;
 
 // See also: test-parse-media-type
 define test test-accept-header ()
@@ -46,23 +34,18 @@ define test test-accept-header ()
               parse-header-value(#"accept", raw-header));
 end test test-accept-header;
 
+define suite headers-test-suite ()
+  test test-accept-header;
+end;
+
+
 //// --- media-type test suite ---
 
 define suite errors-test-suite ()
 end;
 
 
-
 //// --- media-type test suite ---
-
-define suite media-type-test-suite ()
-  test test-parse-media-type;
-  test test-media-type-quality;
-  test test-media-type-level;
-  test test-media-type-exact?;
-  test test-media-type-more-specific?;
-  test test-match-media-types;
-end suite media-type-test-suite;
 
 define function make-media-type
     (type :: <byte-string>, subtype :: <byte-string>, #rest attributes)
@@ -191,6 +174,25 @@ define test test-media-type-level ()
               make-media-type("a", "b", #["level", 2]).media-type-level);
   check-false("Default level is #f?", make-media-type("a", "b").media-type-level);
 end test test-media-type-level;
+
+define suite media-type-test-suite ()
+  test test-parse-media-type;
+  test test-media-type-quality;
+  test test-media-type-level;
+  test test-media-type-exact?;
+  test test-media-type-more-specific?;
+  test test-match-media-types;
+end suite media-type-test-suite;
+
+
+//// --- top level suite ---
+
+define suite http-common-test-suite ()
+  suite parsing-test-suite;
+  suite headers-test-suite;
+  suite errors-test-suite;
+  suite media-type-test-suite;
+end;
 
 
 //// --- main ---

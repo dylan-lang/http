@@ -5,16 +5,6 @@ Synopsis: Tests for CGI functionality
 // CGI 1.2 specification draft: http://ken.coar.org/cgi/cgi-120-00a.html
 // CGI 1.1 "spec": http://hoohoo.ncsa.illinois.edu/cgi/interface.html
 
-define suite cgi-test-suite ()
-  test cgi-location-header-test;
-  test cgi-required-environment-variables-test;
-  test cgi-status-header-test;
-  test cgi-command-line-test;
-  test cgi-working-directory-test;
-  test cgi-http-header-test;
-  test cgi-non-parsed-headers-test;
-end suite cgi-test-suite;
-
 define function make-cgi-server
     (#key server-root :: <string>) => (server :: <http-server>)
   let text = "<server root=\"%s\" debug=\"on\" />\n"
@@ -280,3 +270,14 @@ define function cgi-emit-http-headers ()
     format-out("%s not defined in the CGI environment", header-name);
   end;
 end;
+
+
+define suite cgi-test-suite ()
+  test cgi-location-header-test;
+  test cgi-required-environment-variables-test;
+  test cgi-status-header-test;
+  test cgi-command-line-test;
+  test cgi-working-directory-test;
+  test cgi-http-header-test;
+  test cgi-non-parsed-headers-test;
+end suite cgi-test-suite;
