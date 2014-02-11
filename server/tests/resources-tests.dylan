@@ -1,25 +1,9 @@
 Module: http-server-tests
 Copyright: See LICENSE in this distribution for details.
+Synopsis: Tests for <resource>s and URL routing.
 
 
-// Tests for <resource>s and URL routing.
-
-define suite resources-test-suite ()
-  suite add-resource-test-suite;
-  suite path-variable-test-suite;
-  suite rewrite-rules-test-suite;
-  test test-find-resource;
-end;
-
-
 //// add-resource suite
-
-define suite add-resource-test-suite ()
-    test test-add-resource-basics;
-    test test-add-resource-precedence;
-    test test-add-resource-parent;
-    test test-add-resource-path-variables;
-end;
 
 define test test-add-resource-basics ()
   local method add-and-find (to-add, to-find)
@@ -112,6 +96,12 @@ define test test-add-resource-path-variables ()
                   add-resource(root, "b/{x}/{y}/", child));
 end test test-add-resource-path-variables;
 
+define suite add-resource-test-suite ()
+    test test-add-resource-basics;
+    test test-add-resource-precedence;
+    test test-add-resource-parent;
+    test test-add-resource-path-variables;
+end;
 
 
 //// One-off tests, directly in add-resource-test-suite
@@ -147,11 +137,6 @@ end test test-find-resource;
 
 
 //// Path variable suite
-
-define suite path-variable-test-suite ()
-  test test-path-variable-binding;
-  test test-parse-path-variable;
-end;
 
 define test test-parse-path-variable ()
   check-condition("no path variable",
@@ -217,6 +202,17 @@ define test test-path-variable-binding ()
       end;
     end for;
   end with-http-server;
-
 end test test-path-variable-binding;
 
+
+define suite path-variable-test-suite ()
+  test test-path-variable-binding;
+  test test-parse-path-variable;
+end;
+
+
+define suite resources-test-suite ()
+  suite add-resource-test-suite;
+  suite path-variable-test-suite;
+  test test-find-resource;
+end;

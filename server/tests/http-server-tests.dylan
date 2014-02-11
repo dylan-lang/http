@@ -148,6 +148,7 @@ define suite http-server-test-suite ()
   suite cgi-test-suite;
   suite multi-views-test-suite;
   suite resources-test-suite;
+  suite rewrite-rules-test-suite;
   suite virtual-host-test-suite;
   // The client test suite depends on the server test suite and vise versa,
   // so for now they need to be combined.  This could be fixed by moving

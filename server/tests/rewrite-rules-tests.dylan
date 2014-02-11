@@ -4,12 +4,6 @@ Copyright: See LICENSE in this distribution for details.
 
 //// Rewrite rules suite
 
-define suite rewrite-rules-test-suite ()
-  test test-parse-replacement;
-  test test-rewrite-one-url;
-  test test-rewrite-rule-chaining;
-end;
-
 // Test that replacement text for rewrite rules parse correctly.
 //
 define test test-parse-replacement ()
@@ -61,4 +55,8 @@ define test test-rewrite-rule-chaining ()
               rewrite-url("abc123", rules));
 end test test-rewrite-rule-chaining;
 
-
+define suite rewrite-rules-test-suite ()
+  test test-parse-replacement;
+  test test-rewrite-one-url;
+  test test-rewrite-rule-chaining;
+end;

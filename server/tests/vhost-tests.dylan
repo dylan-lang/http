@@ -2,11 +2,6 @@ Module: http-server-tests
 Copyright: See LICENSE in this distribution for details.
 
 
-define suite virtual-host-test-suite ()
-    test test-vhost-add-resource;
-    //test test-vhost-find-resource;
-end;
-
 define test test-vhost-add-resource ()
   let server = make-server(use-default-virtual-host?: #t);
   let root = make(<resource>);
@@ -89,3 +84,9 @@ define test test-vhost-find-resource ()
 
 note: verify that fall-back doesn't occur if the vhost IS found but the URL path ISN'T.
 */
+
+
+define suite virtual-host-test-suite ()
+    test test-vhost-add-resource;
+    //test test-vhost-find-resource;
+end;
