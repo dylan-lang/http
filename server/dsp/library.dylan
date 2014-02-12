@@ -31,7 +31,7 @@ define module dsp
   use common-extensions,
     exclude: { false?, true? };
   use date,
-    import: { current-date, <date> };
+    import: { as-iso8601-string, current-date, <date> };
   use dylan;
   use file-system,
     import: { file-property, <pathname>, working-directory };
