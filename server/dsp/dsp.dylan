@@ -4,7 +4,7 @@ Synopsis:  Dylan Server Pages
 Copyright: See LICENSE in this distribution for details.
 
 
-// See .../http/server/examples/http-server-demo/ for example DSP usage.
+// See .../http/examples/http-server-demo/ for example DSP usage.
 
 // TODO: separate out the template parsing so that it's possible to
 //       use different template parsers easily.
