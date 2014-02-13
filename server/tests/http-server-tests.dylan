@@ -1,4 +1,4 @@
-Module: http-server-tests
+Module: http-server-test-suite
 Copyright: See LICENSE in this distribution for details.
 
 
@@ -155,48 +155,3 @@ define suite http-server-test-suite ()
   // http-test-utils into its own library and using it in both places.
   suite http-client-test-suite;
 end;
-
-// This library may be used as a dll or as an executable.  If an executable,
-// it does different things depending on the environment so that it can be
-// invoked as a CGI script.
-//
-define method main () => ()
-  let filename = locator-name(as(<file-locator>, application-name()));
-  if (split(filename, ".")[0] = "http-server-tests")
-    let query = environment-variable("QUERY_STRING");
-    if (~query)
-      // Show all request/response headers and message content.
-      *http-common-log*.log-level := $trace-level;
-      *http-client-log*.log-level := $trace-level;
-      *log-content?* := #f;  // http-server variable, not yet configurable.
-      run-test-application(http-server-test-suite);
-    else
-      // We're being invoked as a CGI script.
-      // Note: don't log anything in this branch since it will become
-      // part of the response.
-
-      // Expecting "cgi=xxx" for various values of xxx.
-      let parts = query & split(query, '=');
-      let cgi = parts & parts.size >= 2 & parts[1];
-      select (cgi by \=)
-        "cwd" =>
-          cgi-emit-working-directory();
-        "env" =>
-          cgi-emit-environment();
-        "HTTP_" =>
-          cgi-emit-http-headers();
-        "location" =>
-          cgi-emit-location-header();
-        "status" =>
-          cgi-emit-status-header();
-        otherwise =>
-          error("unrecognized query string: %s", query);
-      end;
-    end;
-  end;
-end method main;
-
-begin
-  main()
-end;
-
