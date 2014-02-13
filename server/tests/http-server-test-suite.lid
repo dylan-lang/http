@@ -1,5 +1,5 @@
-Library: http-server-tests
-Files: library
+Library: http-server-test-suite
+Files: http-server-test-suite-library
        utilities
        config-tests
        vhost-tests
