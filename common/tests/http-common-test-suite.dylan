@@ -193,21 +193,3 @@ define suite http-common-test-suite ()
   suite errors-test-suite;
   suite media-type-test-suite;
 end;
-
-
-//// --- main ---
-
-define method main
-    () => ()
-  let filename = locator-name(as(<file-locator>, application-name()));
-  if (split(filename, ".")[0] = "http-common-test-suite")
-    run-test-application(http-common-test-suite);
-
-    // Work around bug in new-io.  It should force-output before the
-    // application exits.
-    force-output(*standard-output*);
-  end;
-end method main;
-
-main();
-

@@ -2,15 +2,6 @@ Module: http-client-test-suite
 Author: Francesco Ceccon
 Copyright: See LICENSE in this distribution for details.
 
-define suite http-client-test-suite ()
-  suite request-test-suite;
-  suite prepare-request-test-suite;
-end suite http-client-test-suite;
-
-define suite request-test-suite ()
-  test test-convert-headers-method;
-end suite request-test-suite;
-
 define test test-convert-headers-method ()
   let headers = convert-headers(#f);
   check-instance?("#f is an empty <header-table>", <header-table>, headers);
@@ -23,13 +14,10 @@ define test test-convert-headers-method ()
   check-instance?("<header-table> from a <table>", <header-table>, headers);
 end test test-convert-headers-method;
 
-define suite prepare-request-test-suite ()
-  test test-prepare-request-method-method;
-  test test-prepare-request-url-method;
-  test test-prepare-request-headers-method;
-  test test-prepare-request-content-method;
-  test test-prepare-request-method;
-end suite prepare-request-test-suite;
+define suite request-test-suite ()
+  test test-convert-headers-method;
+end suite request-test-suite;
+
 
 define test test-prepare-request-method-method ()
   let base-request = make(<base-http-request>);
@@ -122,4 +110,16 @@ define test test-prepare-request-method ()
               "test content");
 end test test-prepare-request-method;
 
-run-test-application(http-client-test-suite);
+define suite prepare-request-test-suite ()
+  test test-prepare-request-method-method;
+  test test-prepare-request-url-method;
+  test test-prepare-request-headers-method;
+  test test-prepare-request-content-method;
+  test test-prepare-request-method;
+end suite prepare-request-test-suite;
+
+
+define suite http-client-test-suite ()
+  suite request-test-suite;
+  suite prepare-request-test-suite;
+end suite http-client-test-suite;

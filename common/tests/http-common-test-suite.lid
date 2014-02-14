@@ -1,3 +1,3 @@
 library: http-common-test-suite
-files: library.dylan
-       http-common-test-suite.dylan
+files: http-common-test-suite-library
+       http-common-test-suite
