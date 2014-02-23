@@ -8,11 +8,10 @@ define sideways method process-config-element
   local method true-value? (value)
           member?(value, #("yes", "true", "on"), test: string-equal?)
         end;
-  let *refresh-templates?* = true-value?(get-attr(node, #"refresh-templates") | "no");
-  log-info("DSP template refresh is %s.",
-           iff(*refresh-templates?*, "enabled", "disabled"));
+  *reparse-templates?* := true-value?(get-attr(node, #"reparse-templates") | "no");
+  log-info("DSP template reparse is %s.",
+           iff(*reparse-templates?*, "enabled", "disabled"));
 end method process-config-element;
-
 
 define open class <paginator> (<sequence>)
   // The underlying sequence we're paging over.
