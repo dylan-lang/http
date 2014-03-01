@@ -2,6 +2,9 @@ Module: http-client-test-suite
 Author: Francesco Ceccon
 Copyright: See LICENSE in this distribution for details.
 
+// TODO(cgay): Move all the client tests from http-server-test-suite
+// to here.  See comment in http-server-tests.dylan.
+
 define test test-convert-headers-method ()
   let headers = convert-headers(#f);
   check-instance?("#f is an empty <header-table>", <header-table>, headers);
