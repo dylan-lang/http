@@ -1,4 +1,4 @@
-Module: http-test-utils
+Module: http-testing
 Copyright: See LICENSE in this distribution for details.
 
 
