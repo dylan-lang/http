@@ -23,10 +23,10 @@ end;
 
 define test test-options-method ()
   let response = http-options(full-url("/"));
-  check-equal("200 OK", response.response-code, 200);
-  check-equal("Allowed methods",
-              get-header(response, "Allow"),
-              "HEAD, OPTIONS, GET");
+  assert-equal(200, response.response-code);
+  assert-equal(#("GET", "HEAD", "OPTIONS"),
+               sort(split(get-header(response, "Allow"), ", ")),
+               "Allowed methods");
 end test test-options-method;
 
 define test test-get-method ()
