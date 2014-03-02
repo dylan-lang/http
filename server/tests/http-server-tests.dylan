@@ -150,8 +150,6 @@ define suite http-server-test-suite ()
   suite resources-test-suite;
   suite rewrite-rules-test-suite;
   suite virtual-host-test-suite;
-  // The client test suite depends on the server test suite and vise versa,
-  // so for now they need to be combined.  This could be fixed by moving
-  // http-test-utils into its own library and using it in both places.
+  // TODO(cgay): Move this to http-client-test-suite library.
   suite http-client-test-suite;
 end;
