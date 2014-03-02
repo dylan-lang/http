@@ -11,7 +11,6 @@ define library http-server-test-suite
     import: { common-dylan, threads };
   use http-client;
   use http-common;
-  use http-common-test-suite;
   use http-testing;
   use io,
     import: { format-out, standard-io, streams };
@@ -48,7 +47,6 @@ define module http-server-test-suite
   use http-client;
   use http-common;
   use http-common-internals;
-  use http-common-test-suite;
   use http-testing;
   use http-server,
     exclude: { log-trace, log-debug, log-info, log-warning, log-error };
