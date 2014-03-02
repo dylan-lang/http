@@ -115,14 +115,11 @@ define test test-date-header-parsing ()
   //    Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
   //    Sun Nov  6 08:49:37 1994       ; ANSI C's asctime() format
   let date = encode-date(1994, 11, 06, 08, 49, 37, time-zone-offset: 0);
-  let test-dates = #(
-    "Tue, 15 Nov 1994 12:45:26 GMT",  // rfc1123
-    "Sun, 06 Nov 1994 08:49:37 GMT",  // rfc1123
-    "Sunday, 06-Nov-94 08:49:37 GMT", // rfc850
-    "Sun Nov  6 08:49:37 1994"        // ANSI C asctime (GMT)
-    );
+  let test-dates = #("Sun, 06 Nov 1994 08:49:37 GMT",  // rfc1123
+                     "Sunday, 06-Nov-94 08:49:37 GMT", // rfc850
+                     "Sun Nov  6 08:49:37 1994");      // ANSI C asctime (GMT)
   for (test-date in test-dates)
-    check-equal(format-to-string("Date %s parses correctly", test-date),
+    check-equal(fmt("Parse %=", test-date),
                 date,
                 parse-http-date(test-date, 0, test-date.size));
   end;

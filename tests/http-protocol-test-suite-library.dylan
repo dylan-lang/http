@@ -6,10 +6,12 @@ define library http-protocol-test-suite
   use system;
   use http-client;
   use http-common;
+  use http-testing;
   use testworks;
   use uri;
   use strings;
-  use io, import: { format-out };
+  use io,
+    import: { format-out };
 
   export http-protocol-test-suite;
 end library http-protocol-test-suite;
@@ -19,10 +21,11 @@ define module http-protocol-test-suite
   use date;
   use http-client;
   use http-common;
+  use http-testing,
+    import: { fmt };
   use testworks;
   use uri;
   use strings;
-  use format-out;
 
   export http-protocol-test-suite;
 end module http-protocol-test-suite;

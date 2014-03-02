@@ -14,8 +14,9 @@ end;
 define inline function string->integer
     (buf :: <byte-string>, bpos :: <integer>, epos :: <integer>)
  => (value :: false-or(<integer>))
-  string-to-integer(buf, start: bpos, end: epos, default: #f)
-end string->integer;
+  let int :: <integer> = string-to-integer(buf, start: bpos, end: epos, default: -1);
+  (int ~== -1) & int
+end function string->integer;
 
 define inline function trimmed-string->integer
     (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
@@ -361,39 +362,45 @@ define function parse-entity-tag-value
   end;
 end;
 
-define function parse-http-date (str :: <byte-string>,
-                                 bpos :: <integer>,
-                                 epos :: <integer>)
-  => (date :: false-or(<date>))
+define function parse-http-date
+    (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
+ => (date :: false-or(<date>))
   // wish could stack-cons this..
-  let v = make(<simple-object-vector>, size: 8);
+  let vsize :: <integer> = 8;
+  let v = make(<simple-object-vector>, size: vsize);
   iterate loop (bpos = bpos, i = 0)
-    let pos = token-end-position(str, bpos, epos) | epos;
-    unless (pos == bpos | i == 8)
+    let pos = char-position-if(method (char :: <character>)
+                                 ~alphanumeric?(char)
+                               end,
+                               str, bpos, epos) | epos;
+    unless (pos == bpos | i == vsize)
       v[i] := string->integer(str, bpos, pos) | substring(str, bpos, pos);
       let bpos = if (pos == epos | str[pos] == ';')
                    epos
                  else
-                   skip-whitespace(str, pos + 1, epos)
+                   char-position-if(method (c :: <character>)
+                                      c ~== '-' & c ~== ' ' & c ~== '/'
+                                    end,
+                                    str, pos + 1, epos)
                  end;
       if (bpos ~== epos)
         loop(bpos, i + 1)
       else
         let (sec, min, hour, day, mon, year)
-          = if (instance?(v[0], <integer>)) // year-month-day hr:min:sec
+          = if (instance?(v[0], <integer>)) // 1994-11-06 08:49:37 GMT
               values(v[5], v[4], v[3], v[2], v[1], v[0])
-            elseif (instance?(v[1], <integer>)) // wkday, day month year hr:min:sec GMT
+            elseif (instance?(v[1], <integer>)) // Sunday, 6-Nov-1994 08:49:37 GMT
               values(v[6], v[5], v[4], v[1], v[2], v[3])
-            else // wkday month day hr:min:sec year GMT
+            else // Sun Nov  6 08:49:37 1994 (tz is assumed to be GMT)
               values(v[5], v[4], v[3], v[2], v[1], v[6])
             end;
         let sec = sec | 0;
         let min = min | 0;
         let hour = hour | 0;
         let day = day | 0;
-        let month = find-key(#("Jan" "Feb" "Mar" "Apr" "May" "Jun"
-                               "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"),
-                             curry(string-equal?, mon));
+        let month = find-key(#("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+                             curry(string-equal-ic?, mon));
         when (instance?(sec, <integer>) & sec < 60 &
               instance?(min, <integer>) & min < 60 &
               instance?(hour, <integer>) & hour < 24 &
@@ -415,9 +422,9 @@ define function parse-http-date (str :: <byte-string>,
           end;
         end;
       end;
-    end;
-  end;
-end;
+    end unless
+  end iterate
+end function parse-http-date;
 
 define function parse-date-value
     (str :: <byte-string>, bpos :: <integer>, epos :: <integer>)
