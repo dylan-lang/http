@@ -150,6 +150,4 @@ define suite http-server-test-suite ()
   suite resources-test-suite;
   suite rewrite-rules-test-suite;
   suite virtual-host-test-suite;
-  // TODO(cgay): Move this to http-client-test-suite library.
-  suite http-client-test-suite;
 end;
