@@ -1,24 +1,24 @@
 [submodule "submodules/logging"]
 	path = submodules/logging
-	url = git://github.com/dylan-lang/logging.git
+	url = https://github.com/dylan-lang/logging.git
 [submodule "submodules/uncommon-dylan"]
 	path = submodules/uncommon-dylan
-	url = git://github.com/dylan-lang/uncommon-dylan.git
+	url = https://github.com/dylan-lang/uncommon-dylan.git
 [submodule "submodules/uri"]
 	path = submodules/uri
-	url = git://github.com/dylan-lang/uri.git
+	url = https://github.com/dylan-lang/uri.git
 [submodule "submodules/mime"]
 	path = submodules/mime
-	url = git://github.com/dylan-lang/mime.git
+	url = https://github.com/dylan-lang/mime.git
 [submodule "submodules/base64"]
 	path = submodules/base64
-	url = git://github.com/dylan-lang/base64.git
+	url = https://github.com/dylan-lang/base64.git
 [submodule "submodules/xml-parser"]
 	path = submodules/xml-parser
-	url = git://github.com/dylan-lang/xml-parser.git
+	url = https://github.com/dylan-lang/xml-parser.git
 [submodule "submodules/meta"]
 	path = submodules/meta
-	url = git://github.com/dylan-lang/meta.git
+	url = https://github.com/dylan-lang/meta.git
 [submodule "submodules/concurrency"]
 	path = submodules/concurrency
-	url = git://github.com/dylan-foundry/concurrency.git
+	url = https://github.com/dylan-foundry/concurrency.git
