@@ -38,7 +38,7 @@ let response :: <http-response> = read-response(conn, read-content: #f);
 // Content will be automatically encoded if it is a table.
 // A Content-Type header will be added if not otherwise provided.
 send-request(conn, "POST", "/form",
-             content: encode-form-data(form-data));
+             content: build-urlencoded-form(form-data));
 ...
 
 
@@ -66,6 +66,9 @@ close(conn);
 
 
 */
+
+define constant <uri-or-string> = type-union(<uri>, <string>);
+define constant <follow-redirects> = type-union(<boolean>, <nonnegative-integer>);
 
 // This is bound to an <http-connection> for the duration of with-http-connection.
 //
@@ -162,7 +165,7 @@ end;
 // Writing requests
 //////////////////////////////////////////
 
-// An high-level request object.
+// A high-level request.
 //
 // This class contains abstractions like parameters, data, cookies and
 // response streams.
@@ -189,6 +192,8 @@ define method initialize
   end;
 end method initialize;
 
+// TODO(cgay): Is this necessary, and why is it returning raw headers rather
+// than parsed headers?
 define method request-headers
     (message :: <base-http-request>)
  => (headers :: <header-table>)
@@ -258,7 +263,7 @@ end method explode-request;
 define generic start-request
     (conn :: <http-connection>,
      request-method :: <request-method>,
-     url :: type-union(<uri>, <string>),
+     url :: <uri-or-string>,
      #key headers,
           standard-headers = #t,
           http-version :: <http-version>)
@@ -269,7 +274,7 @@ define generic start-request
 define method start-request
     (conn :: <http-connection>,
      request-method :: <request-method>,
-     url :: type-union(<uri>, <string>),
+     url :: <uri-or-string>,
      #key headers,
           standard-headers = #t,
           http-version :: <http-version> = #"HTTP/1.1")
@@ -324,7 +329,7 @@ end method start-request;
 
 define generic send-request
     (conn :: <http-connection>, request-method :: <request-method>,
-     url :: type-union(<uri>, <string>),
+     url :: <uri-or-string>,
      #rest start-request-args,
      #key content :: <byte-string>,
      #all-keys)
@@ -332,7 +337,7 @@ define generic send-request
 
 define method send-request
     (conn :: <http-connection>, request-method :: <request-method>,
-     url :: type-union(<uri>, <string>),
+     url :: <uri-or-string>,
      #rest start-request-args,
      #key content :: <byte-string> = "",
           headers)
@@ -369,11 +374,11 @@ end method finish-request;
 define method send-request-line
     (conn :: <http-connection>,
      request-method :: <request-method>,
-     url :: type-union(<uri>, <byte-string>),
+     url :: <uri-or-string>,
      http-version :: <http-version>)
-  let req-meth = iff(~instance?(request-method, <string>),
-                     as-uppercase(as(<byte-string>, request-method)),
-                     request-method);
+  let req-meth = iff(instance?(request-method, <string>),
+                     request-method,
+                     as-uppercase(as(<byte-string>, request-method)));
   format(conn.connection-socket, "%s %s %s\r\n",
          req-meth,
          // The client MUST omit the URI host unless sending to a proxy.
@@ -458,12 +463,12 @@ end function send-chunk;
 // These methods on convert-headers all convert them to a <header-table>.
 
 define method convert-headers
-    (headers == #f)
+    (headers == #f) => (headers :: <header-table>)
   make(<header-table>)
 end method convert-headers;
 
 define method convert-headers
-    (headers :: <sequence>)
+    (headers :: <sequence>) => (headers :: <header-table>)
   let new-headers = make(<header-table>);
   for (item in headers)
     let header-name :: <byte-string> = item[0];
@@ -477,7 +482,7 @@ end method convert-headers;
 // will be copied, since we have to modify it in send-request.
 
 define method convert-headers
-    (headers :: <table>)
+    (headers :: <table>) => (headers :: <header-table>)
   // Note the potential for duplicate headers to be dropped here.
   // We let it pass...
   let new-headers = make(<header-table>);
@@ -488,17 +493,20 @@ define method convert-headers
 end method convert-headers;
 
 define method convert-parameters
-    (parameters == #f)
+    (parameters == #f) => (params :: <string-table>)
   make(<string-table>)
 end method convert-parameters;
 
 define method convert-parameters
-    (parameters :: <string-table>)
+    (parameters :: <string-table>) => (params :: <string-table>)
   parameters
 end method convert-parameters;
 
 // The HTML spec section 17.13.4 says to escape the reserved characters, then
-// convert spaces to +
+// convert spaces to '+'.
+//
+// TODO(cgay): This probably belongs in the uri library?  If $uri-pchar
+// continues to be exported it needs a better name.
 define constant $http-form :: <byte-string> = concatenate($uri-pchar, " /?");
 
 define method form-encode
@@ -526,6 +534,9 @@ end method build-urlencoded-form;
 // Content can be of different types, these methods convert them all
 // to <byte-string>.
 // convert-content needs the request headers to change its content-type.
+//
+// TODO(cgay): IMO this is too much magic.  Callers should just use
+// build-urlencoded-form(content) if needed.
 
 define method convert-content
     (content :: <string-table>, #key headers :: <header-table>)
@@ -563,8 +574,8 @@ define method make
 end;
 
 // Read the status line and headers from the given connection and return an
-// <http-response> object.  If "read-content" is true (the default) then the
-// entire message body is read and stored in the response object.  Otherwise
+// <http-response>.  If "read-content" is true (the default) then the
+// entire message body is read and stored in the response.  Otherwise
 // the stream is positioned to read the body of the response, which is the
 // responsibility of the caller.
 //
@@ -723,7 +734,7 @@ end method read-and-discard-to-end;
 
 define method perform-request
     (request :: <base-http-request>,
-     #key follow-redirects :: type-union(<boolean>, <nonnegative-integer>) = #t,
+     #key follow-redirects :: <follow-redirects> = #t,
           read-response-body? :: <boolean> = #t,
           stream :: false-or(<stream>))
  => (response :: <http-response>)
@@ -767,7 +778,7 @@ end method perform-request;
 
 define method perform-request
     (request :: <http-request>,
-     #key follow-redirects :: type-union(<boolean>, <nonnegative-integer>) = #t,
+     #key follow-redirects :: <follow-redirects> = #t,
           read-response-body? :: <boolean> = #t,
           stream :: false-or(<stream>))
  => (response :: <http-response>)
@@ -784,7 +795,8 @@ end method perform-request;
 //   request-method - The HTTP method for the request.
 //   headers - Any additional headers to send with the request.  The same headers
 //     are sent in subsequent requests if redirects are followed.
-//   data - Content to send in the body of the request.
+//   data - Content to send in the body of the request.  <string-table> is sent
+//     as application/x-www-form-urlencoded body, others sent with standard encoding.
 //   follow-redirects - If #f, then don't follow redirects.  This is allowed in order
 //     to simplify the caller.  If #t, then follow an indefinite number of redirects.
 //     If 0, then raise <maximum-redirects-exceeded>.  If > 0, follow that many
@@ -792,25 +804,25 @@ end method perform-request;
 //   read-response-body? - If #t, read the response body and store it in the
 //     response-content slot. Otherwise, the caller is responsible for reading
 //     the response body. If the response is expected to be large (e.g. a file
-//     download) you probably want to use #f.
+//     download) you probably want to use #f or use the "stream" argument.
 //   stream - A stream on which to output the response message body.  This is useful
 //     when an extremely large response is expected.  If not provided, then the
-//     response message body is stored in the returned response object.
+//     response message body is stored in the returned response.
 // Values:
-//   An <http-response> object.
+//   An <http-response>.
 define sealed generic http-request
     (url :: <object>,
      request-method :: <request-method>,
      #key headers,
           parameters,
-          data,
+          data,                 // TODO(cgay): Rename to content?
           follow-redirects,
           read-response-body?,
           stream)
  => (response :: <http-response>);
 
 define method http-request
-    (url :: <byte-string>,
+    (url :: <string>,
      request-method :: <request-method>,
      #key headers,
           parameters,
@@ -835,7 +847,7 @@ define method http-request
      #key headers,
           parameters :: false-or(<string-table>),
           data,
-          follow-redirects :: type-union(<boolean>, <nonnegative-integer>) = #t,
+          follow-redirects :: <follow-redirects> = #t,
           read-response-body? :: <boolean> = #t,
           stream :: false-or(<stream>))
  => (response :: <http-response>)
