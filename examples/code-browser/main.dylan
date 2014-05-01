@@ -369,7 +369,6 @@ begin
   let filename = generate-graph(class-graph, find-node(class-graph, "<object>"));
   format-out("filename %s\n", filename);
 end;
-*/
 
 define function generate-class-graph (class-name :: <string>) => (res :: <graph>)
   let project = find-project("code-browser");
@@ -414,4 +413,4 @@ define function generate-class-graph (class-name :: <string>) => (res :: <graph>
   end;
   graph;
 end;
-
+*/
