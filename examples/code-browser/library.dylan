@@ -42,6 +42,7 @@ define module code-browser
   use format-out;
   use streams;
   use file-system;
+  use http-server;
   use dsp;
   use regular-expressions;
   use source-records;
