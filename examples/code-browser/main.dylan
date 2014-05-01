@@ -8,52 +8,13 @@ define thread variable *environment-object* = #f;
 define function callback-handler (#rest args)
   log-debug("%=\n", args);
 end function callback-handler;
+
 define taglib code-browser () end;
 
 define class <code-browser-page> (<dylan-server-page>)
 end;
 
 define generic environment-object-page (obj :: <environment-object>) => (res :: <code-browser-page>);
-
-define function symbol-responder (#key library-name, module-name, symbol-name)
-  if (library-name)
-    let project = find-project(library-name);
-    open-project-compiler-database(project, 
-                                   warning-callback: callback-handler,
-                                   error-handler: callback-handler);
-    parse-project-source(project);
-    dynamic-bind(*project* = project)
-      let library = project.project-library;
-      if (module-name)
-        let module = find-module(project, module-name, library: library);
-        if (symbol-name)
-          let symbol
-            = find-environment-object(project, symbol-name,
-                                      library: library,
-                                      module: module);
-          dynamic-bind(*environment-object* = symbol)
-            process-template(environment-object-page(*environment-object*));
-          end;
-        else
-          dynamic-bind(*environment-object* = module)
-            process-template(environment-object-page(*environment-object*));
-          end;
-        end;
-      else
-        dynamic-bind(*environment-object* = library)
-          process-template(environment-object-page(*environment-object*));
-        end;
-      end;
-    end;
-  end;
-end;
-
-define url-map $code-browser-url-map
-  url "/symbol"
-    action GET ("^(?P<library-name>[^/]+)(/(?P<module-name>[^/]+)(/(?P<symbol-name>[^/]+)/?)?)?$")
-      => symbol-responder;
-end;
-
 
 define class <raw-source-page> (<code-browser-page>)
 end;
@@ -276,6 +237,39 @@ end;
 
 /// Main
 
+define method respond (page :: <code-browser-page>, #key library-name, module-name, symbol-name)
+  if (library-name)
+    let project = find-project(library-name);
+    open-project-compiler-database(project, 
+                                   warning-callback: callback-handler,
+                                   error-handler: callback-handler);
+    parse-project-source(project);
+    dynamic-bind(*project* = project)
+      let library = project.project-library;
+      if (module-name)
+        let module = find-module(project, module-name, library: library);
+        if (symbol-name)
+          let symbol
+            = find-environment-object(project, symbol-name,
+                                      library: library,
+                                      module: module);
+          dynamic-bind(*environment-object* = symbol)
+            process-template(environment-object-page(*environment-object*));
+          end;
+        else
+          dynamic-bind(*environment-object* = module)
+            process-template(environment-object-page(*environment-object*));
+          end;
+        end;
+      else
+        dynamic-bind(*environment-object* = library)
+          process-template(environment-object-page(*environment-object*));
+        end;
+      end;
+    end;
+  end;
+end;
+
 // Starts up the web server.
 define function main () => ()
   *check-source-record-date?* := #f;
@@ -287,7 +281,10 @@ define function main () => ()
                                       foo.symbol-entry-name)),
              name-type(foo.symbol-entry-project,
                        foo.symbol-entry-name));
-  http-server-main(server: make(<http-server>, url-map: $code-browser-url-map),
+  let server = make(<http-server>);
+  add-resource(server, "/symbol/{library-name}/{module-name?}/{symbol-name?}", make(<code-browser-page>));
+  add-resource(server, "/search", make(<search-page>));
+  http-server-main(server: server,
                    description: "Dylan Code Browser");
 end;
 
