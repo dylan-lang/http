@@ -298,7 +298,7 @@ define function collect-projects () => (res :: <collection>)
             add!(res, filename);
           end;
         end;
-  let regs = find-registries("x86", "win32");
+  let regs = find-registries("x86-win32");
   let reg-paths = map(registry-location, regs);
   for (reg-path in reg-paths)
     if (file-exists?(reg-path))
