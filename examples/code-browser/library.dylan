@@ -10,6 +10,7 @@ define library code-browser
     import: { format, format-out, streams };
   use system,
     import: { locators, threads, file-system };
+  use http-common;
   use http-server;
   use dsp;
 
@@ -42,6 +43,7 @@ define module code-browser
   use format-out;
   use streams;
   use file-system;
+  use http-common;
   use http-server;
   use dsp;
   use regular-expressions;

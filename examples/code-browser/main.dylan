@@ -241,6 +241,7 @@ define class <symbol-page> (<resource>)
 end;
 
 define method respond (page :: <symbol-page>, #key library-name, module-name, symbol-name)
+  set-header(current-response(), "Content-Type", "text/html");
   if (library-name & ~empty?(library-name))
     let project = find-project(library-name);
     open-project-compiler-database(project, 
