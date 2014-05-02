@@ -237,7 +237,10 @@ end;
 
 /// Main
 
-define method respond (page :: <code-browser-page>, #key library-name, module-name, symbol-name)
+define class <symbol-page> (<resource>)
+end;
+
+define method respond (page :: <symbol-page>, #key library-name, module-name, symbol-name)
   if (library-name)
     let project = find-project(library-name);
     open-project-compiler-database(project, 
@@ -282,7 +285,7 @@ define function main () => ()
              name-type(foo.symbol-entry-project,
                        foo.symbol-entry-name));
   let server = make(<http-server>);
-  add-resource(server, "/symbol/{library-name}/{module-name?}/{symbol-name?}", make(<code-browser-page>));
+  add-resource(server, "/symbol/{library-name}/{module-name?}/{symbol-name?}", make(<symbol-page>));
   add-resource(server, "/search", make(<search-page>));
   http-server-main(server: server,
                    description: "Dylan Code Browser");

@@ -5,7 +5,7 @@ Author:   Andreas Bogk, Bastian Mueller, Hannes Mehnert
 
 define thread variable *results* = #f;
 
-define class <search-page> (<code-browser-page>)
+define class <search-page> (<resource>)
 end;
 
 define method respond (page :: <search-page>, #key)
