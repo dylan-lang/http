@@ -241,7 +241,7 @@ define class <symbol-page> (<resource>)
 end;
 
 define method respond (page :: <symbol-page>, #key library-name, module-name, symbol-name)
-  if (library-name)
+  if (library-name & ~empty?(library-name))
     let project = find-project(library-name);
     open-project-compiler-database(project, 
                                    warning-callback: callback-handler,
@@ -249,9 +249,9 @@ define method respond (page :: <symbol-page>, #key library-name, module-name, sy
     parse-project-source(project);
     dynamic-bind(*project* = project)
       let library = project.project-library;
-      if (module-name)
+      if (module-name & ~empty?(module-name))
         let module = find-module(project, module-name, library: library);
-        if (symbol-name)
+        if (symbol-name & ~empty?(symbol-name))
           let symbol
             = find-environment-object(project, symbol-name,
                                       library: library,
