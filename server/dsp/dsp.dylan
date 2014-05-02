@@ -744,7 +744,7 @@ define function parse-tag-prefix
     (buffer, taglib-specs, bpos, epos) => (prefix, taglib)
   local method parse-prefix (spec-index :: <integer>)
           if (spec-index >= size(taglib-specs))
-            iff(string-equal-ic?("%dsp:", buffer, start2: bpos, end2: bpos + 5),
+            iff(string-equal-ic?("%dsp:", buffer, start2: bpos, end2: min(epos, bpos + 5)),
                 values("%dsp", #"directive"),
                 values(#f, #f))
           else
@@ -753,7 +753,7 @@ define function parse-tag-prefix
             let taglib = tail(spec);
             let prefix-colon = concatenate(prefix, ":");
             iff(string-equal-ic?(prefix-colon, buffer,
-                                 start2: bpos, end2: bpos + prefix-colon.size),
+                                 start2: bpos, end2: min(epos, bpos + prefix-colon.size)),
                 values(prefix, taglib),
                 parse-prefix(spec-index + 1))
           end
