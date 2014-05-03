@@ -22,6 +22,8 @@ end;
 define variable *raw-source-page*
   = make(<raw-source-page>, source: "raw-source.dsp");
 
+define constant $index-page = make(<code-browser-page>, source: "index.dsp");
+
 define method environment-object-page (object :: <environment-object>)
  => (res :: <code-browser-page>)
   *raw-source-page*;
@@ -241,6 +243,14 @@ end;
 
 /// Main
 
+define class <index-page> (<resource>)
+end;
+
+define method respond (page :: <index-page>, #key)
+  set-header(current-response(), "Content-Type", "text/html");
+  process-template($index-page);
+end;
+
 define class <symbol-page> (<resource>)
 end;
 
@@ -290,6 +300,7 @@ define function main () => ()
              name-type(foo.symbol-entry-project,
                        foo.symbol-entry-name));
   let server = make(<http-server>);
+  add-resource(server, "/", make(<index-page>));
   add-resource(server, "/symbol/{library-name}/{module-name?}/{symbol-name?}", make(<symbol-page>));
   add-resource(server, "/search", make(<search-page>));
   http-server-main(server: server,
