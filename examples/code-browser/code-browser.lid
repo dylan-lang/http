@@ -1,6 +1,6 @@
 library: code-browser
 files: library
-       main       
+       main
        search
        class
        module-variable

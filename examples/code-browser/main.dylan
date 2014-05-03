@@ -2,7 +2,7 @@ Module:   code-browser
 Synopsis: Browse Open Dylan environment objects
 Author:   Andreas Bogk, Bastian Mueller, Hannes Mehnert
 
-define thread variable *project* = #f; 
+define thread variable *project* = #f;
 define thread variable *environment-object* = #f;
 
 define function callback-handler (#rest args)
@@ -158,7 +158,7 @@ define tag project-sources in code-browser
     output("<pre>\n");
     for(source in *project*.project-sources)
       block()
-        output("<h3>%s</h3> module <strong>%s</strong>\n", 
+        output("<h3>%s</h3> module <strong>%s</strong>\n",
                source-record-location(source),
                source-record-module-name(source));
         output(markup-dylan-source
@@ -248,7 +248,7 @@ define method respond (page :: <symbol-page>, #key library-name, module-name, sy
   set-header(current-response(), "Content-Type", "text/html");
   if (library-name & ~empty?(library-name))
     let project = find-project(library-name);
-    open-project-compiler-database(project, 
+    open-project-compiler-database(project,
                                    warning-callback: callback-handler,
                                    error-handler: callback-handler);
     parse-project-source(project);
@@ -347,7 +347,7 @@ define function populate-symbol-table ()
     block()
       format-out("Project %s\n", project-name);
       let project = find-project(project-name);
-      open-project-compiler-database(project, 
+      open-project-compiler-database(project,
                                      warning-callback: callback-handler,
                                      error-handler: callback-handler);
       parse-project-source(project);
@@ -355,7 +355,7 @@ define function populate-symbol-table ()
       do-namespace-names
         (method(module-name :: <module-name-object>)
            if (name-exported?(project, module-name))
-             do-namespace-names(curry(add-symbol, project), project, 
+             do-namespace-names(curry(add-symbol, project), project,
                                 name-value(project, module-name))
            end
          end,
@@ -364,7 +364,7 @@ define function populate-symbol-table ()
       format-out("Received exception %= in project %s\n", e, project-name);
     end;
   end;
-  
+
   //main()
 end;
 
@@ -377,7 +377,7 @@ end;
 
 define function generate-class-graph (class-name :: <string>) => (res :: <graph>)
   let project = find-project("code-browser");
-  open-project-compiler-database(project, 
+  open-project-compiler-database(project,
                                  warning-callback: callback-handler,
                                  error-handler: callback-handler);
   parse-project-source(project);

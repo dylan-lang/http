@@ -20,7 +20,7 @@ define library code-browser
   use source-control-manager;
 
   use dfmc-environment-projects;
- 
+
   use registry-projects;
 
   use source-records;
@@ -50,7 +50,7 @@ define module code-browser
   use source-records;
   use source-records-implementation;
   use environment-protocols,
-    exclude: { <singleton-object>, 
+    exclude: { <singleton-object>,
                application-filename,
                application-arguments };
   use release-info;

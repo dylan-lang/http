@@ -24,4 +24,4 @@ define tag thread-variable in code-browser
   if (instance?(*environment-object*, <thread-variable-object>))
     output("thread");
   end
-end; 
+end;

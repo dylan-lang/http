@@ -22,7 +22,7 @@ end;
 
 define variable *result-page*
   = make(<result-page>, source: "results.dsp");
-  
+
 define body tag results in code-browser
     (page :: <code-browser-page>, do-body :: <function>)
     ()

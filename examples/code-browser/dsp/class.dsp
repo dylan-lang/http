@@ -19,7 +19,7 @@
     <code-browser:direct-subclasses>
     <li><a href="<code-browser:canonical-link/>"><code-browser:display-name/></a></li>
     </code-browser:direct-subclasses>
-  </ul>     
+  </ul>
   Slots:
   <ul>
     <code-browser:slots>
