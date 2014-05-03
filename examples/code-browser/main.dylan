@@ -54,9 +54,13 @@ end;
 define tag source in code-browser
     (page :: <code-browser-page>)
     ()
-  output("%s",
-         markup-dylan-source(environment-object-source(*project*,
-                                                       *environment-object*)));
+  block ()
+    output("%s",
+           markup-dylan-source(environment-object-source(*project*,
+                                                         *environment-object*)));
+  exception(e :: <condition>)
+    output("Source unavailable because of %=\n", e);
+  end block;
 end;
 
 define tag project-name in code-browser
