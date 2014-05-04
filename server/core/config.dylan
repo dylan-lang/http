@@ -256,7 +256,7 @@ define method process-config-element
     working-directory() := merge-locators(as(<directory-locator>, loc),
                                           server.server-root);
   end;
-  log-info("Server root: %s", as(<string>, server.server-root));
+  log-info("Working directory: %s", as(<string>, working-directory()));
 
   // use-default-virtual-host
   let attr = get-attr(node, #"use-default-virtual-host");
