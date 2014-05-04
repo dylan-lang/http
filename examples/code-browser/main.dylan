@@ -292,13 +292,6 @@ end;
 define function main () => ()
   *check-source-record-date?* := #f;
   populate-symbol-table();
-  let foo = $all-symbols["$foo"][0];
-  format-out("var-type %s name-type %s\n",
-             variable-type(foo.symbol-entry-project,
-                           name-value(foo.symbol-entry-project,
-                                      foo.symbol-entry-name)),
-             name-type(foo.symbol-entry-project,
-                       foo.symbol-entry-name));
   let server = make(<http-server>);
   add-resource(server, "/", make(<index-page>));
   add-resource(server, "/symbol/{library-name}/{module-name?}/{symbol-name?}", make(<symbol-page>));
@@ -340,16 +333,6 @@ define method add-symbol(project, name-object :: <binding-name-object>)
     $all-symbols[symbol-name] := add!(symbol-entries, symbol-entry);
   end;
 end;
-
-//begin
-//  populate-symbol-table();
-//  for (ele in key-sequence($all-symbols))
-//    format-out("%s %d\n", ele, $all-symbols[ele].size);
-//  end;
-//  main();
-//end;
-
-define variable $foo :: false-or(<integer>) = 23;
 
 define function populate-symbol-table ()
   let projs = collect-projects();

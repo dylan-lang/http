@@ -57,7 +57,5 @@ define module code-browser
   use registry-projects;
   // use graphviz-renderer;
 //  use environment-deuce;
-
-  export $foo;
 end;
 
