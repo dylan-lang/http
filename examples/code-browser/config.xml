@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<http-server>
+
+<!-- Code Browser server configuration file
+
+     Pass this file to the http-server executable with the "config"
+     command-line option.
+  -->
+
+<server root=".."
+        working-directory="examples/code-browser/dsp"
+        debug="no"
+        use-default-virtual-host="yes"
+        />
+
+
+<dsp reparse-templates="no" />
+
+<debug-log
+   name="http.server"
+   location="logs/http-server.log"
+   level="trace" />
+
+<!-- log errors to the same place as debug messages -->
+<error-log
+   name="http.server.debug"
+   additive="yes" />
+
+<!-- request lines go to a separate log -->
+<!-- format defaults to "%{message}" for the request log -->
+<request-log
+   name="http.server.requests"
+   additive="no"
+   location="logs/request.log"
+   max-size="20000000" />
+
+
+<listener address="0.0.0.0" port="8080" ssl="no"/>
+
+</http-server>
