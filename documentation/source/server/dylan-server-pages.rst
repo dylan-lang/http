@@ -10,7 +10,7 @@ Pages, but without the ability to mix program logic and page content, which is
 a bad idea anyway. All dynamic content is invoked via DSP tag calls such as
 ``<xx:show-current-username/>``.
 
-(Okay, opinions can vary on the wisdom of closly mixing content and
+(Okay, opinions can vary on the wisdom of closely mixing content and
 implementation, as with JSP scriptlets, but I contend that it's only ok for
 one-off hacks and small one-person projects. This isn't necessary in DSP
 because with Dylan's powerful language features writing custom tags is trivial
@@ -203,5 +203,5 @@ for a full description tag definition. The above tag would be called like this:
 Note that ``style`` defines a parameter for the tag call such that the ``style``
 variable is bound to the value of that parameter in the body of the tag
 definition.
-The tag functon must always accept one argument: ``page``, an instance of
+The tag function must always accept one argument: ``page``, an instance of
 :class:`<dylan-server-page>`.

@@ -103,7 +103,7 @@ URL Routing
       one without the trailing slash).  Think "slash is canonical".
 
   ``slash: #"copy"``
-      Map the given resource to both the gven URL and the URL with
+      Map the given resource to both the given URL and the URL with
       the trailing slash.  Think "slash is a copy".
 
   ``slash: #"redirect"``  (the default)
