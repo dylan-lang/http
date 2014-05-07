@@ -22,3 +22,6 @@
 [submodule "submodules/concurrency"]
 	path = submodules/concurrency
 	url = https://github.com/dylan-foundry/concurrency.git
+[submodule "submodules/serialization"]
+	path = submodules/serialization
+	url = https://github.com/dylan-foundry/serialization.git
