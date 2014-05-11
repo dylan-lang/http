@@ -169,8 +169,10 @@ define method parse-request-url
   end;
   request.request-url := url;
   remove-all-keys!(request.request-query-values);  // appears unnecessary
-  for (value keyed-by key in url.uri-query)
-    request.request-query-values[key] := value;
+  if (url.uri-query)
+    for (value keyed-by key in url.uri-query)
+      request.request-query-values[key] := value;
+    end;
   end;
 end method parse-request-url;
 
