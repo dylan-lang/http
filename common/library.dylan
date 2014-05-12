@@ -267,6 +267,7 @@ define module http-common
 
   // Headers
   create
+    <message-headers-mixin>,
     <header-table>,
     get-header,
     set-header,

@@ -698,13 +698,11 @@ define function %respond-top-level
                                               decline-if-debugging: #f);
 
             read-request(request);
-            let headers = make(<header-table>);
-            if (request.request-keep-alive?)
-              set-header(headers, "Connection", "Keep-Alive");
-            end if;
             let response = make(<response>,
-                                request: request,
-                                headers: headers);
+                                request: request);
+            if (request.request-keep-alive?)
+              set-header(response, "Connection", "Keep-Alive");
+            end if;
             dynamic-bind (*response* = response,
                           // Bound to a <page-context> when first requested.
                           *page-context* = #f)

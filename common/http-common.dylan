@@ -473,7 +473,7 @@ end method read-http-line;
 
 ///////////// Responses ///////////////
 
-define open class <base-http-response> (<message-headers-mixin>)
+define open class <base-http-response> (<object>)
 
   slot response-code :: <integer>,
     init-keyword: code:,

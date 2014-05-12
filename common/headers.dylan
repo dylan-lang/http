@@ -13,7 +13,7 @@ define variable *max-single-header-size* :: false-or(<integer>) = 16384;
 // amount of copying the whole header around -- Hannes 16.11.2007
 define variable *header-buffer-growth-amount* :: limited(<integer>, min: 1) = 1024;
 
-define abstract class <message-headers-mixin> (<object>)
+define open abstract class <message-headers-mixin> (<object>)
   // Raw headers, mapping case-insensitive-header-name to unparsed header value.
   constant slot raw-headers :: <header-table>,
     init-keyword: headers:,
@@ -66,7 +66,7 @@ define open generic set-header
     (object :: <object>, header :: <byte-string>, value :: <object>,
      #key if-exists? :: one-of(#"replace", #"append", #"ignore", #"error"));
 
-define method set-header
+define sealed method set-header
     (headers :: <header-table>, header-name :: <byte-string>, value,
      #key if-exists? :: <symbol> = #"replace")
   // todo -- validate the header.  at least check that it doesn't contain CRLF
