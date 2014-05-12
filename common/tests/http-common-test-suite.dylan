@@ -41,12 +41,6 @@ end;
 
 //// --- media-type test suite ---
 
-define suite errors-test-suite ()
-end;
-
-
-//// --- media-type test suite ---
-
 define function make-media-type
     (type :: <byte-string>, subtype :: <byte-string>, #rest attributes)
   let attrs = make(<string-table>);
@@ -190,6 +184,5 @@ end suite media-type-test-suite;
 define suite http-common-test-suite ()
   suite parsing-test-suite;
   suite headers-test-suite;
-  suite errors-test-suite;
   suite media-type-test-suite;
 end;
