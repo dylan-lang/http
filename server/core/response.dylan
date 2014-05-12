@@ -31,23 +31,22 @@ define constant $chunk-size :: <integer> = 16384;
 
 // Exported
 //
-// This is a subclass of <string-stream> (rather than using a slot to
-// hold an output stream) for two reasons:
+// This is a subclass of <stream> for two reasons:
 // (1) Convenience: responder functions may write directly to the response
 //     rather than having to access an output stream slot.
 // (2) It allows us to intercept the writes in a context where we have
 //     access to the response's data structures so we can write chunked
 //     data to the socket if the chunk buffer is full.
 //
-// Would like to subclass <byte-string-stream>, but it's sealed.
-//
 // Not thread safe.  If you plan to have multiple threads writing to the
 // response, do your own locking.
 //
-define open primary class <response> (<string-stream>, <base-http-response>)
+define open primary class <response> (<stream>, <base-http-response>)
 
-  inherited slot stream-sequence
-    = make(<byte-string>, size: $chunk-size);
+  constant slot response-stream :: <byte-string-stream>
+    = make(<byte-string-stream>,
+           contents: make(<byte-string>, size: $chunk-size),
+           direction: #"output");
 
   constant slot response-request :: <base-http-request>,
     required-init-keyword: #"request";
@@ -80,23 +79,18 @@ end method initialize;
 
 // Implements part of the stream protocol.
 //
-define method write-element
+define sealed method write-element
     (response :: <response>, char :: <byte-character>)
  => ()
-  // Let the method on <string-stream> do its thing.
-  next-method();
+  write-element(response.response-stream, char);
   maybe-send-chunk(response);
 end method write-element;
     
-
-// Implements part of the stream protocol.
-//
-define method write
+define sealed inline method write
     (response :: <response>, chars :: <byte-string>,
      #key start: bpos = 0, end: epos)
  => ()
-  // Let the method on <string-stream> do its thing.
-  next-method();
+  write(response.response-stream, chars, start: bpos, end: epos);
   maybe-send-chunk(response);
 end method write;
 
@@ -107,7 +101,7 @@ define method maybe-send-chunk
     (response :: <response>)
   // response-chunked? returns #f if this is http/0.9 or http/1.0
   // or if the Content-Length header was set.
-  if (response-chunked?(response) & response.stream-position >= $chunk-size)
+  if (response-chunked?(response) & response.response-stream.stream-position >= $chunk-size)
     send-chunk(response);
   end;
 end method maybe-send-chunk;
@@ -126,20 +120,22 @@ define method send-chunk
     send-headers(response, socket);
   end;
 
-  let count :: <integer> = response.stream-size;
+  let count :: <integer> = response.response-stream.stream-size;
   let count-string = integer-to-string(count, base: 16);
   write(socket, count-string);
   write(socket, "\r\n");
   log-content(count-string);
 
-  write(socket, response.stream-sequence, end: count);
+  let contents = response.response-stream.stream-sequence;
+
+  write(socket, contents, end: count);
   write(socket, "\r\n");
   if (*log-content?*)
-    log-content(copy-sequence(response.stream-sequence, end: count));
+    log-content(copy-sequence(contents, end: count));
   end;
 
   // Reset the response buffer.
-  clear-contents(response);
+  clear-contents(response.response-stream);
   inc!(response.response-transfer-length, count);
   count
 end method send-chunk;
@@ -244,9 +240,10 @@ define method finish-response
     let send-body? = ~((rcode >= 100 & rcode <= 199)
                        | rcode == 204  // no content
                        | rcode == $not-modified-redirect);
+    let response-size = response.response-stream.stream-size;
     unless (headers-sent?(response) | http-version == #"http/0.9")
       if (send-body?)
-        content-length := integer-to-string(response.stream-size);
+        content-length := integer-to-string(response-size);
         set-header(response, "Content-Length", content-length);
       end;
       send-response-line(response, socket);
@@ -254,11 +251,12 @@ define method finish-response
     end;
 
     if (send-body? & req-method ~== #"head")
-      write(socket, response.stream-sequence, start: 0, end: response.stream-size);
+      let contents = response.response-stream.stream-sequence;
+      write(socket, contents, start: 0, end: response-size);
       if (*log-content?*)
-        log-content(copy-sequence(response.stream-sequence,
+        log-content(copy-sequence(contents,
                                   start: 0,
-                                  end: response.stream-size));
+                                  end: response-size));
       end;
       // TODO: close connection if this is 0.9 (or 1.0?)
     end;
