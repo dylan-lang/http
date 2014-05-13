@@ -558,27 +558,6 @@ ServerSignature On
         Allow from all
     </Directory>
 
-    #
-    # ScriptAlias: This controls which directories contain server scripts.
-    # ScriptAliases are essentially the same as Aliases, except that
-    # documents in the realname directory are treated as applications and
-    # run by the server when requested rather than as documents sent to the client.
-    # The same rules about trailing "/" apply to ScriptAlias directives as to
-    # Alias.
-    #
-    ScriptAlias /cgi-bin/ "@@ServerRoot@@/cgi-bin/"
-
-    #
-    # "@@ServerRoot@@/cgi-bin" should be changed to whatever your ScriptAliased
-    # CGI directory exists, if you have that configured.
-    #
-    <Directory "@@ServerRoot@@/cgi-bin">
-        AllowOverride None
-        Options None
-        Order allow,deny
-        Allow from all
-    </Directory>
-
 </IfModule>
 # End of aliases.
 

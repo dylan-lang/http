@@ -76,5 +76,5 @@ define module http-server-test-suite
   use uncommon-dylan;
   use uri;
 
-  export cgi-test-main, http-server-test-suite;
+  export http-server-test-suite;
 end module http-server-test-suite;

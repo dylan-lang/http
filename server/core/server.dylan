@@ -761,18 +761,6 @@ define method route-request
   end;
 end method route-request;
 
-// Internally redirect to a different URL.  parse-request-url resets various
-// URL-related slots in the request.  This should only be used before any
-// data has been written to the response.  (Maybe should clear the headers
-// as well?)
-//
-define method internal-redirect-to
-    (url :: <string>)
-  let request :: <request> = current-request();
-  parse-request-url(*server*, request, url);
-  route-request(*server*, request);
-end;
-
 define function htl-error-handler
     (cond :: <condition>, next-handler :: <function>, exit-function :: <function>,
      #key decline-if-debugging = #t, send-response = #t)
