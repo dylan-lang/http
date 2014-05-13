@@ -35,20 +35,6 @@ The HTTP-SERVER module
    :superclasses: <object>
 
 
-.. class:: <cgi-directory-resource>
-   :open:
-
-   :superclasses: <resource>
-
-   :keyword locator:
-
-.. class:: <cgi-script-resource>
-   :open:
-
-   :superclasses: <resource>
-
-   :keyword locator:
-
 .. class:: <configuration-error>
 
    :superclasses: <http-server-api-error>
@@ -568,14 +554,6 @@ The HTTP-SERVER module
 
    :parameter server: An instance of ``<object>``.
    :parameter request: An instance of ``<object>``.
-   :value #rest results: An instance of ``<object>``.
-
-.. generic-function:: serve-cgi-script
-
-   :signature: serve-cgi-script (script script-name) => (#rest results)
-
-   :parameter script: An instance of ``<object>``.
-   :parameter script-name: An instance of ``<object>``.
    :value #rest results: An instance of ``<object>``.
 
 .. generic-function:: serve-static-file

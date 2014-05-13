@@ -21,8 +21,7 @@ define module http-server-test-suite-app
   use http-server,
     import: { *log-content?* };
   use http-server-test-suite,
-    import: { cgi-test-main,
-              http-server-test-suite };
+    import: { http-server-test-suite };
   use logging,
     import: { log-level-setter,
               $trace-level };

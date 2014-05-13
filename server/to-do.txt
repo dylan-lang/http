@@ -5,7 +5,7 @@ These are pretty random.  See also the bugzilla list.
 
 * Add tests for static file serving.
 * Add tests for <redirecting-resource> (and config <alias/>)
-* Add tests for new config stuff (#"directory", #"cgi-directory", #"alias")
+* Add tests for new config stuff (#"directory", #"alias")
 * Need a way to specify that "if this resource is chosen there must be
   no URL path suffix".  e.g., in http-server-demo ANY UNRECOGNIZED URL currently
   takes you to /.  leaf?

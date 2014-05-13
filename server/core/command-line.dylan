@@ -43,12 +43,6 @@ add-option(*command-line-parser*,
                 help: "Serve static content from the given directory.",
                 names: #("directory")));
 
-// --cgi <cgi-dir>
-add-option(*command-line-parser*,
-           make(<parameter-option>,
-                help: "Serve CGI scripts from the given directory.",
-                names: #("cgi")));
-
 /*
 This is the precedence order (lowest to highest) in which initialization
 should happen.  Not quite there yet...
@@ -123,15 +117,6 @@ define function http-server-main
                                          directory: directory,
                                          allow-directory-listing?: #t,
                                          follow-symlinks?: #f));
-      end;
-
-      // If --cgi is specified, map it to /cgi-bin on the server.
-      // This is a special case to make serving a directory super-easy.
-      let cgi = get-option-value(parser, "cgi");
-      if (cgi)
-        add-resource(*server*, "/cgi-bin", make(<cgi-directory-resource>,
-                                                locator: cgi,
-                                                extensions: #("cgi", "bat")));
       end;
 
       // Gives callers a chance to do things after the server has been
