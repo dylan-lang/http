@@ -60,7 +60,9 @@ define open primary class <response> (<stream>, <base-http-response>)
   // True if the headers have been sent.
   slot headers-sent? :: <boolean> = #f;
 
-//  slot trailers-sent?
+  constant slot response-headers :: <header-table>
+    = make(<header-table>),
+    init-keyword: headers:;
 
 end class <response>;
 
@@ -153,7 +155,7 @@ end method send-response-line;
 
 // Exported
 //
-define method set-header
+define sealed method set-header
     (response :: <response>, header :: <byte-string>, value :: <object>,
      #key if-exists? = #"replace")
   if (headers-sent?(response))
@@ -172,38 +174,36 @@ define method set-header
       // doesn't allow a Content-Length header.
       response-chunked?(response) := #f;
     end;
-    next-method()
+    set-header(response.response-headers, header, value);
   else
-    next-method()
+    set-header(response.response-headers, header, value);
   end;
 end method set-header;
 
-define method send-header
-    (socket :: <tcp-socket>, name :: <string>, val :: <pair>)
-  for (v in val)
-    send-header(socket, name, v)
-  end;
-end;
-
-define method send-header
+define sealed method send-header
     (socket :: <tcp-socket>, name :: <string>, val :: <object>)
-  format(socket, "%s: %s\r\n", name, val);
-  %log-debug(*http-common-log*, "-->%s: %s", name, val);
+  if (instance?(val, <pair>))
+    send-header(socket, name, head(val));
+    send-header(socket, name, tail(val));
+  else
+    format(socket, "%s: %s\r\n", name, val);
+    %log-debug(*http-common-log*, "-->%s: %s", name, val);
+  end if;
 end;
 
 // TODO: This and the function by the same name in the client should be
 //       moved into http-common.  (Probably just the stuff inside the
 //       "unless" below, excluding headers-sent?.)
-define method send-headers
+define sealed method send-headers
     (response :: <response>, socket :: <tcp-socket>)
   unless (response.response-request.request-version == #"http/0.9")
     set-header(response, "Server", *server*.server-header);
     set-header(response, "Date", as-rfc1123-string(current-date()));
 
-    let headers :: <header-table> = raw-headers(response);
+    let headers :: <header-table> = response-headers(response);
     for (val keyed-by name in headers)
       send-header(socket, name, val);
-    end;
+    end for;
     write(socket, "\r\n");  // blank line separates headers from body
     headers-sent?(response) := #t;
   end;

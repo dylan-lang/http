@@ -559,7 +559,7 @@ end method convert-content;
 //////////////////////////////////////////
 
 define open primary class <http-response>
-    (<chunking-input-stream>, <base-http-response>)
+    (<chunking-input-stream>, <base-http-response>, <message-headers-mixin>)
   // Stores the content of the response, unless the user chose to read
   // streaming content from the response instead.
   slot response-content :: false-or(<byte-string>),
