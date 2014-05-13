@@ -330,9 +330,9 @@ end method process-request-content;
 define method process-incoming-headers
     (request :: <request>)
   bind (conn-values :: <sequence> = get-header(request, "Connection", parsed: #t) | #())
-    if (member?("Close", conn-values, test: string-equal?))
+    if (member?("close", conn-values, test: string-equal-ic?))
       request-keep-alive?(request) := #f
-    elseif (member?("Keep-Alive", conn-values, test: string-equal?))
+    elseif (member?("keep-alive", conn-values, test: string-equal-ic?))
       request-keep-alive?(request) := #t
     end;
   end;
