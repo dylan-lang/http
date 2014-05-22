@@ -497,34 +497,6 @@ define method process-config-element
   end;
 end method process-config-element;
 
-// <cgi-directory
-//      url = "/cgi-bin"
-//      location = "/my/cgi/scripts"
-//      extensions = "cgi,bat,exe,..."
-//      />
-define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"cgi-directory")
-  let url = get-attr(node, #"url")
-              | warn("Invalid <cgi-directory> spec.  The 'url' attribute is "
-                     "required.");
-  let location = get-attr(node, #"location")
-                   | warn("Invalid <cgi-directory> spec.  The 'location' "
-                          "attribute is required.");
-  if (url & location)
-    log-info("CGI directory %s added at URL %s", location, url);
-    let location = as(<directory-locator>, get-attr(node, #"location"));
-    let extensions = split(get-attr(node, #"extensions") | "cgi", ',');
-    let resource = make(<cgi-directory-resource>,
-                        locator: location,
-                        extensions: extensions);
-    add-resource(%vhost, parse-url(url), resource);
-    for (child in xml$node-children(node))
-      process-config-element(server, child, xml$name(child));
-    end;
-  end;
-end method process-config-element;
-
-
 // RFC 2616 Section 15.1.2
 // Implementors SHOULD make the Server header field a configurable option.
 define method process-config-element

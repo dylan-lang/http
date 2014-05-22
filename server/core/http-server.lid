@@ -12,5 +12,4 @@ files:	library
 	modules
 	static-files
 	content-negotiation
-	cgi
 	command-line

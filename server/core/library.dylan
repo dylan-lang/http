@@ -90,8 +90,6 @@ define module http-server
     <resource>,
       <directory-resource>,
         default-documents,
-      <cgi-script-resource>,
-      <cgi-directory-resource>,
       <function-resource>,
       <redirecting-resource>,
       <sse-resource>, sse-push-event,
@@ -156,7 +154,6 @@ define module http-server
   // Documents
   create
     serve-static-file,
-    serve-cgi-script,
     file-contents;
 
   // Errors
