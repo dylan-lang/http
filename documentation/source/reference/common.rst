@@ -275,6 +275,14 @@ The HTTP-COMMON module
 
    :superclasses: <table>
 
+   :description:
+
+     An explicit-key collection used to map the string representing a header
+     field name to the data in that field.  The data is typically a string, but
+     if a header field name occurs more than once in the header, then the data
+     for that header field will be a sequence of the strings corresponding to
+     each occurence of the header field.
+
 
 .. class:: <header-too-large-error>
 
