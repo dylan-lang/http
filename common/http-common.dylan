@@ -5,9 +5,9 @@ Copyright: See LICENSE in this distribution for details.
 
 define constant $http-version :: <byte-string> = "HTTP/1.1";
 
-define constant $default-http-port :: <integer> = 80;
+define constant $default-http-port :: <integer> = 8000;
 
-define constant $default-https-port :: <integer> = 443;
+define constant $default-https-port :: <integer> = 8443;
 
 
 // By the spec request methods are case-sensitive, but for convenience
