@@ -8,11 +8,13 @@ define library http-testing
   use http-server;
   use logging;
   use uri;
+  use io, import: { format };
 
   export http-testing;
 end library http-testing;
 
 define module http-testing
+  use format;
   use common-dylan;
   use http-client;
   use http-common;

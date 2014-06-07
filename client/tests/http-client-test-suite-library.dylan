@@ -13,7 +13,7 @@ define library http-client-test-suite
   use testworks;
   use uri;
   use strings;
-  use io, import: { format-out, streams };
+  use io, import: { format, streams };
 
   export http-client-test-suite;
 end library http-client-test-suite;
@@ -31,7 +31,7 @@ define module http-client-test-suite
   use uri;
   use streams;
   use strings;
-  use format-out;
+  use format;
 
   export http-client-test-suite;
 end module http-client-test-suite;
