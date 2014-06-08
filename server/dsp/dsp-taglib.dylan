@@ -80,7 +80,7 @@ define tag get in dsp
     (name :: <string>, context, tag, raw :: <boolean>)
   let value = get-context-value(name, context, tag: tag);
   if (found?(value))
-    let string = format-to-string("%s", value);
+    let string = sformat("%s", value);
     output("%s", iff(raw, string, quote-html(string)));
   end;
 end tag get;
@@ -599,7 +599,7 @@ define method add-field-error
   let all-errors = get-attribute(page-context(), $field-errors-key)
                      | make(<string-table>);
   let error = make(<form-field-error>,
-                   text: apply(format-to-string, message, format-arguments));
+                   text: apply(sformat, message, format-arguments));
   let errors-for-field = element(all-errors, field-name, default: #());
   all-errors[field-name] := add-new!(errors-for-field, error,
                                      test: method (n1, n2)
@@ -612,7 +612,7 @@ define method add-field-error
     (field-name :: <string>, error :: <serious-condition>,
      #rest format-arguments)
   ignore(format-arguments);
-  add-field-error(field-name, format-to-string("%s", error));
+  add-field-error(field-name, sformat("%s", error));
 end;
 
 // Get all the <field-error>s associated with a given field-name.
@@ -666,11 +666,11 @@ define method format-field-errors
     ""
   else
     let messages = map(method (error :: <form-field-error>)
-                         format-to-string("<%s class=\"field-error\">%s</%s>",
+                         sformat("<%s class=\"field-error\">%s</%s>",
                                           tag, quote-html(error.note-text), tag)
                        end,
                        errors);
-    format-to-string("<%s class=\"field-errors\">%s</%s>\n",
+    sformat("<%s class=\"field-errors\">%s</%s>\n",
                      tag, join(messages, "\n"), tag)
   end
 end method format-field-errors;
@@ -727,7 +727,7 @@ end;
 define method add-page-note-internal
     (key :: <string>, format-string :: <string>, #rest format-arguments)
   let notes = get-attribute(page-context(), key) | make(<stretchy-vector>);
-  let text = apply(format-to-string, format-string, format-arguments);
+  let text = apply(sformat, format-string, format-arguments);
   let note = make(<page-note>, text: text);
   add-new!(notes, note, test: method (n1, n2)
                                 n1.note-text = n2.note-text

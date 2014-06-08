@@ -238,7 +238,7 @@ define tag show-page-links in dsp
                   collect(if (pn)
                             with-xml ()
                               a(label,
-                                href => format-to-string("%s%d", url, pn),
+                                href => sformat("%s%d", url, pn),
                                 class => "page-number-link")
                             end
                           else
