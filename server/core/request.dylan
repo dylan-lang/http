@@ -129,65 +129,68 @@ define method read-request
   read-request-content(request);
 end method read-request;
 
-// Read the Request-Line.  RFC 2616 Section 5.1
-//      Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
-//
+// Parse the Request-Line and modify the request appropriately.
 define function parse-request-line
     (server :: <http-server>, request :: <request>,
      buffer :: <string>, eol :: <integer>)
  => ()
-  let epos1 = whitespace-position(buffer, 0, eol);
-  let bpos2 = epos1 & skip-whitespace(buffer, epos1, eol);
-  let epos2 = bpos2 & whitespace-position(buffer, bpos2, eol);
-  let bpos3 = epos2 & skip-whitespace(buffer, epos2, eol);
-  let epos3 = bpos3 & whitespace-position(buffer, bpos3, eol) | eol;
-  if (~bpos3)
-    bad-request-error(reason: "Invalid request line");
-  else
-    let req-method = substring(buffer, 0, epos1);
-    let url-string = substring(buffer, bpos2, epos2);
-    let http-version = substring(buffer, bpos3, epos3);
-    log-debug("%s %s %s", req-method, url-string, http-version);
-    request.request-method := validate-request-method(req-method);
-    parse-request-url(server, request, url-string);
-    request.request-version := validate-http-version(http-version);
-  end if;
-end function parse-request-line;
-
-// This may be called by internal-redirect-to to morph a request for a
-// new URL.  Probably should consider copying the request to a new <request>
-// object rather than mutating the existing one, but this will have tow do
-// for now.
-define method parse-request-url
-    (server :: <http-server>, request :: <request>, url-string :: <string>)
-  request.request-raw-url-string := url-string;
-  let url :: <url> = parse-url(url-string);
+  let (req-method, raw-url, http-version) = parse-request-line-values(buffer, eol);
+  let url = parse-url(raw-url);
+  request.request-method := req-method;
+  request.request-raw-url-string := raw-url;
+  request.request-url := url;
+  request.request-version := http-version;
   // RFC 2616, 5.2 -- absolute URLs in the request line take precedence
   // over Host header.
   if (absolute?(url))
     request.request-host := url.uri-host;
   end;
-  request.request-url := url;
   remove-all-keys!(request.request-query-values);  // appears unnecessary
   if (url.uri-query)
     for (value keyed-by key in url.uri-query)
       request.request-query-values[key] := value;
     end;
   end;
-end method parse-request-url;
+end function parse-request-line;
+
+// RFC 2616 Section 5.1
+//      Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
+define function parse-request-line-values
+    (buffer :: <byte-string>, eol :: <integer>)
+ => (request-method :: <symbol>,
+     raw-url :: <byte-string>,
+     http-version :: <symbol>)
+  let epos1 = whitespace-position(buffer, 0, eol);
+  let bpos2 = epos1 & skip-whitespace(buffer, epos1, eol);
+  let epos2 = bpos2 & whitespace-position(buffer, bpos2, eol);
+  let bpos3 = epos2 & skip-whitespace(buffer, epos2, eol);
+  let epos3 = bpos3 & whitespace-position(buffer, bpos3, eol) | eol;
+  // We reject requests with spaces in the URL.  We may issue a redirect to the
+  // URL with spaces URL-encoded, according to the spec, but this is also valid.
+  // Also reject more than one space between parts.
+  if (~bpos3 | (epos3 ~== eol) | (bpos2 - epos1 > 1) | (bpos3 - epos2 > 1))
+    bad-request-error(reason: "Invalid request line");
+  else
+    let req-method = validate-request-method(substring(buffer, 0, epos1));
+    let http-version = validate-http-version(substring(buffer, bpos3, epos3));
+    let raw-url = substring(buffer, bpos2, epos2);
+    values(req-method, raw-url, http-version)
+  end
+end function parse-request-line-values;
+
+define constant $standard-http-request-methods /* bug #778 :: limited(<vector>, of: <byte-string>) */
+  = #["CONNECT", "DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"];
 
 define method validate-request-method
     (request-method :: <byte-string>)
  => (request-method :: <symbol>)
   // These hard-coded strings will have to do until I revamp the
   // request method code.  --cgay July 2010
-  if (member?(request-method, #["GET", "HEAD", "OPTIONS", "POST"], test: \=))
+  if (member?(request-method, $standard-http-request-methods, test: \=))
     // TODO: The request method should be case sensitive, so it shouldn't be a symbol.
     as(<symbol>, request-method)
   else
-    not-implemented-error(what: format-to-string("Request method %s", request-method),
-                          header-name: "Allow",
-                          header-value: "GET, HEAD, OPTIONS, POST");
+    not-implemented-error(what: format-to-string("Request method %s", request-method));
   end
 end method validate-request-method;
 

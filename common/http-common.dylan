@@ -71,13 +71,21 @@ end;
 define method validate-http-version
     (version :: <string>)
  => (version :: <symbol>)
-  // Take care not to intern arbitrary symbols...
-  select (version by string-equal?)
-    "HTTP/0.9" => #"HTTP/0.9";
-    "HTTP/1.0" => #"HTTP/1.0";
-    "HTTP/1.1" => #"HTTP/1.1";
-    otherwise => http-version-not-supported-error(version: version);
-  end select;
+  if (version.size ~= 8
+        | ~starts-with?(version, "HTTP/")
+        | ~decimal-digit?(version[5])
+        | ~decimal-digit?(version[7]))
+    bad-request-error(reason: "Invalid HTTP version")
+  else
+    // Take care not to intern arbitrary symbols...
+    select (version by string-equal?)
+      "HTTP/0.9" => #"HTTP/0.9";
+      "HTTP/1.0" => #"HTTP/1.0";
+      "HTTP/1.1" => #"HTTP/1.1";
+      otherwise =>
+        http-version-not-supported-error(version: version);
+    end select
+  end if
 end method validate-http-version;
 
 define method validate-http-status-code

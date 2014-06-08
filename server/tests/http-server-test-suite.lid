@@ -5,4 +5,5 @@ Files: http-server-test-suite-library
        content-negotiation-tests
        resources-tests
        rewrite-rules-tests
+       request-tests
        http-server-tests
