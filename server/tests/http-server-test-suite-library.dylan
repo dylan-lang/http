@@ -13,7 +13,7 @@ define library http-server-test-suite
   use http-common;
   use http-testing;
   use io,
-    import: { format-out, standard-io, streams };
+    import: { format, streams };
   use http-server,
     import: { http-server, http-server-unit };
   use logging;
@@ -43,7 +43,7 @@ define module http-server-test-suite
   use common-dylan;
   use date;
   use file-system;
-  use format-out;
+  use format;
   use http-client;
   use http-common;
   use http-common-internals;
@@ -68,7 +68,6 @@ define module http-server-test-suite
       start-sockets,
       $local-host
     };
-  use standard-io;
   use streams;
   use strings;
   use testworks;
