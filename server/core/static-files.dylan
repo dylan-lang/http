@@ -192,6 +192,14 @@ define method locator-below-root?
   end if;
 end method locator-below-root?;
 
+define method default-content-type
+    (resource :: <directory-resource>)
+ => (content-type :: <mime-type>)
+  make(<mime-type>,
+       type: "application",
+       subtype: "octet-stream")
+end method default-content-type;
+
 define method locator-media-type
     (locator :: <locator>, resource :: <directory-resource>)
  => (media-type :: <media-type>)
