@@ -92,11 +92,11 @@ define open generic respond-to-connect (resource :: <abstract-resource>, #key, #
 //
 define open generic default-content-type
     (resource :: <abstract-resource>)
- => (content-type :: type-union(<mime-type>, <string>));
-
+ => (content-type :: <byte-string>);
+ 
 define method default-content-type
     (resource :: <abstract-resource>)
- => (content-type :: <string>)
+ => (content-type :: <byte-string>)
   "application/octet-stream"
 end;
 
