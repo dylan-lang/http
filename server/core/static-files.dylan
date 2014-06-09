@@ -105,7 +105,7 @@ define method respond-to-get
     let client-etag = get-header(request, "If-None-Match");
     if (etag = client-etag)
       request.request-method := #"head";
-      not-modified-redirect(headers: response.raw-headers);
+      not-modified-redirect(headers: response.response-headers);
     else
       serve-static-file(policy, document);
     end;
