@@ -96,6 +96,14 @@ define sealed inline method write
   maybe-send-chunk(response);
 end method write;
 
+define sealed inline method write
+    (response :: <response>, chars :: <sequence>,
+     #key start: bpos = 0, end: epos)
+ => ()
+  write(response.response-stream, chars, start: bpos, end: epos);
+  maybe-send-chunk(response);
+end method write;
+
 // Send a chunk if this is a chunked response and the chunk buffer is full.
 // Note that if this is not a chunked response we do nothing, so the entire
 // response is buffered.
