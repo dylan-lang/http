@@ -201,7 +201,8 @@ define method locator-media-type
   if (mtype)
     mtype
   else
-    let mtype :: <mime-type> = default-content-type(resource);
+    let mtype :: <mime-type>
+                 = string-to-mime-type(default-content-type(resource));
     make(<media-type>,
          type: mtype.mime-type,
          subtype: mtype.mime-subtype)
