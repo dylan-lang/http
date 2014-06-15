@@ -149,4 +149,5 @@ define suite http-server-test-suite ()
   suite resources-test-suite;
   suite rewrite-rules-test-suite;
   suite virtual-host-test-suite;
+  suite request-test-suite;
 end;

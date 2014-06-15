@@ -186,6 +186,7 @@ define module http-server-unit
     rewrite-rule-replacement,
     rewrite-rule-terminal?,
     parse-replacement,
+    parse-request-line-values,
 
     <path-variable>,
       path-variable-name,
