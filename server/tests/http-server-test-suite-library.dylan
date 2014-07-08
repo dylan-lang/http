@@ -63,10 +63,7 @@ define module http-server-test-suite
     import: {
       <connection-failed>,
       <address-in-use>,
-      all-addresses,
-      host-address,
-      start-sockets,
-      $local-host
+      start-sockets
     };
   use streams;
   use strings;
