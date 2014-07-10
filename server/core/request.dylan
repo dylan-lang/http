@@ -46,19 +46,16 @@ define open primary class <request>
   slot request-url-path-suffix :: <string>;
 
   // See http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.2
-  slot request-host :: false-or(<string>),
-    init-value: #f;
+  slot request-host :: false-or(<string>) = #f;
 
   // Query values from either the URL or the body of the POST, if Content-Type
   // is application/x-www-form-urlencoded.
   constant slot request-query-values :: <string-table>,
     init-function: curry(make, <string-table>);
 
-  slot request-keep-alive? :: <boolean>,
-    init-value: #f;
+  slot request-keep-alive? :: <boolean> = #f;
 
-  slot request-session :: false-or(<session>),
-    init-value: #f;
+  slot request-session :: false-or(<session>) = #f;
 
 end class <request>;
 

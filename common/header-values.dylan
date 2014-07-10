@@ -57,7 +57,7 @@ define function token-or-qstring (str :: <byte-string>,
   else
     substring(str, bpos, epos)
   end;
-end token-or-qstring;
+end function token-or-qstring;
 
 // Note: to covert qvalue back to integer, use round(f * 1000), not
 // floor. floor gives wrong results for 251, 253, 502, 506 and 511.
@@ -209,7 +209,7 @@ define function extract-attribute-value-alist (str :: <byte-string>,
       loop(lim + 1, params)
     end;
   end iterate;
-end extract-attribute-value-alist;
+end function extract-attribute-value-alist;
 
 //  datum *(";" attribute:token [ "=" value:token-or-quoted-string ])
 define function extract-parameterized-value (str :: <byte-string>,

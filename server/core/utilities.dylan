@@ -82,16 +82,13 @@ define inline method log-content (content)
 end;
 
 define class <multi-logger-mixin> (<object>)
-  slot request-logger :: <logger>,
-    init-value: *request-logger*,
+  slot request-logger :: <logger> = *request-logger*,
     init-keyword: request-logger:;
 
-  slot error-logger :: <logger>,
-    init-value: *error-logger*,
+  slot error-logger :: <logger> = *error-logger*,
     init-keyword: error-logger:;
 
-  slot debug-logger :: <logger>,
-    init-value: *debug-logger*,
+  slot debug-logger :: <logger> = *debug-logger*,
     init-keyword: debug-logger:;
 end class <multi-logger-mixin>;
 

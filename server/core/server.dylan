@@ -108,12 +108,10 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
 
   // The number of seconds this cookie should be stored in the user agent, in seconds.
   // #f means no max-age is transmitted, which means "until the user agent exits".
-  constant slot session-max-age :: false-or(<integer>),
-    init-value: #f,
+  constant slot session-max-age :: false-or(<integer>) = #f,
     init-keyword: session-max-age:;
 
-  constant slot server-session-id :: <byte-string>,
-    init-value: "http_server_session_id",
+  constant slot server-session-id :: <byte-string> = "http_server_session_id",
     init-keyword: session-id:;
 
 end class <http-server>;
@@ -240,7 +238,7 @@ define function release-client
       release-all(server.clients-shutdown-notification);
     end;
   end;
-end release-client;
+end function release-client;
 
 define class <listener> (<object>)
   constant slot listener-port :: <integer>,
@@ -249,8 +247,7 @@ define class <listener> (<object>)
   constant slot listener-host :: false-or(<string>),
     required-init-keyword: host:;
 
-  slot listener-socket :: false-or(<server-socket>),
-    init-value: #f,
+  slot listener-socket :: false-or(<server-socket>) = #f,
     init-keyword: socket:;
 
   slot listener-thread :: <thread> = #f;
@@ -546,7 +543,7 @@ define function start-http-listener
                       function: run-listener-top-level);
     listener.listener-thread := thread;
   end;
-end start-http-listener;
+end function start-http-listener;
 
 define function listener-top-level
     (server :: <http-server>, listener :: <listener>)
@@ -571,7 +568,7 @@ define function listener-top-level
   else
     log-info("%s shutting down", listener.listener-name);
   end;
-end listener-top-level;
+end function listener-top-level;
 
 //---TODO: need to set up timeouts.
 //---TODO: need to limit the number of outstanding clients.
@@ -733,6 +730,9 @@ define method route-request
   if (new-path ~= old-path)
     do-rewrite-redirection(server, request, new-path, rule);
   else
+    // TODO(cgay): This can blow up if request-host is #f.  I think
+    // request-host needs to always be set.  If not to the host in the Host
+    // header, then to the server host.
     let vhost :: <virtual-host> = find-virtual-host(server, request.request-host);
 
     *debug-logger* := vhost.debug-logger;

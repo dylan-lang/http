@@ -81,7 +81,7 @@ define inline sealed method forward-iteration-protocol (av :: <avalue>)
          end,
          method (av, i) i end
          )
-end forward-iteration-protocol;
+end method forward-iteration-protocol;
 
 define method find-pair (av :: <avalue>, key :: <string>)
   => (pair :: false-or(<pair>))
@@ -99,7 +99,7 @@ define method find-pair (av :: <avalue>, key :: <string>)
       end;
     end;
   end;
-end find-pair;
+end method find-pair;
 
 define sealed method element (av :: <avalue>, key :: <string>, #key default = unsupplied())
   => (value)

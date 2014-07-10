@@ -47,7 +47,7 @@ define open primary class <dylan-server-page> (<expiring-mixin>, <resource>)
   // This is merged against the working directory if it is not absolute.
   // (Note that the server has a --working-directory option.)
   constant slot %page-source :: <file-locator>,
-    required-init-keyword: #"source";
+    required-init-keyword: source:;
 end;
 
 define method make
@@ -217,7 +217,7 @@ define macro tag-definer
     /* { } => { dsp } */
     { in ?taglib:name } => { ?taglib }
 
-end tag-definer;
+end macro tag-definer;
 
 
 define macro tag-aux-definer
@@ -237,7 +237,7 @@ define macro tag-aux-definer
                          parameter-types: snarf-tag-parameter-types(?tag-parameters)),
                     ?"taglib");
      }
-end tag-aux-definer;
+end macro tag-aux-definer;
 
 // snarf-tag-parameter-names(v1, v2 = t1, v3 :: t2, v4 :: t3 = d1)
 // TODO: accept "keyword: name :: type = default" parameter specs.
@@ -386,11 +386,11 @@ end;
 
 // Represents a tag _definition_.
 define class <tag> (<object>)
-  constant slot name :: <string>, required-init-keyword: #"name";
-  constant slot allow-body? :: <boolean>, required-init-keyword: #"allow-body?";
-  constant slot tag-function :: <function>, required-init-keyword: #"function";
-  constant slot parameter-names :: <sequence>, required-init-keyword: #"parameter-names";
-  constant slot parameter-types :: <sequence>, required-init-keyword: #"parameter-types";
+  constant slot name :: <string>, required-init-keyword: name:;
+  constant slot allow-body? :: <boolean>, required-init-keyword: allow-body?:;
+  constant slot tag-function :: <function>, required-init-keyword: function:;
+  constant slot parameter-names :: <sequence>, required-init-keyword: parameter-names:;
+  constant slot parameter-types :: <sequence>, required-init-keyword: parameter-types:;
 end;
 
 define method make
@@ -489,19 +489,19 @@ end;
 // in which case the tag slot is not used.
 //
 define class <tag-call> (<object>)
-  constant slot name :: <string>, required-init-keyword: #"name";
-  constant slot prefix :: <string>, required-init-keyword: #"prefix";
-  constant slot tag :: false-or(<tag>), init-keyword: #"tag";
+  constant slot name :: <string>, required-init-keyword: name:;
+  constant slot prefix :: <string>, required-init-keyword: prefix:;
+  constant slot tag :: false-or(<tag>), init-keyword: tag:;
   // @see extract-tag-args
   // This should be a <string-table>, or better, a <case-insensitive-string-table>.
   // Even if attribute names are case insensitive, we should preserve the case,
   // and there's no guarantee of that when we convert them to symbols and back.
   // Besides, a table is a natural fit for this.  Can't remember why I did it
   // this way...  Maybe make <tag-call> a subclass of <attributes-mixin>?
-  slot arguments :: <sequence> = #[], init-keyword: #"arguments";
-  slot body :: false-or(<dsp-template>) = #f, init-keyword: #"body";
+  slot arguments :: <sequence> = #[], init-keyword: arguments:;
+  slot body :: false-or(<dsp-template>) = #f, init-keyword: body:;
   // The taglibs in effect at the call site.  Used for looking up named methods.
-  constant slot taglibs :: <sequence>, required-init-keyword: #"taglibs";
+  constant slot taglibs :: <sequence>, required-init-keyword: taglibs:;
 end;
 
 define method get-arg
@@ -628,11 +628,9 @@ define class <dsp-template> (<object>)
     required-init-keyword: content-end:;
   constant slot entries :: <stretchy-vector>,
     init-function: curry(make, <stretchy-vector>);
-  constant slot source :: false-or(<locator>),
-    init-value: #f,
+  constant slot source :: false-or(<locator>) = #f,
     init-keyword: source:;
-  slot date-modified :: false-or(<date>),
-    init-value: #f,
+  slot date-modified :: false-or(<date>) = #f,
     init-keyword: date-modified:;
 end class <dsp-template>;
 
@@ -706,7 +704,7 @@ define method display-template
                        format-string: "Invalid DSP template element"));
     end;
   end for;
-end display-template;
+end method display-template;
 
 define function initial-taglibs-for-parse-template
     () => (taglibs :: <stretchy-vector>)
@@ -981,7 +979,7 @@ define method parse-template (page :: <dylan-server-page>,
     end while;
     epos        // didn't return from block early, so must be at end of buffer
   end block
-end parse-template;
+end method parse-template;
 
 // Parse an opening DSP tag like <xx:foo arg=blah ...> or <xx:foo .../>
 // If an error occurs during parsing, a dummy tag is returned that will
@@ -1036,7 +1034,7 @@ define function parse-start-tag (page :: <dylan-server-page>,
     end;
     values (tag-call, has-body?, end-index)
   end
-end parse-start-tag;
+end function parse-start-tag;
 
 define function end-of-word (buffer :: <string>, bpos :: <integer>, epos :: <integer>)
   local method delim? (char :: <character>) => (b :: <boolean>)
@@ -1109,5 +1107,4 @@ define method extract-tag-args
                args));
     end if
   end iterate
-end extract-tag-args;
-
+end method extract-tag-args;
