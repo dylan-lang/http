@@ -236,7 +236,7 @@ define method finish-response
     let rcode = response.response-code;
     // RFC 2616, 4.3
     let send-body? = ~((rcode >= 100 & rcode <= 199)
-                       | rcode == 204  // no content
+                       | rcode == $status-no-content
                        | rcode == $not-modified-redirect);
     let response-size = response.response-stream.stream-size;
     unless (headers-sent?(response) | http-version == #"http/0.9")
