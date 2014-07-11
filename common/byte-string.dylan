@@ -28,7 +28,7 @@ define function char-position (ch :: <byte-character>,
                                epos :: <integer>)
   => (pos :: false-or(<integer>))
   char-position-if(method(c) c == ch end, buf, bpos, epos);
-end char-position;
+end function char-position;
 
 define function char-position-from-end (ch :: <byte-character>,
                                         buf :: <byte-string>,
@@ -41,7 +41,7 @@ define function char-position-from-end (ch :: <byte-character>,
       if (ch == buf[npos]) npos else loop(npos) end;
     end;
   end;
-end char-position-from-end;
+end function char-position-from-end;
 
 // Note that this doesn't check for stray cr's or lf's, because
 // those are just random control chars, proper crlf's got
@@ -55,7 +55,7 @@ define function whitespace-position (buf :: <byte-string>,
                                      epos :: <integer>)
   => (pos :: false-or(<integer>))
   char-position-if(%whitespace?, buf, bpos, epos);
-end whitespace-position;
+end function whitespace-position;
 
 define function skip-whitespace (buffer :: <byte-string>,
                                  bpos :: <integer>,
@@ -68,7 +68,7 @@ define function skip-whitespace (buffer :: <byte-string>,
       fwd(pos + 1)
     end;
   end;
-end skip-whitespace;
+end function skip-whitespace;
 
 define function trim-whitespace (buffer :: <byte-string>,
                                  start :: <integer>,
@@ -88,7 +88,7 @@ define function trim-whitespace (buffer :: <byte-string>,
              end;
            end;
          end)
-end trim-whitespace;
+end function trim-whitespace;
 
 define function digit-weight (ch :: <byte-character>) => (n :: false-or(<integer>))
   when (ch >= '0')
@@ -100,7 +100,7 @@ define function digit-weight (ch :: <byte-character>) => (n :: false-or(<integer
       10 <= n & n <= 15 & n
     end;
   end;
-end digit-weight;
+end function digit-weight;
 
 
 define function substring

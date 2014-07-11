@@ -116,21 +116,18 @@ define open class <chunking-input-stream> (<wrapper-stream>)
   slot read-buffer :: <byte-string>
     = make(<byte-string>, size: $read-buffer-size);
 
-  slot read-buffer-index :: <integer>,
-    // This init value causes refill-read-buffer to be called the first
-    // time anything is read from the stream.
-    init-value: $read-buffer-size;
+  // This init value causes refill-read-buffer to be called the first time
+  // anything is read from the stream.
+  slot read-buffer-index :: <integer> = $read-buffer-size;
 
   // Number of bytes read from the inner stream so far, for the current
   // message body only.  Does not include chunk encoding bytes.
-  slot message-bytes-read :: <integer>,
-    init-value: 0;
+  slot message-bytes-read :: <integer> = 0;
 
   // If this is non-negative it holds the index of the final element of the
   // message body + 1 in read-buffer.  If it's negative it means the entire
   // read-buffer is valid data.  This is reset once the EOF is reported.
-  slot %eof-position :: <integer>,
-    init-value: -1;
+  slot %eof-position :: <integer> = -1;
 
 end class <chunking-input-stream>;
 
@@ -483,19 +480,15 @@ end method read-http-line;
 
 define open class <base-http-response> (<object>)
 
-  slot response-code :: <integer>,
-    init-keyword: code:,
-    init-value: 200;
+  slot response-code :: <integer> = 200,
+    init-keyword: code:;
 
-  slot response-reason-phrase :: <string>,
-    init-keyword: reason-phrase:,
-    init-value: "OK";
+  slot response-reason-phrase :: <string> = "OK",
+    init-keyword: reason-phrase:;
 
   // Chunked transfer encoding.  RFC 2616, 3.6.1
-  //
-  slot response-chunked? :: <boolean>,
-    init-keyword: chunked:,
-    init-value: #t;
+  slot response-chunked? :: <boolean> = #t,
+    init-keyword: chunked:;
 
 end class <base-http-response>;
 

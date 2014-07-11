@@ -7,7 +7,7 @@ Copyright: See LICENSE in this distribution for details.
 // TODO: this whole thing is half baked
 
 define open primary class <session> (<attributes-mixin>)
-  constant slot session-id :: <integer>, required-init-keyword: #"id";
+  constant slot session-id :: <integer>, required-init-keyword: id:;
   // ---TODO: 
   // cookie
   // 

@@ -80,8 +80,7 @@ define generic http-status-code
 define open class <http-protocol-condition> (<http-error>)
   constant slot http-status-code :: <integer>,
     required-init-keyword: code:;
-  constant slot http-error-headers :: false-or(<header-table>),
-    init-value: #f,
+  constant slot http-error-headers :: false-or(<header-table>) = #f,
     init-keyword: headers:;
 end;
 

@@ -49,13 +49,11 @@ define open primary class <response> (<stream>, <base-http-response>)
            direction: #"output");
 
   constant slot response-request :: <base-http-request>,
-    required-init-keyword: #"request";
+    required-init-keyword: request:;
 
   // Transfer length as defined in RFC 2616, Section 4.4.
   // If this is > 0 then chunks have already been sent.
-  //
-  slot response-transfer-length :: <integer>,
-    init-value: 0;
+  slot response-transfer-length :: <integer> = 0;
 
   // True if the headers have been sent.
   slot headers-sent? :: <boolean> = #f;

@@ -105,18 +105,14 @@ define open class <http-connection> (<basic-stream>)
   slot connection-socket :: <tcp-socket>;
   slot connection-host :: <string>;
 
-  slot outgoing-chunk-size :: <integer>,
-    init-value: 8192,
+  slot outgoing-chunk-size :: <integer> = 8192,
     init-keyword: outgoing-chunk-size:;
 
-  slot connection-sent-headers :: false-or(<table>),
-    init-value: #f;
+  slot connection-sent-headers :: false-or(<table>) = #f;
   slot write-buffer :: <byte-string>;
-  slot write-buffer-index :: <integer>,
-    init-value: 0;
+  slot write-buffer-index :: <integer> = 0;
   // Number of bytes written so far for the current request message body only.
-  slot message-bytes-written :: <integer>,
-    init-value: 0;
+  slot message-bytes-written :: <integer> = 0;
 
 end class <http-connection>;
 
@@ -562,8 +558,7 @@ define open primary class <http-response>
     (<chunking-input-stream>, <base-http-response>, <message-headers-mixin>)
   // Stores the content of the response, unless the user chose to read
   // streaming content from the response instead.
-  slot response-content :: false-or(<byte-string>),
-    init-value: #f,
+  slot response-content :: false-or(<byte-string>) = #f,
     init-keyword: content:;
 end class <http-response>;
 

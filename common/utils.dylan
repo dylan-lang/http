@@ -17,7 +17,7 @@ define open generic date-modified-setter
 define open class <expiring-mixin> (<object>)
   constant slot duration :: <day/time-duration>,
     init-value: encode-day/time-duration(0, 1, 0, 0, 0),      // 1 hour
-    init-keyword: #"duration";
+    init-keyword: duration:;
   // When the object was last modified (e.g., loaded from a file).
   slot date-modified :: false-or(<date>) = #f;
 end;

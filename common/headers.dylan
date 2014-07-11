@@ -252,7 +252,7 @@ define inline function string-hash-2 (s :: <byte-string>,
   finally
     hash
   end;
-end string-hash-2;
+end function string-hash-2;
 
 define constant <field-type> = type-union(<list>, <string>);
 
@@ -506,14 +506,14 @@ end;
 define constant $default-cookie-version :: <byte-string> = "1";
 
 define class <cookie> (<object>)
-  constant slot cookie-name  :: <string>, required-init-keyword: #"name";
-  constant slot cookie-value :: <string>, required-init-keyword: #"value";
-  constant slot cookie-domain  :: false-or(<string>) = #f, init-keyword: #"domain";
-  constant slot cookie-path    :: false-or(<string>) = #f, init-keyword: #"path";
+  constant slot cookie-name  :: <string>, required-init-keyword: name:;
+  constant slot cookie-value :: <string>, required-init-keyword: value:;
+  constant slot cookie-domain  :: false-or(<string>) = #f, init-keyword: domain:;
+  constant slot cookie-path    :: false-or(<string>) = #f, init-keyword: path:;
   // The maximum lifetime of the cookie, in seconds.  #f means "until the user agent exits".
-  constant slot cookie-max-age :: false-or(<integer>) = #f, init-keyword: #"max-age";
-  constant slot cookie-comment :: false-or(<string>) = #f, init-keyword: #"comment";
-  constant slot cookie-version :: <string> = $default-cookie-version, init-keyword: #"version";
+  constant slot cookie-max-age :: false-or(<integer>) = #f, init-keyword: max-age:;
+  constant slot cookie-comment :: false-or(<string>) = #f, init-keyword: comment:;
+  constant slot cookie-version :: <string> = $default-cookie-version, init-keyword: version:;
 end;
 
 define method extract-cookies
