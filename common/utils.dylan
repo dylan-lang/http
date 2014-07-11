@@ -103,7 +103,7 @@ define function quote-html
           write-element(stream, translation));
     end;
   end;
-end quote-html;
+end function quote-html;
 
 
 // A media type is a MIME type plus some parameters.  The type and subtype

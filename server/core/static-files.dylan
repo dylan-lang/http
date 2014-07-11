@@ -214,7 +214,7 @@ define method serve-static-file
   log-debug("Serving static file: %s", as(<string>, locator));
   let response = current-response();
   with-open-file(in-stream = locator, direction: #"input", if-does-not-exist: #f,
-                 element-type: <byte>)
+                 element-type: <byte-character>)
     set-header(response, "Content-Type",
                mime-name(locator-media-type(locator, policy)));
     let mod-date = file-prop(locator, #"modification-date");
