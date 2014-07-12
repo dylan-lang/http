@@ -79,7 +79,6 @@ define method validate-http-version
   else
     // Take care not to intern arbitrary symbols...
     select (version by string-equal?)
-      "HTTP/0.9" => #"HTTP/0.9";
       "HTTP/1.0" => #"HTTP/1.0";
       "HTTP/1.1" => #"HTTP/1.1";
       otherwise =>

@@ -23,8 +23,7 @@ define test test-parse-request-line-values ()
     // http-version tests
     list("GET http://foo HTTP/1.1", #"get", "http://foo", #"http/1.1"),
     list("GET url HTTP/1.0", #"get", "url", #"http/1.0"),
-    // not yet
-    //list("GET url HTTP/0.9", <http-version-not-supported-error>),
+    list("GET url HTTP/0.9", <http-version-not-supported-error>),
     list("GET url http/1.x", <bad-request-error>),
 
     // other tests

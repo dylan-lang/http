@@ -7,7 +7,7 @@ Copyright: See LICENSE in this distribution for details.
 /*
 Response buffering/chunking:
 
-If the request is http/0.9 or http/1.0 then we buffer the entire response.
+If the request is http/1.0 then we buffer the entire response.
 If the request is http/1.1 then by default we send with the "chunked" transfer
 encoding, but the responder function may use
 
@@ -71,8 +71,7 @@ define method initialize
           direction)
   end;
   apply(next-method, response, direction: #"output", args);
-  if (member?(response.response-request.request-version,
-              #[#"http/0.9", #"http/1.0"]))
+  if (response.response-request.request-version == #"http/1.0")
     response-chunked?(response) := #f;
   end;
 end method initialize;
@@ -99,7 +98,7 @@ end method write;
 // response is buffered.
 define method maybe-send-chunk
     (response :: <response>)
-  // response-chunked? returns #f if this is http/0.9 or http/1.0
+  // response-chunked? returns #f if this is http/1.0
   // or if the Content-Length header was set.
   if (response-chunked?(response) & response.response-stream.stream-position >= $chunk-size)
     send-chunk(response);
@@ -189,22 +188,19 @@ define sealed method send-header
   end if;
 end;
 
-// TODO: This and the function by the same name in the client should be
-//       moved into http-common.  (Probably just the stuff inside the
-//       "unless" below, excluding headers-sent?.)
+// TODO: This and the function by the same name in the client should
+//       perhaps be moved into http-common.
 define sealed method send-headers
     (response :: <response>, socket :: <tcp-socket>)
-  unless (response.response-request.request-version == #"http/0.9")
-    set-header(response, "Server", *server*.server-header);
-    set-header(response, "Date", as-rfc1123-string(current-date()));
+  set-header(response, "Server", *server*.server-header);
+  set-header(response, "Date", as-rfc1123-string(current-date()));
 
-    let headers :: <header-table> = response-headers(response);
-    for (val keyed-by name in headers)
-      send-header(socket, name, val);
-    end for;
-    write(socket, "\r\n");  // blank line separates headers from body
-    headers-sent?(response) := #t;
-  end;
+  let headers :: <header-table> = response-headers(response);
+  for (val keyed-by name in headers)
+    send-header(socket, name, val);
+  end for;
+  write(socket, "\r\n");  // blank line separates headers from body
+  headers-sent?(response) := #t;
 end method send-headers;
 
 
@@ -239,7 +235,7 @@ define method finish-response
                        | rcode == 204  // no content
                        | rcode == $not-modified-redirect);
     let response-size = response.response-stream.stream-size;
-    unless (headers-sent?(response) | http-version == #"http/0.9")
+    unless (headers-sent?(response))
       if (send-body?)
         content-length := integer-to-string(response-size);
         set-header(response, "Content-Length", content-length);
@@ -256,7 +252,7 @@ define method finish-response
                                   start: 0,
                                   end: response-size));
       end;
-      // TODO: close connection if this is 0.9 (or 1.0?)
+      // TODO: close connection if this is 1.0?
     end;
   end if;
   log-request(request, response.response-code, content-length);
