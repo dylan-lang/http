@@ -113,12 +113,10 @@ define method read-request
   end;
 
   parse-request-line(server, request, buffer, len);
-  unless (request.request-version == #"http/0.9")
-    read-message-headers(socket,
-                         buffer: buffer,
-                         start: len,
-                         headers: request.raw-headers);
-  end unless;
+  read-message-headers(socket,
+                       buffer: buffer,
+                       start: len,
+                       headers: request.raw-headers);
   process-incoming-headers(request);
   // Unconditionally read all request content in case we need to process
   // further requests on the same connection.  This is temporary and needs
