@@ -599,8 +599,7 @@ define method read-response
                       code: status-code,
                       reason-phrase: reason-phrase,
                       headers: headers);
-  if (read-content
-        & (status-code ~= 204 /* $status-code-no-content */))
+  if (read-content & (status-code ~= $status-no-content))
     response.response-content := read-to-end(response);
   end;
   if (status-code >= 400)
