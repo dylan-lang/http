@@ -71,7 +71,11 @@ define method initialize
           direction)
   end;
   apply(next-method, response, direction: #"output", args);
-  if (response.response-request.request-version == #"http/1.0")
+  let request = response.response-request;
+  if (request.request-keep-alive?)
+    set-header(response, "Connection", "Keep-Alive");
+  end if;
+  if (request.request-version == #"http/1.0")
     response-chunked?(response) := #f;
   end;
 end method initialize;

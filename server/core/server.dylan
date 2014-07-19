@@ -698,9 +698,6 @@ define function %respond-top-level
             read-request(request);
             let response = make(<response>,
                                 request: request);
-            if (request.request-keep-alive?)
-              set-header(response, "Connection", "Keep-Alive");
-            end if;
             dynamic-bind (*response* = response,
                           // Bound to a <page-context> when first requested.
                           *page-context* = #f)
