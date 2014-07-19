@@ -71,7 +71,7 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   constant slot clients-shutdown-notification :: <notification>,
     required-init-keyword: clients-shutdown-notification:;
 
-  constant slot request-class :: subclass(<basic-request>) = <request>,
+  constant slot request-class :: subclass(<request>) = <request>,
     init-keyword: request-class:;
 
   //---TODO: response for unsupported-request-method-error MUST include
@@ -675,7 +675,7 @@ define function %respond-top-level
       while (#t)                      // keep alive loop
         with-simple-restart("Skip this request and continue with the next")
           *request* := make(client.client-server.request-class, client: client);
-          let request :: <basic-request> = *request*;
+          let request :: <request> = *request*;
           block (finish-request)
             // More recently installed handlers take precedence...
             let handler <error> = rcurry(htl-error-handler, finish-request);

@@ -4,38 +4,11 @@ Author:    Gail Zacharias, Carl Gay
 Copyright: See LICENSE in this distribution for details.
 
 
-define class <basic-request> (<object>)
+define open primary class <request>
+    (<chunking-input-stream>, <base-http-request>)
+
   constant slot request-client :: <client>,
     required-init-keyword: client:;
-end;
-
-define inline function request-socket
-    (request :: <basic-request>)
- => (socket :: <tcp-socket>)
-  request.request-client.client-socket
-end;
-
-define inline function request-server
-    (request :: <basic-request>)
- => (server :: <http-server>)
-  request.request-client.client-server
-end;
-
-/*
-define inline function request-thread (request :: <basic-request>)
-    => (server :: <thread>)
-  request.request-client.client-thread
-end;
-
-define inline function request-port (request :: <basic-request>)
-    => (port :: <integer>)
-  request.request-client.client-listener.listener-port;
-end;
-*/
-
-
-define open primary class <request>
-    (<chunking-input-stream>, <basic-request>, <base-http-request>)
 
   // Contains the part of the URL path that matched the <resource>.
   slot request-url-path-prefix :: <string>;
@@ -66,6 +39,18 @@ define method make
     (class :: subclass(<request>), #rest args, #key client :: <client>, #all-keys)
  => (request :: <request>)
   apply(next-method, class, inner-stream: client.client-socket, args)
+end;
+
+define inline function request-socket
+    (request :: <request>)
+ => (socket :: <tcp-socket>)
+  request.request-client.client-socket
+end;
+
+define inline function request-server
+    (request :: <request>)
+ => (server :: <http-server>)
+  request.request-client.client-server
 end;
 
 // The request-url slot represents the URL in the Request-Line,
