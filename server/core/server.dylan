@@ -693,8 +693,7 @@ define function %respond-top-level
                                               decline-if-debugging: #f);
 
             read-request(request);
-            let response = make(<response>,
-                                request: request);
+            let response = make(<response>, request: request);
             dynamic-bind (*response* = response,
                           // Bound to a <page-context> when first requested.
                           *page-context* = #f)
@@ -793,9 +792,7 @@ end function send-error-response;
 define method send-error-response-internal
     (request :: <request>, err :: <error>)
   let headers = http-error-headers(err) | make(<header-table>);
-  let response = make(<response>,
-                      request: request,
-                      headers: headers);
+  let response = make(<response>, request: request, headers: headers);
   let one-liner = http-error-message-no-code(err);
   unless (request-method(request) == #"head")
     // TODO: Display a pretty error page.
