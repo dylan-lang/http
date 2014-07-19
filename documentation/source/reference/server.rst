@@ -71,7 +71,6 @@ The HTTP-SERVER module
    :keyword listeners-shutdown-notification:
    :keyword lock:
    :keyword media-type-map:
-   :keyword request-class:
    :keyword server-root:
    :keyword session-id:
    :keyword session-max-age:

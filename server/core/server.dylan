@@ -73,9 +73,6 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   constant slot clients-shutdown-notification :: <notification>,
     required-init-keyword: clients-shutdown-notification:;
 
-  constant slot request-class :: subclass(<request>) = <request>,
-    init-keyword: request-class:;
-
   //---TODO: response for unsupported-request-method-error MUST include
   // Allow: field...  Need an API for making sure that happens.
   // RFC 2616, 5.1.1
@@ -675,8 +672,8 @@ define function %respond-top-level
     block (exit-respond-top-level)
       while (#t)                      // keep alive loop
         with-simple-restart("Skip this request and continue with the next")
-          *request* := make(client.client-server.request-class, client: client);
-          let request :: <request> = *request*;
+          let request :: <request> = make(<request>, client: client);
+          *request* := request;
           block (finish-request)
             // More recently installed handlers take precedence...
             let handler <error> = rcurry(htl-error-handler, finish-request);
