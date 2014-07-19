@@ -99,7 +99,7 @@ The HTTP-SERVER module
    :open:
    :primary:
 
-   :superclasses: <chunking-input-stream>:http-common:http-common, <basic-request>:httpi, <base-http-request>:http-common:http-common
+   :superclasses: <chunking-input-stream>:http-common:http-common, <base-http-request>:http-common:http-common
 
 
 .. class:: <resource>
