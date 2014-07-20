@@ -4,11 +4,9 @@ Author:    Gail Zacharias, Carl Gay
 Copyright: See LICENSE in this distribution for details.
 
 
-define constant $server-name = "HTTP Server";
-
+// TODO(cgay): Move these into <http-server> slots.
+define constant $server-name = "Dylan HTTP Server";
 define constant $server-version = "0.9";
-
-define constant $server-header-value = concatenate($server-name, "/", $server-version);
 
 // This is needed to handle sockets shutdown.
 define variable *exiting-application* = #f;
@@ -22,8 +20,10 @@ end;
 
 //// <http-server>
 
-// The user instantiates this class directly, passing configuration options
-// as init args.
+// The user instantiates this class directly, passing configuration
+// options as init args.  An <http-server> is an <abstract-router> in
+// order to delegate add/find-resource requests to the default virtual
+// host.  It simplifies the common case, i.e. no vhosts.
 //
 define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   // Whether the server should run in debug mode or not.  If this is true then
@@ -35,7 +35,9 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
     init-keyword: debug:;
 
   // Value to send as 'Server' header.
-  slot server-header :: <byte-string> = $server-header-value;
+  slot server-header :: <byte-string>
+      = concatenate($server-name, "/", $server-version),
+    init-keyword: server-header:;
 
   constant slot server-lock :: <simple-lock>,
     required-init-keyword: lock:;
@@ -47,7 +49,7 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   // Use this if no virtual host matches the Host header or URL and
   // use-default-virtual-host? is true.
   slot default-virtual-host :: <virtual-host> = make(<virtual-host>),
-    init-keyword: default:;
+    init-keyword: default-virtual-host:;
 
   // If true, use the default vhost if the given host isn't found.
   slot use-default-virtual-host? :: <boolean> = #t,
@@ -88,7 +90,7 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   // they're relative they will be relative to this.  The server-root pathname is
   // relative to the server executable, unless changed in the config file.
   slot server-root :: <directory-locator>
-    = parent-directory(locator-directory(as(<file-locator>, application-filename()))),
+      = parent-directory(locator-directory(as(<file-locator>, application-filename()))),
     init-keyword: server-root:;
 
   // This holds a <mime-type-map>, but in fact all the values are <media-type>s.
@@ -96,15 +98,16 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
     init-keyword: media-type-map:;
 
   //// Connection thread pooling
-  constant slot server-executor :: <executor> = make(<fixed-thread-executor>,
-                                                     name: "http-server request executor",
-                                                     thread-count: 10);
+  constant slot server-executor :: <executor>
+      = make(<fixed-thread-executor>,
+             name: "http-server request executor",
+             thread-count: 10),
+    init-keyword: executor:;
 
   //// Next 3 slots are for sessions
 
   // Maps session-id to session object.
-  constant slot server-sessions :: <table>,
-    init-function: curry(make, <table>);
+  constant slot server-sessions :: <table> = make(<table>);
 
   // The number of seconds this cookie should be stored in the user agent, in seconds.
   // #f means no max-age is transmitted, which means "until the user agent exits".
@@ -195,14 +198,12 @@ end method add-virtual-host;
 define method add-resource
     (server :: <http-server>, url :: <object>, resource :: <abstract-resource>,
      #rest args, #key)
-  //log-debug("add-resource(%=, %=, %=)", server, url, resource);
   apply(add-resource, server.default-virtual-host, url, resource, args);
 end;
 
 define method find-resource
     (server :: <http-server>, url :: <object>)
  => (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
-  log-debug("find-resource(%=, %=)", server, url);
   find-resource(server.default-virtual-host, url)
 end;
 
@@ -385,7 +386,7 @@ define method start-server
                 *error-logger* = server.error-logger,
                 *request-logger* = server.request-logger,
                 *http-common-log* = *debug-logger*)
-    log-info("Starting %s HTTP Server", $server-name);
+    log-info("Starting %s", $server-name);
     ensure-sockets-started();
     log-info("Server root directory is %s", server-root(server));
     if (empty?(server.server-listeners))
@@ -454,7 +455,7 @@ define method stop-server
     (server :: <http-server>, #key abort)
   stop-listeners(server);
   join-clients(server);
-  log-info("%s HTTP server stopped", $server-name);
+  log-info("%s stopped", $server-name);
 end method stop-server;
 
 define function stop-listeners
@@ -820,5 +821,3 @@ define method send-error-response-internal
   response.response-reason-phrase := one-liner;
   finish-response(response);
 end method send-error-response-internal;
-
-

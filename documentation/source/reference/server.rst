@@ -66,7 +66,7 @@ The HTTP-SERVER module
 
    :keyword clients-shutdown-notification:
    :keyword debug:
-   :keyword default:
+   :keyword default-virtual-host:
    :keyword listeners:
    :keyword listeners-shutdown-notification:
    :keyword lock:
