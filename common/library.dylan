@@ -35,9 +35,6 @@ end library http-common;
 
 define module http-common
   create
-    $http-version,
-    $default-http-port,
-    $default-https-port,
     <request-method>,
     <http-version>,
     *http-common-log*,

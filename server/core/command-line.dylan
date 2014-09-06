@@ -14,7 +14,7 @@ add-option(*command-line-parser*,
                                        "listen.  Option may be "
                                        "repeated. "
                                        "[default: 0.0.0.0:%d]",
-                                     $default-http-port),
+                                       $default-http-port),
                 names: #("listen", "l")));
 
 // --config <file>

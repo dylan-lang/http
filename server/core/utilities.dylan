@@ -4,6 +4,11 @@ Copyright: See LICENSE in this distribution for details.
 Synopsis:  Variables and utilities 
 
 
+define constant $http-version :: <byte-string> = "HTTP/1.1";
+define constant $default-http-port :: <integer> = 8000;
+define constant $default-https-port :: <integer> = 8443;
+
+
 // Command-line arguments parser.  The expectation is that libraries that use
 // and extend this server (e.g., wiki) may want to add their own <option-parser>s to
 // this before calling http-server-main().
