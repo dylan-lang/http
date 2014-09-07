@@ -4,7 +4,7 @@ Copyright: See LICENSE in this distribution for details.
 
 /*
 
-to-do list:
+TODO:
 
 * Query parameters should be left entirely to the uri library.  Here we only
   care about getting a URI and sending it along in a request.
@@ -16,55 +16,6 @@ to-do list:
 * This code isn't currently designed to support HTTP over anything
   other than a <tcp-socket>.  It does not support <ssl-socket>s. (It's
   also conceivable for there to be an <ipc-socket> class.)
-
-Examples:
-
-// Fetch the content of a web page and display it on *standard-output*.
-let response :: <http-response> = http-get("http://opendylan.com");
-format-out("%s", response.response-content);
-
-
-// Fetch a big file to a stream.
-with-open-file(out = "/tmp/big", direction: #"output")
-  http-get("http://host/big-file", stream: out)
-end;
-
-
-// Post to a URL. Table data is automatically application/x-www-form-urlencoded.
-http-post("http://some/url",
-          content: table(<string-table>,
-                         "full_name" => "Dylan Thomas",
-                         "login" => "dthomas"))
-
-
-// Send multiple requests on a single connection via the lower-level API.
-with-http-connection (conn = "opendylan.org")
-  send-request(conn, "GET", "/")
-  let response :: <http-response> = read-response(conn);
-  ...content is in response.response-content...
-
-  send-request(conn, "POST", "/blah", content: "...");
-  let response :: <http-response> = read-response(conn);
-  ...
-end;
-
-
-// Send streaming data.
-// TODO(cgay): Simplify this by making http-put(..., content: input-stream) work.
-start-request(conn,  "PUT", "/huge-file.gz");
-...write(conn, "foo")...
-finish-request(conn);
-let response = read-response(conn);
-
-
-// Error handling
-block ()
-  http-get(...)
-exception (ex :: <resource-not-found-error>)
-  ...
-exception (ex :: <http-error>)
-  ...last resort handler...
-end;
 
 */
 
