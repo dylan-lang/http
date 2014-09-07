@@ -3,13 +3,6 @@ Synopsis: Code shared by HTTP client and server.
 Copyright: See LICENSE in this distribution for details.
 
 
-define constant $http-version :: <byte-string> = "HTTP/1.1";
-
-define constant $default-http-port :: <integer> = 8000;
-
-define constant $default-https-port :: <integer> = 8443;
-
-
 // By the spec request methods are case-sensitive, but for convenience
 // we let them be specified as symbols as well.  If a symbol is used it
 // is uppercased before sending to the server.  Similarly for HTTP version.

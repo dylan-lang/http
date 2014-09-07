@@ -67,6 +67,9 @@ close(conn);
 
 */
 
+define constant $default-http-port :: <integer> = 80;
+define constant $default-https-port :: <integer> = 443;
+
 define constant <uri-or-string> = type-union(<uri>, <string>);
 define constant <follow-redirects> = type-union(<boolean>, <nonnegative-integer>);
 
@@ -654,17 +657,28 @@ end method read-status-line;
 define function make-http-connection
     (host-or-url, #rest initargs, #key port, #all-keys)
   let host = host-or-url;
-  let port = port | $default-http-port;
+  // It's convenient to be able to use a string for the URL.
+  if (instance?(host, <string>) & any?(member?(_, host), "/:"))
+    host := parse-url(host);
+  end;
   if (instance?(host, <uri>))
     let uri :: <uri> = host;
     host := uri-host(uri);
     if (empty?(host))
-      error(make(<simple-error>,
-                 format-string: "The URI provided to with-http-connection "
-                   "must have a host component: %s",
-                 format-arguments: list(build-uri(host))));
+      error("The URI provided, %s, must have a host component.",
+            build-uri(uri));
     end if;
-    port := uri-port(uri) | port;
+    port := port | uri.uri-port;
+    if (~port)
+      // TODO(cgay): The uri library should supply port defaults for schemes
+      // that specify it, so we don't have to do this here.
+      select (uri.uri-scheme by  string-equal-ic?)
+        "http", "" => port := $default-http-port;
+        "https"    => port := $default-https-port;
+        otherwise => error("The URI provided, %s, must be an http or https URI.",
+                           build-uri(uri));
+      end;
+    end;
   end if;
   apply(make, <http-connection>, host: host, port: port, initargs)
 end function make-http-connection;
@@ -733,7 +747,6 @@ define method perform-request
           stream :: false-or(<stream>))
  => (response :: <http-response>)
   let (url, request-method, version, headers, content) = explode-request(request);
-
   with-http-connection(conn = url)
     iterate loop (follow = follow-redirects, url = url, seen = #())
       send-request(conn, request-method, url, headers: headers, content: content);
@@ -822,10 +835,10 @@ define method http-request
           parameters,
           data,
           follow-redirects,
-          read-response-body?,
+          read-response-body? = #t,
           stream)
  => (response :: <http-response>)
-  http-request(parse-uri(url),
+  http-request(parse-url(url),
                request-method,
                headers: headers,
                parameters: parameters,

@@ -22,10 +22,6 @@ The HTTP-COMMON module
 
 .. constant:: $default-cookie-version
 
-.. constant:: $default-http-port
-
-.. constant:: $default-https-port
-
 .. constant:: $expectation-failed-error
 
 .. constant:: $forbidden-error
@@ -37,8 +33,6 @@ The HTTP-COMMON module
 .. constant:: $gone-error
 
 .. constant:: $header-too-large-error
-
-.. constant:: $http-version
 
 .. constant:: $http-version-not-supported-error
 
