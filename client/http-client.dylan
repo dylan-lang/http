@@ -6,6 +6,8 @@ Copyright: See LICENSE in this distribution for details.
 
 to-do list:
 
+* Query parameters should be left entirely to the uri library.  Here we only
+  care about getting a URI and sending it along in a request.
 * Request pipelining.
 * See todos in code below.
 * Optional strict mode in which reads/writes signal an error if the
@@ -17,32 +19,38 @@ to-do list:
 
 Examples:
 
-let conn = make(<http-connection>, host: host, port: port, ...);
-
-// The simplest GET possible at this level.
-// (GET is the default request method.  HTTP/1.1 is the default version.)
-//
-send-request(conn, "GET", "/status");
-let response :: <http-response> = read-response(conn);
-...content is in response.response-content...
+// Fetch the content of a web page and display it on *standard-output*.
+let response :: <http-response> = http-get("http://opendylan.com");
+format-out("%s", response.response-content);
 
 
-// Read streaming data (e.g., if it's too big to buffer it all).
-//
-send-request(conn, "GET", "/status");
-let response :: <http-response> = read-response(conn, read-content: #f);
-...read(response, n)...
+// Fetch a big file to a stream.
+with-open-file(out = "/tmp/big", direction: #"output")
+  http-get("http://host/big-file", stream: out)
+end;
 
 
-// POST form data.
-// Content will be automatically encoded if it is a table.
-// A Content-Type header will be added if not otherwise provided.
-send-request(conn, "POST", "/form",
-             content: build-urlencoded-form(form-data));
-...
+// Post to a URL. Table data is automatically application/x-www-form-urlencoded.
+http-post("http://some/url",
+          content: table(<string-table>,
+                         "full_name" => "Dylan Thomas",
+                         "login" => "dthomas"))
+
+
+// Send multiple requests on a single connection via the lower-level API.
+with-http-connection (conn = "opendylan.org")
+  send-request(conn, "GET", "/")
+  let response :: <http-response> = read-response(conn);
+  ...content is in response.response-content...
+
+  send-request(conn, "POST", "/blah", content: "...");
+  let response :: <http-response> = read-response(conn);
+  ...
+end;
 
 
 // Send streaming data.
+// TODO(cgay): Simplify this by making http-put(..., content: input-stream) work.
 start-request(conn,  "PUT", "/huge-file.gz");
 ...write(conn, "foo")...
 finish-request(conn);
@@ -51,19 +59,12 @@ let response = read-response(conn);
 
 // Error handling
 block ()
-  send-request(conn, ...);
-  let response = read-response(conn, ...);
+  http-get(...)
 exception (ex :: <resource-not-found-error>)
   ...
 exception (ex :: <http-error>)
   ...last resort handler...
 end;
-
-close(conn);
-
-// The plan is to allow content to be a stream, a string, a function,
-// a table (for POST), etc.
-
 
 */
 
@@ -668,6 +669,9 @@ end method read-and-discard-to-end;
 //     response.
 // Values:
 //   An <http-response>.
+//
+// TODO(cgay): Rename stream to output-stream for clarity.
+// TODO(cgay): Allow content to be an input stream.
 define sealed generic http-request
     (request-method :: <request-method>, url :: <object>,
      #key headers,
