@@ -37,9 +37,9 @@ tests to write:
 
 define function register-test-resources
     (server :: <http-server>)
+  add-resource(server, "/", make(<echo-resource>));
   add-resource(server, "/x", make(<x-resource>));
   add-resource(server, "/echo", make(<echo-resource>));
-  add-resource(server, "/", make(<echo-resource>));
 end;
 
 
@@ -77,8 +77,8 @@ define test test-http-get-no-path ()
     check-no-condition("GET of a URL with no path gets no error",
                        http-get(no-path-url));
     check-equal("GET of a URL with no path same as /",
-                request-content(http-get(root-url())),
-                request-content(http-get(no-path-url)));
+                response-content(http-get(root-url())),
+                response-content(http-get(no-path-url)));
   end;
 end test test-http-get-no-path;
 

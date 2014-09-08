@@ -173,16 +173,7 @@ define method start-request
     set-header(headers, "Transfer-Encoding", "chunked", if-exists?: #"ignore");
   end;
 
-  let proxy? = #f;  // TODO: probably in the connection
-
-  // Determine the URL string to send in the request line.  If using a proxy an
-  // absolute URI is required, otherwise HTTP/1.1 clients MUST send an abs_path
-  // (a.k.a. path-absolute) and send a Host header.
-  let url-string = iff(proxy?,
-                       build-uri(url),
-                       build-uri(url, include-scheme: #f, include-authority: #f));
-
-  send-request-line(conn, request-method, url-string, http-version);
+  send-request-line(conn, request-method, url, http-version);
   send-headers(conn, headers);
 end method start-request;
 
@@ -234,19 +225,26 @@ end method finish-request;
 define method send-request-line
     (conn :: <http-connection>,
      request-method :: <request-method>,
-     url :: <uri-or-string>,
+     uri :: <uri>,
      http-version :: <http-version>)
+  let proxy? = #f;  // TODO: probably in the connection
+
+  // Determine the URL string to send in the request line.  If using a proxy an
+  // absolute URI is required, otherwise HTTP/1.1 clients MUST send an abs_path
+  // (a.k.a. path-absolute) and send a Host header.
+  let uri-string = iff(proxy?,
+                       build-uri(uri),
+                       build-uri(uri, include-scheme: #f, include-authority: #f));
+  // https://github.com/dylan-lang/http/issues/2
+  // http://tools.ietf.org/html/rfc7230#section-5.3
+  if (empty?(uri.uri-path))
+    uri-string := concatenate("/", uri-string);
+  end;
   let req-meth = iff(instance?(request-method, <string>),
                      request-method,
                      as-uppercase(as(<byte-string>, request-method)));
   format(conn.connection-socket, "%s %s %s\r\n",
-         req-meth,
-         // The client MUST omit the URI host unless sending to a proxy.
-         // (Since we don't support proxies yet, the user can do this manually
-         // by passing the url as a string.)
-         iff(instance?(url, <uri>),
-             build-uri(url, include-scheme: #f, include-authority: #f),
-             url),
+         req-meth, uri-string,
          iff(instance?(http-version, <symbol>),
              as-uppercase(as(<byte-string>, http-version)),
              http-version));
