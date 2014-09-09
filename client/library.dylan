@@ -41,16 +41,13 @@ define module http-client
 
   // Request/response
   create
-    <http-request>,
-    request-parameters,
-    request-parameters-setter,
-    request-headers,
     send-request,
     start-request,
     finish-request,
     read-response,
     <http-response>,
     response-content,
+    http-request,
     http-get,
     http-post,
     http-put,
@@ -88,13 +85,5 @@ define module http-client-internals
     convert-headers,
     connection-socket,
     convert-content;
-
-  // Request
-  export
-    prepare-request,
-    prepare-request-method,
-    prepare-request-url,
-    prepare-request-headers,
-    prepare-request-content;
 
 end module http-client-internals;

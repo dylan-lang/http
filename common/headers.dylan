@@ -13,15 +13,18 @@ define variable *max-single-header-size* :: false-or(<integer>) = 16384;
 // amount of copying the whole header around -- Hannes 16.11.2007
 define variable *header-buffer-growth-amount* :: limited(<integer>, min: 1) = 1024;
 
+// TODO(cgay): Use something more efficient than a <table> for the headers,
+// such as a property list.  There should usually be a small number of headers,
+// so a list is probably fine.  I also think there's no need to store parsed
+// headers; they're probably only accessed once, in general, so maybe just
+// provide a public parse-header method.
 define open abstract class <message-headers-mixin> (<object>)
   // Raw headers, mapping case-insensitive-header-name to unparsed header value.
-  constant slot raw-headers :: <header-table>,
-    init-keyword: headers:,
-    init-function: curry(make, <header-table>);
+  constant slot raw-headers :: <header-table> = make(<header-table>),
+    init-keyword: headers:;
 
   // Parsed headers.  Header values are parsed on demand only.
-  constant slot parsed-headers :: <header-table>,
-    init-function: curry(make, <header-table>);
+  constant slot parsed-headers :: <header-table> = make(<header-table>);
 
 end class <message-headers-mixin>;
 
@@ -84,7 +87,8 @@ define sealed method set-header
                                 concatenate!(old, list(value)),
                                 list(old, value));
   elseif (if-exists? = #"error")
-    error("Attempt to add header %= which has already been added", header-name);
+    error("Attempt to add header \"%s: %s\" which has already been added.",
+          header-name, value);
   else
     log-debug(*http-common-log*, "Ignoring header %s: %s", header-name, value);
     assert(if-exists? == #"ignore");
@@ -107,6 +111,7 @@ define method get-header
   let raw-value = element(table, header-name, default: #f);
   raw-value
     & iff(parsed,
+          // TODO(cgay): Interning symbols here is a memory leak.
           parse-header-value(as(<symbol>, header-name), raw-value),
           raw-value)
 end method get-header;
@@ -227,10 +232,11 @@ end function split-header;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// TODO(cgay): Kill this and use plists or similar instead. Can't remember why
+// I didn't just use <string-table> anyway.
+
 define class <header-table> (<table>)
 end;
-
-// define constant $empty-header-table = make(<header-table>);
 
 define sealed method table-protocol (table :: <header-table>)
   => (test-fn :: <function>, hash-fn :: <function>);

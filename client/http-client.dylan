@@ -4,8 +4,10 @@ Copyright: See LICENSE in this distribution for details.
 
 /*
 
-to-do list:
+TODO:
 
+* Query parameters should be left entirely to the uri library.  Here we only
+  care about getting a URI and sending it along in a request.
 * Request pipelining.
 * See todos in code below.
 * Optional strict mode in which reads/writes signal an error if the
@@ -14,56 +16,6 @@ to-do list:
 * This code isn't currently designed to support HTTP over anything
   other than a <tcp-socket>.  It does not support <ssl-socket>s. (It's
   also conceivable for there to be an <ipc-socket> class.)
-
-Examples:
-
-let conn = make(<http-connection>, host: host, port: port, ...);
-
-// The simplest GET possible at this level.
-// (GET is the default request method.  HTTP/1.1 is the default version.)
-//
-send-request(conn, "GET", "/status");
-let response :: <http-response> = read-response(conn);
-...content is in response.response-content...
-
-
-// Read streaming data (e.g., if it's too big to buffer it all).
-//
-send-request(conn, "GET", "/status");
-let response :: <http-response> = read-response(conn, read-content: #f);
-...read(response, n)...
-
-
-// POST form data.
-// Content will be automatically encoded if it is a table.
-// A Content-Type header will be added if not otherwise provided.
-send-request(conn, "POST", "/form",
-             content: build-urlencoded-form(form-data));
-...
-
-
-// Send streaming data.
-start-request(conn,  "PUT", "/huge-file.gz");
-...write(conn, "foo")...
-finish-request(conn);
-let response = read-response(conn);
-
-
-// Error handling
-block ()
-  send-request(conn, ...);
-  let response = read-response(conn, ...);
-exception (ex :: <resource-not-found-error>)
-  ...
-exception (ex :: <http-error>)
-  ...last resort handler...
-end;
-
-close(conn);
-
-// The plan is to allow content to be a stream, a string, a function,
-// a table (for POST), etc.
-
 
 */
 
@@ -88,7 +40,7 @@ define thread variable *http-client-log* :: <logger>
 
 
 // This error is signaled if the number of redirects exceeds n for n in
-// http-get(conn, follow-redirects: n).
+// http-request(..., follow-redirects: n, ...).
 define open class <maximum-redirects-exceeded> (<http-error>)
 end;
 
@@ -164,97 +116,6 @@ end;
 // Writing requests
 //////////////////////////////////////////
 
-// A high-level request.
-//
-// This class contains abstractions like parameters, data, cookies and
-// response streams.
-// To use this class set the slots as you need, then convert it to a
-// <base-http-request> and send it.
-// TODO: Merge with server's <request> -fracek
-define open class <http-request> (<base-http-request>)
-
-  slot request-parameters :: <string-table>,
-    init-function: curry(make, <string-table>),
-    init-keyword: parameters:;
-
-  // TODO cookies, auth -fracek
-
-end class <http-request>;
-
-define method initialize
-    (request :: <http-request>, #rest args, #key headers)
-  next-method();
-  if (headers)
-    for (header-value keyed-by header-key in headers)
-      set-header(request, header-key, header-value);
-    end;
-  end;
-end method initialize;
-
-// TODO(cgay): Is this necessary, and why is it returning raw headers rather
-// than parsed headers?
-define method request-headers
-    (message :: <base-http-request>)
- => (headers :: <header-table>)
-  message.raw-headers
-end method request-headers;
-
-define method prepare-request-method
-    (base-request :: <base-http-request>, request :: <http-request>)
-  base-request.request-method := request.request-method;
-end method prepare-request-method;
-
-define method prepare-request-url
-    (base-request :: <base-http-request>, request :: <http-request>)
-  let parameters = request.request-parameters;
-  let url-with-parameters = transform-uris(request.request-url,
-                                           make(<url>, query: parameters));
-  base-request.request-url := parse-url(build-uri(url-with-parameters));
-end method prepare-request-url;
-
-define method prepare-request-headers
-    (base-request :: <base-http-request>, request :: <http-request>)
-  // This is pretty much useless I think, we need a <header-table> when
-  // sending the request.
-  for (header-value keyed-by header-name in request.raw-headers)
-    set-header(base-request, header-name, header-value);
-  end;
-end method prepare-request-headers;
-
-// TODO: read content from file and add it to the content? -fracek
-define method prepare-request-content
-    (base-request :: <base-http-request>, request :: <http-request>)
-  base-request.request-content := request.request-content
-end method prepare-request-content;
-
-define method prepare-request
-    (request :: <http-request>)
- => (base-request :: <base-http-request>)
-  let base-http-request = make(<base-http-request>);
-  prepare-request-method(base-http-request, request);
-  prepare-request-url(base-http-request, request);
-  prepare-request-headers(base-http-request, request);
-  // TODO: prepare-request-cookies
-  prepare-request-content(base-http-request, request);
-  // TODO: prepare-request-auth
-  base-http-request
-end method prepare-request;
-
-define method explode-request
-    (request :: <base-http-request>)
- => (url :: <url>,
-     request-method :: <request-method>,
-     version :: <http-version>,
-     headers :: <header-table>,
-     content :: <byte-string>)
-  let url = request.request-url;
-  let request-method = request.request-method;
-  let version = request.request-version;
-  let headers = request.request-headers;
-  let content = request.request-content;
-  values(url, request-method, version, headers, content)
-end method explode-request;
-
 // Start a request by sending the request line and headers.  The caller
 // may then write the message body data to the connection and call finish-request.
 // If you have a small amount of data to send you may want to use send-request
@@ -312,16 +173,7 @@ define method start-request
     set-header(headers, "Transfer-Encoding", "chunked", if-exists?: #"ignore");
   end;
 
-  let proxy? = #f;  // TODO: probably in the connection
-
-  // Determine the URL string to send in the request line.  If using a proxy an
-  // absolute URI is required, otherwise HTTP/1.1 clients MUST send an abs_path
-  // (a.k.a. path-absolute) and send a Host header.
-  let url-string = iff(proxy?,
-                       build-uri(url),
-                       build-uri(url, include-scheme: #f, include-authority: #f));
-
-  send-request-line(conn, request-method, url-string, http-version);
+  send-request-line(conn, request-method, url, http-version);
   send-headers(conn, headers);
 end method start-request;
 
@@ -373,19 +225,26 @@ end method finish-request;
 define method send-request-line
     (conn :: <http-connection>,
      request-method :: <request-method>,
-     url :: <uri-or-string>,
+     uri :: <uri>,
      http-version :: <http-version>)
+  let proxy? = #f;  // TODO: probably in the connection
+
+  // Determine the URL string to send in the request line.  If using a proxy an
+  // absolute URI is required, otherwise HTTP/1.1 clients MUST send an abs_path
+  // (a.k.a. path-absolute) and send a Host header.
+  let uri-string = iff(proxy?,
+                       build-uri(uri),
+                       build-uri(uri, include-scheme: #f, include-authority: #f));
+  // https://github.com/dylan-lang/http/issues/2
+  // http://tools.ietf.org/html/rfc7230#section-5.3
+  if (empty?(uri.uri-path))
+    uri-string := concatenate("/", uri-string);
+  end;
   let req-meth = iff(instance?(request-method, <string>),
                      request-method,
                      as-uppercase(as(<byte-string>, request-method)));
   format(conn.connection-socket, "%s %s %s\r\n",
-         req-meth,
-         // The client MUST omit the URI host unless sending to a proxy.
-         // (Since we don't support proxies yet, the user can do this manually
-         // by passing the url as a string.)
-         iff(instance?(url, <uri>),
-             build-uri(url, include-scheme: #f, include-authority: #f),
-             url),
+         req-meth, uri-string,
          iff(instance?(http-version, <symbol>),
              as-uppercase(as(<byte-string>, http-version)),
              http-version));
@@ -740,18 +599,69 @@ define method read-and-discard-to-end
   end;
 end method read-and-discard-to-end;
 
-define method perform-request
-    (request :: <base-http-request>,
-     #key follow-redirects :: <follow-redirects> = #t,
-          read-response-body? :: <boolean> = #t,
+// Do a complete HTTP request and response.
+// Arguments:
+//   request-method - The HTTP method for the request.
+//   url - The URL for the request.
+//   headers - Any additional headers to send with the request.  The same headers
+//     are sent in subsequent requests if redirects are followed.
+//   parameters - Query values to send in the request URI.  <string-table>
+//   content - Content to send in the body of the request.  <string-table> is sent
+//     as application/x-www-form-urlencoded body, others sent with standard encoding.
+//   follow-redirects
+//     #f => don't follow redirects.
+//     #t => follow an indefinite number of redirects.
+//     n => follow n redirects but signal <maximum-redirects-exceeded> after that.
+//   stream - A stream on which to output the response message body.  This is useful
+//     when an extremely large response is expected.  If not provided, then the
+//     response message body is copied into the response-content slot of the returned
+//     response.
+// Values:
+//   An <http-response>.
+//
+// TODO(cgay): Rename stream to output-stream for clarity.
+// TODO(cgay): Allow content to be an input stream.
+define sealed generic http-request
+    (request-method :: <request-method>, url :: <object>,
+     #key headers,
+          parameters,
+          content,
+          follow-redirects,
+          stream)
+ => (response :: <http-response>);
+
+define method http-request
+    (request-method :: <request-method>, uri :: <string>,
+     #key headers,
+          parameters,
+          content,
+          follow-redirects,
+          stream)
+ => (response :: <http-response>)
+  http-request(request-method, parse-url(uri),
+               headers: headers,
+               parameters: parameters,
+               content: content,
+               follow-redirects: follow-redirects,
+               stream: stream)
+end method http-request;
+
+define method http-request
+    (request-method :: <request-method>, uri :: <uri>,
+     #key headers,
+          parameters :: false-or(<string-table>),
+          content,
+          follow-redirects :: <follow-redirects> = #t,
           stream :: false-or(<stream>))
  => (response :: <http-response>)
-  let (url, request-method, version, headers, content) = explode-request(request);
+  let headers = convert-headers(headers);
+  let url = transform-uris(uri, make(<url>, query: convert-parameters(parameters)));
   with-http-connection(conn = url)
     iterate loop (follow = follow-redirects, url = url, seen = #())
-      send-request(conn, request-method, url, headers: headers, content: content);
+      send-request(conn, request-method, url,
+                   headers: headers,
+                   content: convert-content(content, headers: headers));
 
-      let read-content? = ~stream;
       let response :: <http-response> = read-response(conn, read-content: #f);
       let code = response.response-code;
       if (follow & code >= 300 & code <= 399)
@@ -760,7 +670,8 @@ define method perform-request
         let location = get-header(response, "Location");
         if (follow = 0)
           signal(make(<maximum-redirects-exceeded>,
-                      format-string: "Maximum number of redirects exceeded."));
+                      format-string: "Maximum number of redirects (%d) exceeded.",
+                      format-arguments: list(follow-redirects)));
         elseif (member?(location, seen, test: string-equal?))
           // RFC 2616, 10.3
           signal(make(<redirect-loop-detected>,
@@ -774,190 +685,18 @@ define method perform-request
       else
         if (stream)
           copy-message-body-to-stream(response, stream);
-        elseif (read-response-body?)
+        else
           response.response-content := read-to-end(response);
         end;
         response
       end
     end iterate
   end with-http-connection
-end method perform-request;
-
-define method perform-request
-    (request :: <http-request>,
-     #key follow-redirects :: <follow-redirects> = #t,
-          read-response-body? :: <boolean> = #t,
-          stream :: false-or(<stream>))
- => (response :: <http-response>)
-  let base-http-request = prepare-request(request);
-  perform-request(base-http-request,
-                  follow-redirects: follow-redirects,
-                  read-response-body?: read-response-body?,
-                  stream: stream)
-end method perform-request;
-
-// Do a complete HTTP request and response.
-// Arguments:
-//   url - The URL for the request.
-//   request-method - The HTTP method for the request.
-//   headers - Any additional headers to send with the request.  The same headers
-//     are sent in subsequent requests if redirects are followed.
-//   data - Content to send in the body of the request.  <string-table> is sent
-//     as application/x-www-form-urlencoded body, others sent with standard encoding.
-//   follow-redirects - If #f, then don't follow redirects.  This is allowed in order
-//     to simplify the caller.  If #t, then follow an indefinite number of redirects.
-//     If 0, then raise <maximum-redirects-exceeded>.  If > 0, follow that many
-//     redirects.
-//   read-response-body? - If #t, read the response body and store it in the
-//     response-content slot. Otherwise, the caller is responsible for reading
-//     the response body. If the response is expected to be large (e.g. a file
-//     download) you probably want to use #f or use the "stream" argument.
-//   stream - A stream on which to output the response message body.  This is useful
-//     when an extremely large response is expected.  If not provided, then the
-//     response message body is stored in the returned response.
-// Values:
-//   An <http-response>.
-define sealed generic http-request
-    (url :: <object>,
-     request-method :: <request-method>,
-     #key headers,
-          parameters,
-          data,                 // TODO(cgay): Rename to content?
-          follow-redirects,
-          read-response-body?,
-          stream)
- => (response :: <http-response>);
-
-define method http-request
-    (url :: <string>,
-     request-method :: <request-method>,
-     #key headers,
-          parameters,
-          data,
-          follow-redirects,
-          read-response-body? = #t,
-          stream)
- => (response :: <http-response>)
-  http-request(parse-url(url),
-               request-method,
-               headers: headers,
-               parameters: parameters,
-               data: data,
-               follow-redirects: follow-redirects,
-               read-response-body?: read-response-body?,
-               stream: stream)
 end method http-request;
 
-define method http-request
-    (url :: <uri>,
-     request-method :: <request-method>,
-     #key headers,
-          parameters :: false-or(<string-table>),
-          data,
-          follow-redirects :: <follow-redirects> = #t,
-          read-response-body? :: <boolean> = #t,
-          stream :: false-or(<stream>))
- => (response :: <http-response>)
-    let headers = convert-headers(headers);
-    let content = convert-content(data, headers: headers);
-    let parameters = convert-parameters(parameters);
-    let request = make(<http-request>,
-                       url: url,
-                       method: request-method,
-                       version: #"HTTP/1.1",
-                       parameters: parameters,
-                       headers: headers,
-                       content: content);
-    perform-request(request,
-                    follow-redirects: follow-redirects,
-                    read-response-body?: read-response-body?,
-                    stream: stream)
-end method http-request;
-
-define function http-get
-    (url,
-     #key headers,
-          parameters,
-          follow-redirects = #t,
-          stream)
- => (response :: <http-response>)
-  http-request(url, #"get",
-               headers: headers,
-               parameters: parameters,
-               follow-redirects: follow-redirects,
-               stream: stream);
-end function http-get;
-
-define function http-post
-    (url,
-     #key headers,
-          parameters,
-          data,
-          follow-redirects,
-          stream)
- => (response :: <http-response>)
-  http-request(url, #"post",
-               headers: headers,
-               parameters: parameters,
-               data: data,
-               follow-redirects: follow-redirects,
-               stream: stream);
-end function http-post;
-
-define function http-put
-    (url,
-     #key headers,
-          parameters,
-          data,
-          follow-redirects,
-          stream)
- => (response :: <http-response>)
-  http-request(url, #"put",
-               headers: headers,
-               parameters: parameters,
-               data: data,
-               follow-redirects: follow-redirects,
-               stream: stream);
-end function http-put;
-
-define function http-options
-    (url,
-     #key headers,
-          parameters,
-          follow-redirects,
-          stream)
- => (response :: <http-response>)
-  http-request(url, #"options",
-               headers: headers,
-               parameters: parameters,
-               follow-redirects: follow-redirects,
-               stream: stream);
-end function http-options;
-
-define function http-head
-    (url,
-     #key headers,
-          parameters,
-          follow-redirects)
- => (response :: <http-response>)
-  http-request(url, #"head",
-               headers: headers,
-               parameters: parameters,
-               follow-redirects: follow-redirects,
-               read-response-body?: #f);
-end function http-head;
-
-define function http-delete
-    (url,
-     #key headers,
-          parameters,
-          data,
-          follow-redirects,
-          stream)
- => (response :: <http-response>)
-  http-request(url, #"delete",
-               headers: headers,
-               parameters: parameters,
-               follow-redirects: follow-redirects,
-               stream: stream);
-end function http-delete;
+define constant http-get     = curry(http-request, "GET");
+define constant http-post    = curry(http-request, "POST");
+define constant http-put     = curry(http-request, "PUT");
+define constant http-options = curry(http-request, "OPTIONS");
+define constant http-head    = curry(http-request, "HEAD");
+define constant http-delete  = curry(http-request, "DELETE");
