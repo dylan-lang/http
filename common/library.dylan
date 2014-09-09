@@ -35,7 +35,6 @@ end library http-common;
 
 define module http-common
   create
-    <request-method>,
     <http-version>,
     *http-common-log*,
     quote-html,
@@ -63,8 +62,6 @@ define module http-common
     <base-http-request>,
     request-content,
     request-content-setter,
-    request-method,
-    request-method-setter,          // todo -- remove this export
     request-raw-url-string,
     request-raw-url-string-setter,  // todo -- remove this export
     request-url,

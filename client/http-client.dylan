@@ -129,10 +129,10 @@ end;
 // instead.
 define generic start-request
     (conn :: <http-connection>,
-     request-method :: <request-method>,
-     url :: <uri-or-string>,
+     request-method :: <byte-string>,
+     uri :: <uri-or-string>,
      #key headers,
-          standard-headers = #t,
+          standard-headers :: <boolean>,
           http-version :: <http-version>)
  => ();
 
@@ -140,7 +140,7 @@ define generic start-request
 //
 define method start-request
     (conn :: <http-connection>,
-     request-method :: <request-method>,
+     request-method :: <byte-string>,
      url :: <uri-or-string>,
      #key headers,
           standard-headers = #t,
@@ -186,7 +186,7 @@ end method start-request;
 
 
 define generic send-request
-    (conn :: <http-connection>, request-method :: <request-method>,
+    (conn :: <http-connection>, request-method :: <byte-string>,
      url :: <uri-or-string>,
      #rest start-request-args,
      #key content :: <byte-string>,
@@ -194,7 +194,7 @@ define generic send-request
  => ();
 
 define method send-request
-    (conn :: <http-connection>, request-method :: <request-method>,
+    (conn :: <http-connection>, request-method :: <byte-string>,
      url :: <uri-or-string>,
      #rest start-request-args,
      #key content :: <byte-string> = "",
@@ -231,7 +231,7 @@ end method finish-request;
 //
 define method send-request-line
     (conn :: <http-connection>,
-     request-method :: <request-method>,
+     request-method :: <byte-string>,
      uri :: <uri>,
      http-version :: <http-version>)
   let proxy? = #f;  // TODO: probably in the connection
@@ -247,11 +247,8 @@ define method send-request-line
   if (empty?(uri.uri-path))
     uri-string := concatenate("/", uri-string);
   end;
-  let req-meth = iff(instance?(request-method, <string>),
-                     request-method,
-                     as-uppercase(as(<byte-string>, request-method)));
   format(conn.connection-socket, "%s %s %s\r\n",
-         req-meth, uri-string,
+         request-method, uri-string,
          iff(instance?(http-version, <symbol>),
              as-uppercase(as(<byte-string>, http-version)),
              http-version));
@@ -629,7 +626,7 @@ end method read-and-discard-to-end;
 // TODO(cgay): Rename stream to output-stream for clarity.
 // TODO(cgay): Allow content to be an input stream.
 define sealed generic http-request
-    (request-method :: <request-method>, url :: <object>,
+    (request-method :: <byte-string>, url :: <object>,
      #key headers,
           parameters,
           content,
@@ -638,7 +635,7 @@ define sealed generic http-request
  => (response :: <http-response>);
 
 define method http-request
-    (request-method :: <request-method>, uri :: <string>,
+    (request-method :: <byte-string>, uri :: <string>,
      #key headers,
           parameters,
           content,
@@ -654,7 +651,7 @@ define method http-request
 end method http-request;
 
 define method http-request
-    (request-method :: <request-method>, uri :: <uri>,
+    (request-method :: <byte-string>, uri :: <uri>,
      #key headers,
           parameters :: false-or(<string-table>),
           content,
@@ -701,6 +698,7 @@ define method http-request
   end with-http-connection
 end method http-request;
 
+// Shorthand for the most common request methods.
 define constant http-get     = curry(http-request, "GET");
 define constant http-post    = curry(http-request, "POST");
 define constant http-put     = curry(http-request, "PUT");

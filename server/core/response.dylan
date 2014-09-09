@@ -215,7 +215,6 @@ define method finish-response
   let request :: <request> = response.response-request;
   let socket :: <tcp-socket> = request.request-socket;
   let http-version :: <symbol> = request.request-version;
-  let req-method :: <symbol> = request.request-method;
   let content-length :: <byte-string> = "0";
 
   if (response.response-transfer-length > 0)
@@ -243,7 +242,7 @@ define method finish-response
       send-headers(response, socket);
     end;
 
-    if (send-body? & req-method ~== #"head")
+    if (send-body? & request.request-method.method-name ~= "HEAD")
       let contents = response.response-stream.stream-sequence;
       write(socket, contents, start: 0, end: response-size);
       if (*log-content?*)
@@ -261,7 +260,7 @@ define inline function log-request
     (req :: <request>, response-code :: <integer>, content-length :: <string>)
   // Log in Common Logfile Format
   // (http://www.w3.org/Daemon/User/Config/Logging.html)
-  let request = concatenate(as-uppercase(as(<string>, request-method(req))),
+  let request = concatenate(req.request-method.method-name,
                             " ",
                             // Can happen e.g. when client sends no data.
                             request-raw-url-string(req) | "-",

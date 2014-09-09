@@ -19,7 +19,7 @@ Requests
 
    :signature: http-request (request-method url #key headers parameters content follow-redirects stream) => (response)
 
-   :parameter request-method: An instance of :class:`<request-method>`
+   :parameter request-method: An instance of :drm:`<byte-string>`
    :parameter url: A string or a URI.
    :parameter #key headers: A :drm:`<table>` of strings mapping header names to values.
    :parameter #key parameters: A :drm:`<table>` of strings mapping query parameter names to values.
@@ -62,7 +62,7 @@ Requests
    :signature: send-request (conn request-method url #rest start-request-args #key content #all-keys) => ()
 
    :parameter conn: An instance of :class:`<http-connection>`.
-   :parameter request-method: An instance of :class:`<request-method>`.
+   :parameter request-method: An instance of :drm:`<byte-string>`.
    :parameter url: An instance :drm:`<string>` or :class:`<uri>`.
    :parameter #rest start-request-args: An instance of :drm:`<object>`.
    :parameter #key content: An instance of :drm:`<byte-string>`.
@@ -75,11 +75,11 @@ Requests
    :signature: start-request (conn request-method url #key headers standard-headers http-version) => ()
 
    :parameter conn: An instance of :class:`<http-connection>`.
-   :parameter request-method: An instance of :class:`<request-method>`.
+   :parameter request-method: An instance of :drm:`<byte-string>`.
    :parameter url: An instance :drm:`<string>` or :class:`<uri>`.
    :parameter #key headers: An instance of :drm:`<object>`.
    :parameter #key standard-headers: An instance of :drm:`<object>`.
-   :parameter #key http-version: An instance of :class:`<http-version>`.
+   :parameter #key http-version: An instance of :drm:`<byte-string>`.
 
 .. generic-function:: finish-request
 

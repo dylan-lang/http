@@ -7,7 +7,6 @@ Copyright: See LICENSE in this distribution for details.
 // we let them be specified as symbols as well.  If a symbol is used it
 // is uppercased before sending to the server.  Similarly for HTTP version.
 //
-define constant <request-method> = type-union(<symbol>, <byte-string>);
 define constant <http-version> = type-union(<symbol>, <byte-string>);
 
 // Clients can bind this if they want to combine this library's logs with
@@ -67,6 +66,7 @@ define method validate-http-version
   if (version.size ~= 8
         | ~starts-with?(version, "HTTP/")
         | ~decimal-digit?(version[5])
+        | version[6] ~== '.'
         | ~decimal-digit?(version[7]))
     bad-request-error(reason: "Invalid HTTP version")
   else
@@ -383,6 +383,8 @@ end method read-chunk;
 
 ///////////// Requests ////////////
 
+// TODO(cgay): This isn't used by the client code and I don't think there's any
+// reason it should be.  Move it to server.
 define open class <base-http-request> (<message-headers-mixin>)
 
   slot request-url :: false-or(<url>) = #f,
@@ -390,9 +392,6 @@ define open class <base-http-request> (<message-headers-mixin>)
 
   slot request-raw-url-string :: false-or(<byte-string>) = #f,
     init-keyword: raw-url:;
-
-  slot request-method :: <request-method> = #"not-set",
-    init-keyword: method:;
 
   slot request-version :: <http-version> = #"not-set",
     init-keyword: version:;

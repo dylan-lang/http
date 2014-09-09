@@ -54,6 +54,7 @@ define module http-server
     // See also: the methods for requests in http-common
     <request>,
     current-request,             // Returns the active request of the thread.
+    request-method,
     request-content-type,
     request-host,
     request-url-path-prefix,
@@ -70,19 +71,57 @@ define module http-server
                                  //   i.e., essentially within the dynamic scope of
                                  //   respond-to-get/post/etc
 
+  // Request methods
+  create
+    <http-method>,
+    method-name,
+    method-safe?,
+    method-idempotent?,
+    method-cacheable?,
+    respond-to-ACL,
+    respond-to-BASELINE-CONTROL,
+    // respond-to-BIND,
+    respond-to-CHECKIN,
+    respond-to-CHECKOUT,
+    respond-to-CONNECT,
+    respond-to-COPY,
+    respond-to-DELETE,
+    respond-to-GET,
+    respond-to-HEAD,
+    respond-to-LABEL,
+    respond-to-LINK,
+    respond-to-LOCK,
+    respond-to-MERGE,
+    respond-to-MKACTIVITY,
+    respond-to-MKCALENDAR,
+    respond-to-MKCOL,
+    respond-to-MKREDIRECTREF,
+    respond-to-MKWORKSPACE,
+    respond-to-MOVE,
+    respond-to-OPTIONS,
+    respond-to-ORDERPATCH,
+    respond-to-PATCH,
+    respond-to-POST,
+    respond-to-PROPFIND,
+    respond-to-PROPPATCH,
+    respond-to-PUT,
+    respond-to-REBIND,
+    respond-to-REPORT,
+    respond-to-SEARCH,
+    respond-to-TRACE,
+    respond-to-UNBIND,
+    respond-to-UNCHECKOUT,
+    respond-to-UNLINK,
+    respond-to-UNLOCK,
+    respond-to-UPDATE,
+    respond-to-UPDATEREDIRECTREF,
+    respond-to-VERSION-CONTROL;
+
   // Resource protocol
   create
     <abstract-resource>,
       default-content-type,
       respond,
-      respond-to-get,
-      respond-to-head,
-      respond-to-post,
-      respond-to-options,
-      respond-to-put,
-      respond-to-delete,
-      respond-to-trace,
-      respond-to-connect,
       unmatched-url-suffix;
 
   // Resource implementations

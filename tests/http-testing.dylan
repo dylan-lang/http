@@ -59,13 +59,13 @@ define class <echo-resource> (<resource>)
 end;
 
 define method respond-to-get
-    (resource :: <echo-resource>, #key)
+    (resource :: <echo-resource>, #key) => ()
   // should eventually be output(read-to-end(current-request()))
   output(request-content(current-request()));
 end;
 
 define method respond-to-post
-    (resource :: <echo-resource>, #key)
+    (resource :: <echo-resource>, #key) => ()
   respond-to-get(resource)
 end;
 
@@ -74,13 +74,13 @@ define class <x-resource> (<resource>)
 end;
 
 define method respond-to-get
-    (resource :: <x-resource>, #key)
+    (resource :: <x-resource>, #key) => ()
   let n = get-query-value("n", as: <integer>);
   output(make(<byte-string>, size: n, fill: 'x'))
 end;
 
 define method respond-to-post
-    (resource :: <x-resource>, #key)
+    (resource :: <x-resource>, #key) => ()
   respond-to-get(resource)
 end;
 

@@ -6,6 +6,7 @@ files:	library
 	response
 	request
 	resources
+        methods
 	server
 	session
 	config

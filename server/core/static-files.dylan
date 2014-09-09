@@ -56,7 +56,7 @@ define method unmatched-url-suffix
 end;
 
 define method respond-to-get
-    (policy :: <directory-resource>, #key)
+    (policy :: <directory-resource>, #key) => ()
   let suffix :: <string> = request-url-path-suffix(current-request());
   
   // remove leading slash
@@ -104,7 +104,6 @@ define method respond-to-get
     set-header(response, iff(weak?, "W/ETag", "ETag"), etag);
     let client-etag = get-header(request, "If-None-Match");
     if (etag = client-etag)
-      request.request-method := #"head";
       not-modified-redirect(headers: response.response-headers);
     else
       serve-static-file(policy, document);

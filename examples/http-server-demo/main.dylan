@@ -14,7 +14,7 @@ define class <basic-resource-1> (<resource>)
 end;
 
 define method respond-to-get
-    (resource :: <basic-resource-1>, #key)
+    (resource :: <basic-resource-1>, #key) => ()
   set-header(current-response(), "Content-Type", "text/html");
   output("<html><body>This is the output of respond-to-get(&lt;basic-resource-1&gt;)."
          "<p>Use your browser's Back button to return to the example.</p>"
@@ -26,7 +26,7 @@ end;
 
 define method respond
     (resource :: <basic-resource-2>, #key)
-  if (request-method(current-request()) = #"get")
+  if (current-request().request-method.method-name = "GET")
     set-header(current-response(), "Content-Type", "text/plain");
     output("This resource uses the 'respond' method directly.");
   else
@@ -43,7 +43,7 @@ define class <basic-resource-3> (<resource>)
 end;
 
 define method respond-to-get
-    (resource :: <basic-resource-3>, #key vars)
+    (resource :: <basic-resource-3>, #key vars) => ()
   let request :: <request> = current-request();
   set-header(current-response(), "Content-Type", "text/html");
   output("<html><body>"
@@ -65,7 +65,7 @@ define class <basic-resource-4> (<resource>)
 end;
 
 define method respond-to-get
-    (resource :: <basic-resource-4>, #key)
+    (resource :: <basic-resource-4>, #key) => ()
   set-header(current-response(), "Content-Type", "text/plain");
   if (count-query-values() > 0)
     output("Query values are:");
@@ -169,7 +169,7 @@ define class <logout-page> (<demo-page>)
 end;
 
 define method respond-to-get
-    (page :: <logout-page>, #key)
+    (page :: <logout-page>, #key) => ()
   let session = get-session(current-request());
   remove-attribute(session, "username");
   remove-attribute(session, "password");
@@ -183,7 +183,7 @@ end;
 
 // ...so handle the POST by storing the form values in the session.
 define method respond-to-post
-    (page :: <welcome-page>, #key)
+    (page :: <welcome-page>, #key) => ()
   let username = get-query-value("username");
   let password = get-query-value("password");
   let username-supplied? = username & username ~= "";

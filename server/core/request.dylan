@@ -7,6 +7,9 @@ Copyright: See LICENSE in this distribution for details.
 define open primary class <request>
     (<chunking-input-stream>, <base-http-request>)
 
+  slot request-method :: false-or(<http-method>) = #f,
+    init-keyword: method:;
+
   constant slot request-client :: <client>,
     required-init-keyword: client:;
 
@@ -118,9 +121,9 @@ define function parse-request-line
     (server :: <http-server>, request :: <request>,
      buffer :: <string>, eol :: <integer>)
  => ()
-  let (req-method, raw-url, http-version) = parse-request-line-values(buffer, eol);
+  let (http-method, raw-url, http-version) = parse-request-line-values(buffer, eol);
   let url = parse-url(raw-url);
-  request.request-method := req-method;
+  request.request-method := http-method;
   request.request-raw-url-string := raw-url;
   request.request-url := url;
   request.request-version := http-version;
@@ -141,7 +144,7 @@ end function parse-request-line;
 //      Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
 define function parse-request-line-values
     (buffer :: <byte-string>, eol :: <integer>)
- => (request-method :: <symbol>,
+ => (http-method :: <http-method>,
      raw-url :: <byte-string>,
      http-version :: <symbol>)
   let epos1 = whitespace-position(buffer, 0, eol);
@@ -155,28 +158,12 @@ define function parse-request-line-values
   if (~bpos3 | (epos3 ~== eol) | (bpos2 - epos1 > 1) | (bpos3 - epos2 > 1))
     bad-request-error(reason: "Invalid request line");
   else
-    let req-method = validate-request-method(substring(buffer, 0, epos1));
+    let http-method = validate-http-method(substring(buffer, 0, epos1));
     let http-version = validate-http-version(substring(buffer, bpos3, epos3));
     let raw-url = substring(buffer, bpos2, epos2);
-    values(req-method, raw-url, http-version)
+    values(http-method, raw-url, http-version)
   end
 end function parse-request-line-values;
-
-define constant $standard-http-request-methods /* bug #778 :: limited(<vector>, of: <byte-string>) */
-  = #["CONNECT", "DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"];
-
-define method validate-request-method
-    (request-method :: <byte-string>)
- => (request-method :: <symbol>)
-  // These hard-coded strings will have to do until I revamp the
-  // request method code.  --cgay July 2010
-  if (member?(request-method, $standard-http-request-methods, test: \=))
-    // TODO: The request method should be case sensitive, so it shouldn't be a symbol.
-    as(<symbol>, request-method)
-  else
-    not-implemented-error(what: format-to-string("Request method %s", request-method));
-  end
-end method validate-request-method;
 
 
 // This should only be called once it has been determined that the request has
