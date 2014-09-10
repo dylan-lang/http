@@ -59,7 +59,7 @@ define method make
 end;
 
 define method default-content-type
-    (resource :: <dylan-server-page)
+    (resource :: <dylan-server-page>)
  => (content-type :: <byte-string>)
   "text/html"
 end;
