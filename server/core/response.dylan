@@ -64,14 +64,13 @@ define open primary class <response> (<stream>, <base-http-response>)
 
 end class <response>;
 
-define method initialize
-    (response :: <response>, #rest args, #key direction = #"output")
-  if (direction ~= #"output")
-    error("<response> streams are output only.  You may not specify direction: %=",
-          direction)
-  end;
+define method initialize (response :: <response>, #rest args, #key)
   apply(next-method, response, direction: #"output", args);
-  if (response.response-request.request-version == #"http/1.0")
+  let request = response.response-request;
+  if (request.request-keep-alive?)
+    set-header(response, "Connection", "Keep-Alive");
+  end if;
+  if (request.request-version == #"http/1.0")
     response-chunked?(response) := #f;
   end;
 end method initialize;

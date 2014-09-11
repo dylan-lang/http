@@ -73,9 +73,6 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   constant slot clients-shutdown-notification :: <notification>,
     required-init-keyword: clients-shutdown-notification:;
 
-  constant slot request-class :: subclass(<request>) = <request>,
-    init-keyword: request-class:;
-
   //---TODO: response for unsupported-request-method-error MUST include
   // Allow: field...  Need an API for making sure that happens.
   // RFC 2616, 5.1.1
@@ -675,8 +672,8 @@ define function %respond-top-level
     block (exit-respond-top-level)
       while (#t)                      // keep alive loop
         with-simple-restart("Skip this request and continue with the next")
-          *request* := make(client.client-server.request-class, client: client);
-          let request :: <request> = *request*;
+          let request :: <request> = make(<request>, client: client);
+          *request* := request;
           block (finish-request)
             // More recently installed handlers take precedence...
             let handler <error> = rcurry(htl-error-handler, finish-request);
@@ -696,11 +693,7 @@ define function %respond-top-level
                                               decline-if-debugging: #f);
 
             read-request(request);
-            let response = make(<response>,
-                                request: request);
-            if (request.request-keep-alive?)
-              set-header(response, "Connection", "Keep-Alive");
-            end if;
+            let response = make(<response>, request: request);
             dynamic-bind (*response* = response,
                           // Bound to a <page-context> when first requested.
                           *page-context* = #f)
@@ -799,9 +792,7 @@ end function send-error-response;
 define method send-error-response-internal
     (request :: <request>, err :: <error>)
   let headers = http-error-headers(err) | make(<header-table>);
-  let response = make(<response>,
-                      request: request,
-                      headers: headers);
+  let response = make(<response>, request: request, headers: headers);
   let one-liner = http-error-message-no-code(err);
   unless (request-method(request) == #"head")
     // TODO: Display a pretty error page.
