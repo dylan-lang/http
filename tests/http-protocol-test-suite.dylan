@@ -6,7 +6,7 @@ Copyright: See LICENSE in this distribution for details.
 //---------------------------------------------------------------------
 // utilities
 
-// Predicate that return #t if the response content contains str.
+// Predicate that returns #t if the response content contains str.
 //
 // This is done by checking if the content contains `"str":`, this mean that
 // str is a key in the json returned by httpbin.
@@ -20,8 +20,7 @@ define variable *test-port* :: <integer> = 80;
 
 define function full-url
     (#rest segments) => (full-url :: <url>)
-  parse-url(format-to-string("http://%s:%d%s", *test-host*, *test-port*,
-                             join(segments, "/")));
+  parse-url(fmt("http://%s:%d%s", *test-host*, *test-port*, join(segments, "/")));
 end function full-url;
 
 
@@ -66,13 +65,13 @@ define test test-get-method-allow-redirect ()
 end test test-get-method-allow-redirect;
 
 define test test-post-method ()
-  let response = http-post(full-url("/post"), data: "{\"key1\": \"value1\"}");
+  let response = http-post(full-url("/post"), content: "{\"key1\": \"value1\"}");
   check-true("Send data as is", response-content-contains?(response, "key1"));
 
   let payload = make(<string-table>, size: 2);
   payload["key1"] := "value1";
   payload["key2"] := "value with space";
-  response := http-post(full-url("/post"), data: payload);
+  response := http-post(full-url("/post"), content: payload);
   check-true("Send data as form-encoded (key)", response-content-contains?(response, "key1"));
   check-true("Send data as form-encoded (value)",
              find-substring(response.response-content,
@@ -88,7 +87,7 @@ define test test-put-method ()
   let payload = make(<string-table>, size: 2);
   payload["key1"] := "value1";
   payload["key2"] := "value with space";
-  let response = http-put(full-url("/put"), data: payload);
+  let response = http-put(full-url("/put"), content: payload);
   check-true("Send data as form-encoded (key)", response-content-contains?(response, "key1"));
   check-equal("200 OK", response.response-code, 200);
 end test test-put-method;
