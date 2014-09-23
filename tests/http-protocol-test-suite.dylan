@@ -25,7 +25,7 @@ end function full-url;
 
 
 
-define test test-options-method ()
+define test test-options-method (tags: #("online"))
   let response = http-options(full-url("/"));
   assert-equal(200, response.response-code);
   assert-equal(#("GET", "HEAD", "OPTIONS"),
@@ -33,7 +33,7 @@ define test test-options-method ()
                "Allowed methods");
 end test test-options-method;
 
-define test test-get-method ()
+define test test-get-method (tags: #("online"))
   let response = http-get(full-url("/"));
   check-equal("200 OK", response.response-code, 200);
 
@@ -51,7 +51,7 @@ define test test-get-method ()
   check-true("Send headers", response-content-contains?(response, "X-Test-Header"));
 end test test-get-method;
 
-define test test-get-method-allow-redirect ()
+define test test-get-method-allow-redirect (tags: #("online"))
   let response = http-get(full-url("/redirect", "1"));
   // By default follow redirects
   // NOTE: how many?
@@ -64,7 +64,7 @@ define test test-get-method-allow-redirect ()
   check-equal("follow-redirects: 3", response.response-code, 200);
 end test test-get-method-allow-redirect;
 
-define test test-post-method ()
+define test test-post-method (tags: #("online"))
   let response = http-post(full-url("/post"), content: "{\"key1\": \"value1\"}");
   check-true("Send data as is", response-content-contains?(response, "key1"));
 
@@ -78,12 +78,12 @@ define test test-post-method ()
                             concatenate("\"key2\":", " \"", payload["key2"], "\"")));
 end test test-post-method;
 
-define test test-head-method ()
+define test test-head-method (tags: #("online"))
   let response = http-head(full-url("/"));
   check-equal("200 OK", response.response-code, 200);
 end test test-head-method;
 
-define test test-put-method ()
+define test test-put-method (tags: #("online"))
   let payload = make(<string-table>, size: 2);
   payload["key1"] := "value1";
   payload["key2"] := "value with space";
@@ -92,7 +92,7 @@ define test test-put-method ()
   check-equal("200 OK", response.response-code, 200);
 end test test-put-method;
 
-define test test-delete-method ()
+define test test-delete-method (tags: #("online"))
   let response = http-delete(full-url("/delete"));
   check-equal("200 OK", response.response-code, 200);
 end test test-delete-method;
