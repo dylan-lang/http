@@ -53,16 +53,16 @@ end;
 // each <http-server>.
 //
 define constant $default-logger
-  = make(<logger>,
+  = make(<log>,
          name: "http.server",
          level: $info-level,
          targets: list($stdout-log-target));
 
-define thread variable *debug-logger* :: <logger> = $default-logger;
+define thread variable *debug-logger* :: <log> = $default-logger;
 
-define thread variable *error-logger* :: <logger> = $default-logger;
+define thread variable *error-logger* :: <log> = $default-logger;
 
-define thread variable *request-logger* :: <logger> = $default-logger;
+define thread variable *request-logger* :: <log> = $default-logger;
 
 define constant log-trace   = curry(%log-trace, *debug-logger*);
 define constant log-debug   = curry(%log-debug, *debug-logger*);
@@ -73,8 +73,8 @@ define constant log-error   = curry(%log-error, *error-logger*);
 // For debugging only.
 // For logging request and response content data only.
 // So verbose it needs to be explicitly enabled.
-define variable *content-logger* :: <logger>
-  = make(<logger>,
+define variable *content-logger* :: <log>
+  = make(<log>,
          name: "http.server.content",
          targets: list($stdout-log-target),
          additive: #f);
@@ -87,13 +87,13 @@ define inline method log-content (content)
 end;
 
 define class <multi-logger-mixin> (<object>)
-  slot request-logger :: <logger> = *request-logger*,
+  slot request-logger :: <log> = *request-logger*,
     init-keyword: request-logger:;
 
-  slot error-logger :: <logger> = *error-logger*,
+  slot error-logger :: <log> = *error-logger*,
     init-keyword: error-logger:;
 
-  slot debug-logger :: <logger> = *debug-logger*,
+  slot debug-logger :: <log> = *debug-logger*,
     init-keyword: debug-logger:;
 end class <multi-logger-mixin>;
 

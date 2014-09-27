@@ -2,8 +2,7 @@ Module: http-testing
 Copyright: See LICENSE in this distribution for details.
 
 
-define constant $log :: <logger>
-  = make(<logger>, name: "http.test-suite");
+define constant $log :: <log> = make(<log>, name: "http.test-suite");
 
 // Would this be useful in http-server itself?
 //
