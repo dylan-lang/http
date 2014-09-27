@@ -315,7 +315,7 @@ end method process-config-element;
 define function process-log-config-element
     (server :: <http-server>, node :: xml$<element>,
      format-control, logger-name :: <string>, default-log-target :: <log-target>)
- => (logger :: <logger>)
+ => (logger :: <log>)
   let additive? = true-value?(get-attr(node, #"additive") | "no");
   let location = get-attr(node, #"location");
   let default-size = 20 * 1024 * 1024;
@@ -338,9 +338,9 @@ define function process-log-config-element
                                                  server.server-root),
                         max-size: max-size),
                    default-log-target);
-  let logger :: <logger>
-    = get-logger(logger-name) | make(<logger>, name: logger-name);
-  logger.logger-additive? := additive?;
+  let logger :: <log>
+    = get-log(logger-name) | make(<log>, name: logger-name);
+  logger.log-additive? := additive?;
   if (format-control)
     logger.log-formatter := make(<log-formatter>, pattern: format-control);
   end;

@@ -32,8 +32,8 @@ define thread variable *http-connection* :: false-or(<http-connection>) = #f;
 // Logging is disabled by default.  Enable this to see what's going on.
 // Set level to $trace-level to see all request/response content data.
 //
-define thread variable *http-client-log* :: <logger>
-  = make(<logger>,
+define thread variable *http-client-log* :: <log>
+  = make(<log>,
          name: "http.client",
          targets: list($stdout-log-target),
          level: $info-level);

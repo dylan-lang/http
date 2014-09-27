@@ -19,8 +19,8 @@ define constant <http-version> = type-union(<symbol>, <byte-string>);
 // Message headers are logged at debug level and message content is logged
 // at trace level.
 //
-define thread variable *http-common-log* :: <logger>
-  = make(<logger>,
+define thread variable *http-common-log* :: <log>
+  = make(<log>,
          name: "http.common",
          targets: list($stdout-log-target),
          level: $info-level);
