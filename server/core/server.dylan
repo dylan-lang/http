@@ -461,37 +461,25 @@ define function stop-listeners
     listener.listener-exit-requested? := #t;
   end;
   synchronize-side-effects();
-  
-  // Connect to each listener to make its call to accept() return.
   for (listener in server.server-listeners)
-    let socket = #f;
-    block ()
-      let host = listener.listener-host;
-      let conn-host = iff(host = "0.0.0.0", "127.0.0.1", host);
-      socket := make(<tcp-socket>,
-                     host: conn-host,
-                     port: listener.listener-port);
-    cleanup
-      socket & close(socket);
-    exception (ex :: <connection-failed>)
-    exception (ex :: <error>)
-    end block;
+    close(listener.listener-socket, abort?: #t);
   end for;
   join-listeners(server);
 end function stop-listeners;
 
 define function join-listeners
-    (server :: <http-server>)
-  for (listener in server.server-listeners)
-    join-thread(listener.listener-thread);
+    (server :: <http-server>) => ()
+  let listeners = server.server-listeners;
+  while (~empty?(listeners))
+    let thread = with-lock (server.server-lock)
+                   ~empty?(listeners) & listeners[0].listener-thread
+                 end;
+    thread & join-thread(thread);
   end;
-end;
+end function join-listeners;
 
 define function join-clients
-    (server :: <http-server>)
-  // Clients are removed from server.server-clients when they exit,
-  // which can result in #f being stored in the <stretchy-vector>
-  // before its size is updated.  Hence the lock.
+    (server :: <http-server>) => ()
   let clients = with-lock (server.server-lock)
                   copy-sequence(server.server-clients)
                 end;
@@ -587,15 +575,11 @@ define function do-http-listen
                      // use "element-type: <byte>" here?
                      accept(listener.listener-socket, no-delay?: #t) // blocks
                    end
-                 exception (error :: <blocking-call-interrupted>)
-                   // Usually this means we're shutting down so we closed the
-                   // connection with close(s, abort: #t)
+                 exception (error :: <socket-condition>)
+                   // If exiting, likely caused by close(sock, abort?: #t)
                    unless (listener.listener-exit-requested?)
                      log-error("Error accepting connections: %s", error);
                    end;
-                   #f
-                 exception (error :: <socket-condition>)
-                   log-error("Error accepting connections: %s", error);
                    #f
                  end;
     synchronize-side-effects();
