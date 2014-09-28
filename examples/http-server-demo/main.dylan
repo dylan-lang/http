@@ -163,7 +163,7 @@ end;
 define class <login-page> (<demo-page>)
 end;
 
-define constant *login-page* = make(<login-page>, source: "login.dsp");
+define constant *login-page* = make(<login-page>, source: "dsp/login.dsp");
 
 define class <logout-page> (<demo-page>)
 end;
@@ -313,20 +313,20 @@ end;
 define function map-resources
     (server :: <http-server>)
   // two URLs map to the home page
-  let home = make(<demo-page>, source: "home.dsp");
+  let home = make(<demo-page>, source: "dsp/home.dsp");
   add-resource(server, "/", home);
   add-resource(server, "/home", home);
   add-resource(server, "/resource-1", make(<basic-resource-1>));
   add-resource(server, "/resource-2", make(<basic-resource-2>));
   add-resource(server, "/resource-3/{vars*}", make(<basic-resource-3>));
   add-resource(server, "/resource-4", make(<basic-resource-4>));
-  add-resource(server, "/hello", make(<demo-page>, source: "hello.dsp"));
-  add-resource(server, "/args", make(<demo-page>, source: "args.dsp"));
+  add-resource(server, "/hello", make(<demo-page>, source: "dsp/hello.dsp"));
+  add-resource(server, "/args", make(<demo-page>, source: "dsp/args.dsp"));
   add-resource(server, "/login", *login-page*);
-  add-resource(server, "/logout", make(<logout-page>, source: "logout.dsp"));
-  add-resource(server, "/welcome", make(<welcome-page>, source: "welcome.dsp"));
-  add-resource(server, "/iterator", make(<demo-page>, source: "iterator.dsp"));
-  add-resource(server, "/table", make(<demo-page>, source: "table.dsp"));
+  add-resource(server, "/logout", make(<logout-page>, source: "dsp/logout.dsp"));
+  add-resource(server, "/welcome", make(<welcome-page>, source: "dsp/welcome.dsp"));
+  add-resource(server, "/iterator", make(<demo-page>, source: "dsp/iterator.dsp"));
+  add-resource(server, "/table", make(<demo-page>, source: "dsp/table.dsp"));
 end function map-resources;
 
 define function main
