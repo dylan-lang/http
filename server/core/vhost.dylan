@@ -27,14 +27,12 @@ end method do-resources;
 define method add-resource
     (vhost :: <virtual-host>, url :: <object>, resource :: <abstract-resource>,
      #rest args, #key)
-  //log-debug("add-resource(%=, %=, %=)", vhost, url, resource);
   apply(add-resource, vhost.virtual-host-router, url, resource, args)
 end;
 
 define method find-resource
     (vhost :: <virtual-host>, url :: <object>)
  => (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
-  log-debug("find-resource(%=, %=)", vhost, url);
   find-resource(vhost.virtual-host-router, url)
 end;
 

@@ -189,7 +189,6 @@ define function read-request-content
  => ()
   if (chunked-transfer-encoding?(request))
     request.request-content := read-to-end(request);
-    log-debug("<==%=", request.request-content);
   else
     let content-length = get-header(request, "Content-Length", parsed: #t);
     if (~content-length)

@@ -720,9 +720,6 @@ define method route-request
     // Find a resource or signal an error.
     let (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
       = find-resource(vhost, request.request-url);
-
-    log-debug("Found resource %s, prefix = %=, suffix = %=",
-              resource, prefix, suffix);
     request.request-url-path-prefix := join(prefix, "/");
     request.request-url-path-suffix := join(suffix, "/");
 
