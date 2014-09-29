@@ -12,16 +12,16 @@ server:
 	dylan-compiler -build http-server
 
 client-test:
-	dylan-compiler -build http-client-test-suite
+	dylan-compiler -build http-client-test-suite-app
 
 protocol-test:
 	dylan-compiler -build http-protocol-test-suite-app
 
 common-test:
-	dylan-compiler -build http-common-test-suite
+	dylan-compiler -build http-common-test-suite-app
 
 server-test:
-	dylan-compiler -build http-server-tests
+	dylan-compiler -build http-server-test-suite-app
 
 clean:
 	rm -rf _build
