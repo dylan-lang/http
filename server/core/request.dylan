@@ -98,6 +98,10 @@ define method read-request
   end;
 
   parse-request-line(server, request, buffer, len);
+  log-debug("Received request line: %s %s %s",
+            request.request-method,
+            request.request-raw-url-string,
+            request.request-version);
   read-message-headers(socket,
                        buffer: buffer,
                        start: len,
