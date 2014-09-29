@@ -46,11 +46,13 @@ define constant $listener-any = make-listener("0.0.0.0");
 define constant $listener-127 = make-listener("127.0.0.1");
 
 define function make-server
-    (#rest keys, #key listeners, #all-keys)
-  apply(make, <http-server>,
-        listeners: listeners | list($listener-any),
-        keys)
-end;
+    (#rest keys, #key listeners, #all-keys) => (server :: <http-server>)
+  let server = apply(make, <http-server>,
+                     listeners: listeners | list($listener-any),
+                     keys);
+  server.debug-logger.log-level := $debug-level;
+  server
+end function make-server;
 
 
 define class <echo-resource> (<resource>)

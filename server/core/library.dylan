@@ -144,7 +144,10 @@ define module http-server
     log-debug,
     log-info,
     log-warning,
-    log-error;
+    log-error,
+    debug-logger,
+    request-logger,
+    error-logger;
 
   // Configuration
   create

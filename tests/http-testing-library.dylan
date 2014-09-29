@@ -21,7 +21,7 @@ define module http-testing
   use http-server,
     exclude: { log-trace, log-debug, log-info, log-warning, log-error };
   use logging,
-    import: { <log> };
+    import: { <log>, log-level-setter, $debug-level };
   use uri,
     import: { parse-url, <url> };
 
