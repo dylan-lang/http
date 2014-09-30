@@ -276,9 +276,9 @@ define method process-config-element
 end method process-config-element;
 
 // TODO: There is currently no way to configure (for example) the
-//       "http.common.headers" logger.  We should really just have one
-//       configuration element, <log>, that names a logger that exists
-//       in the code and says how to configure it.  The loggers for each
+//       "http.common.headers" log.  We should really just have one
+//       configuration element, <log>, that names a log that exists
+//       in the code and says how to configure it.  The logs for each
 //       virtual host should be named <vhost-name>.debug etc.  Needs more
 //       thought, but I think it will be an improvement.
 
@@ -286,36 +286,36 @@ define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"error-log")
   let format-control = get-attr(node, #"format");
   let name = get-attr(node, #"name") | "http.server.error";
-  let logger = process-log-config-element(server, node, format-control, name,
-                                          $stderr-log-target);
-  error-logger(%vhost) := logger;
-  *error-logger* := logger;
+  let log = process-log-config-element(server, node, format-control, name,
+                                       $stderr-log-target);
+  error-log(%vhost) := log;
+  *error-log* := log;
 end method process-config-element;
 
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"debug-log")
   let format-control = get-attr(node, #"format");
   let name = get-attr(node, #"name") | "http.server.debug";
-  let logger = process-log-config-element(server, node, format-control, name,
-                                          $stdout-log-target);
-  debug-logger(%vhost) := logger;
-  *debug-logger* := logger;
+  let log = process-log-config-element(server, node, format-control, name,
+                                       $stdout-log-target);
+  debug-log(%vhost) := log;
+  *debug-log* := log;
 end method process-config-element;
 
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"request-log")
   let format-control = get-attr(node, #"format") | "%{message}";
   let name = get-attr(node, #"name") | "http.server.request";
-  let logger = process-log-config-element(server, node, format-control, name,
-                                          $stdout-log-target);
-  request-logger(%vhost) := logger;
-  *request-logger* := logger;
+  let log = process-log-config-element(server, node, format-control, name,
+                                       $stdout-log-target);
+  request-log(%vhost) := log;
+  *request-log* := log;
 end method process-config-element;
 
 define function process-log-config-element
     (server :: <http-server>, node :: xml$<element>,
      format-control, logger-name :: <string>, default-log-target :: <log-target>)
- => (logger :: <log>)
+ => (log :: <log>)
   let additive? = true-value?(get-attr(node, #"additive") | "no");
   let location = get-attr(node, #"location");
   let default-size = 20 * 1024 * 1024;
@@ -338,14 +338,14 @@ define function process-log-config-element
                                                  server.server-root),
                         max-size: max-size),
                    default-log-target);
-  let logger :: <log>
+  let log :: <log>
     = get-log(logger-name) | make(<log>, name: logger-name);
-  logger.log-additive? := additive?;
+  log.log-additive? := additive?;
   if (format-control)
-    logger.log-formatter := make(<log-formatter>, pattern: format-control);
+    log.log-formatter := make(<log-formatter>, pattern: format-control);
   end;
-  remove-all-targets(logger);  // TODO: make this optional
-  add-target(logger, target);
+  remove-all-targets(log);  // TODO: make this optional
+  add-target(log, target);
 
   let unrecognized = #f;
   let level-name = get-attr(node, #"level") | "info";
@@ -359,12 +359,12 @@ define function process-log-config-element
                   unrecognized := #t;
                   $info-level;
               end;
-  log-level(logger) := level;
+  log-level(log) := level;
   if (unrecognized)
     warn("Unrecognized log level: %=", level);
   end;
-  log-info("Logger created: %s", logger);
-  logger
+  log-info("Log created: %s", log);
+  log
 end function process-log-config-element;
 
 define method process-config-element

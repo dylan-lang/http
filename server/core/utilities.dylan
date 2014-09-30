@@ -43,37 +43,37 @@ end;
 
 
 
-// These loggers are used if no other loggers are configured.
+// These logs are used if no other logs are configured.
 // Usually that should only happen very early during startup when
 // *server* isn't bound, if at all.
 
-// Logger used as last resort if no other loggers are defined.
-// This is the initial value used for the *request-logger*, *debug-logger*, and
-// *error-logger* variables, which in turn are used as the default loggers for
+// Log used as last resort if no other logs are defined.
+// This is the initial value used for the *request-log*, *debug-log*, and
+// *error-log* variables, which in turn are used as the default logs for
 // each <http-server>.
 //
-define constant $default-logger
+define constant $default-log
   = make(<log>,
          name: "http.server",
          level: $info-level,
          targets: list($stdout-log-target));
 
-define thread variable *debug-logger* :: <log> = $default-logger;
+define thread variable *debug-log* :: <log> = $default-log;
 
-define thread variable *error-logger* :: <log> = $default-logger;
+define thread variable *error-log* :: <log> = $default-log;
 
-define thread variable *request-logger* :: <log> = $default-logger;
+define thread variable *request-log* :: <log> = $default-log;
 
-define constant log-trace   = curry(%log-trace, *debug-logger*);
-define constant log-debug   = curry(%log-debug, *debug-logger*);
-define constant log-info    = curry(%log-info, *debug-logger*);
-define constant log-warning = curry(%log-warning, *error-logger*);
-define constant log-error   = curry(%log-error, *error-logger*);
+define constant log-trace   = curry(%log-trace, *debug-log*);
+define constant log-debug   = curry(%log-debug, *debug-log*);
+define constant log-info    = curry(%log-info, *debug-log*);
+define constant log-warning = curry(%log-warning, *error-log*);
+define constant log-error   = curry(%log-error, *error-log*);
 
 // For debugging only.
 // For logging request and response content data only.
 // So verbose it needs to be explicitly enabled.
-define variable *content-logger* :: <log>
+define variable *content-log* :: <log>
   = make(<log>,
          name: "http.server.content",
          targets: list($stdout-log-target),
@@ -83,19 +83,19 @@ define variable *content-logger* :: <log>
 define variable *log-content?* :: <boolean> = #f;
 
 define inline method log-content (content)
-  log-debug-if(*log-content?*, *content-logger*, "==>%=", content);
+  log-debug-if(*log-content?*, *content-log*, "==>%=", content);
 end;
 
-define class <multi-logger-mixin> (<object>)
-  slot request-logger :: <log> = *request-logger*,
-    init-keyword: request-logger:;
+define class <multi-log-mixin> (<object>)
+  slot request-log :: <log> = *request-log*,
+    init-keyword: request-log:;
 
-  slot error-logger :: <log> = *error-logger*,
-    init-keyword: error-logger:;
+  slot error-log :: <log> = *error-log*,
+    init-keyword: error-log:;
 
-  slot debug-logger :: <log> = *debug-logger*,
-    init-keyword: debug-logger:;
-end class <multi-logger-mixin>;
+  slot debug-log :: <log> = *debug-log*,
+    init-keyword: debug-log:;
+end class <multi-log-mixin>;
 
 
 // We want media types (with attributes) rather than plain mime types,

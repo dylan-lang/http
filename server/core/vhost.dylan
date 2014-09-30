@@ -10,7 +10,7 @@ Copyright: See LICENSE in this distribution for details.
 // a different kind of router when making a <virtual-host>.)
 //
 define class <virtual-host>
-    (<multi-logger-mixin>, <abstract-router>, <abstract-resource>)
+    (<multi-log-mixin>, <abstract-router>, <abstract-resource>)
   constant slot virtual-host-router :: <abstract-router> = make(<resource>),
     init-keyword: router:;
 end;

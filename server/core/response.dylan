@@ -289,7 +289,7 @@ define inline function log-request
                   " \"", as(<string>, get-header(req, "referer") | "-"),
                   "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
                   "\"");
-  %log-info(*request-logger*, "%s", log-entry);
+  %log-info(*request-log*, "%s", log-entry);
 end function log-request;
 
 // Exported

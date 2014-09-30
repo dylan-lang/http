@@ -889,7 +889,7 @@ end;
 
 define constant $debugging-templates :: <boolean> = #f;
 
-// this should be replaced with a specialized logger or log category
+// this should be replaced with a specialized log or log category
 define function pt-debug
     (format-string, #rest args)
   when ($debugging-templates)
