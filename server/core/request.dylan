@@ -146,7 +146,7 @@ define function parse-request-line-values
     (buffer :: <byte-string>, eol :: <integer>)
  => (http-method :: <http-method>,
      raw-url :: <byte-string>,
-     http-version :: <symbol>)
+     http-version :: <byte-string>)
   let epos1 = whitespace-position(buffer, 0, eol);
   let bpos2 = epos1 & skip-whitespace(buffer, epos1, eol);
   let epos2 = bpos2 & whitespace-position(buffer, bpos2, eol);

@@ -3,12 +3,6 @@ Synopsis: Code shared by HTTP client and server.
 Copyright: See LICENSE in this distribution for details.
 
 
-// By the spec request methods are case-sensitive, but for convenience
-// we let them be specified as symbols as well.  If a symbol is used it
-// is uppercased before sending to the server.  Similarly for HTTP version.
-//
-define constant <http-version> = type-union(<symbol>, <byte-string>);
-
 // Clients can bind this if they want to combine this library's logs with
 // there own.  Adding a log target to the default value here doesn't work
 // for the HTTP server, which wants to log to different targets for different
@@ -61,8 +55,8 @@ define function token-end-position (buf :: <byte-string>,
 end;
 
 define method validate-http-version
-    (version :: <string>)
- => (version :: <symbol>)
+    (version :: <byte-string>)
+ => (version :: <byte-string>)
   if (version.size ~= 8
         | ~starts-with?(version, "HTTP/")
         | ~decimal-digit?(version[5])
@@ -70,10 +64,9 @@ define method validate-http-version
         | ~decimal-digit?(version[7]))
     bad-request-error(reason: "Invalid HTTP version")
   else
-    // Take care not to intern arbitrary symbols...
-    select (version by string-equal?)
-      "HTTP/1.0" => #"HTTP/1.0";
-      "HTTP/1.1" => #"HTTP/1.1";
+    select (version by \=)
+      "HTTP/1.0" => "HTTP/1.0";
+      "HTTP/1.1" => "HTTP/1.1";
       otherwise =>
         http-version-not-supported-error(version: version);
     end select
@@ -393,7 +386,7 @@ define open class <base-http-request> (<message-headers-mixin>)
   slot request-raw-url-string :: false-or(<byte-string>) = #f,
     init-keyword: raw-url:;
 
-  slot request-version :: <http-version> = #"not-set",
+  slot request-version :: <byte-string> = "",
     init-keyword: version:;
 
   slot request-content :: <byte-string> = "",

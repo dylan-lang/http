@@ -133,7 +133,7 @@ define generic start-request
      uri :: <uri-or-string>,
      #key headers,
           standard-headers :: <boolean>,
-          http-version :: <http-version>)
+          http-version :: <byte-string>)
  => ();
 
 // TODO: http-version ~= 1.1 not supported yet
@@ -144,19 +144,15 @@ define method start-request
      url :: <uri-or-string>,
      #key headers,
           standard-headers = #t,
-          http-version :: <http-version> = #"HTTP/1.1")
+          http-version :: <byte-string> = "HTTP/1.1")
  => ()
   if (instance?(url, <string>))
     url := parse-uri(url);
   end;
-  if (instance?(http-version, <string>))
-    http-version := as(<symbol>, http-version);
-  end;
-
   let headers = convert-headers(headers);
   if (standard-headers)
     // Add standard headers unless user has already set them.
-    if (http-version = #"HTTP/1.1")
+    if (http-version = "HTTP/1.1")
       // Host
       // uri-host should return #f, not "". :-(
       if (~get-header(headers, "Host"))
@@ -233,7 +229,7 @@ define method send-request-line
     (conn :: <http-connection>,
      request-method :: <byte-string>,
      uri :: <uri>,
-     http-version :: <http-version>)
+     http-version :: <byte-string>)
   let proxy? = #f;  // TODO: probably in the connection
 
   // Determine the URL string to send in the request line.  If using a proxy an
@@ -248,10 +244,7 @@ define method send-request-line
     uri-string := concatenate("/", uri-string);
   end;
   format(conn.connection-socket, "%s %s %s\r\n",
-         request-method, uri-string,
-         iff(instance?(http-version, <symbol>),
-             as-uppercase(as(<byte-string>, http-version)),
-             http-version));
+         request-method, uri-string, http-version);
 end method send-request-line;
 
 // TODO: This and the function by the same name in the server should be
@@ -485,7 +478,7 @@ end method read-response;
 //
 define method read-status-line
     (stream :: <tcp-socket>)
- => (version :: <symbol>,
+ => (http-version :: <byte-string>,
      status-code :: <integer>,
      reason-phrase :: <string>)
   let (buffer, eol) = read-http-line(stream);
@@ -494,14 +487,14 @@ define method read-status-line
   let epos2 = bpos2 & whitespace-position(buffer, bpos2, eol);
   let bpos3 = epos2 & skip-whitespace(buffer, epos2, eol);
 
-  let version-string = epos1 & copy-sequence(buffer, end: epos1);
+  let http-version = epos1 & copy-sequence(buffer, end: epos1);
   let status-string = epos2 & copy-sequence(buffer, start: bpos2, end: epos2);
   let reason-phrase = bpos3 & copy-sequence(buffer, start: bpos3, end: eol);
 
-  if (version-string & status-string & reason-phrase)
-    let version :: <symbol> = validate-http-version(version-string);
+  if (http-version & status-string & reason-phrase)
+    let http-version :: <byte-string> = validate-http-version(http-version);
     let status-code :: <integer> = validate-http-status-code(status-string);
-    values(version, status-code, reason-phrase)
+    values(http-version, status-code, reason-phrase)
   else
     // The rationale for 500 here is that if the server sent us an incomplete
     // status line it is probably completely hosed.

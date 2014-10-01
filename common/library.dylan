@@ -35,7 +35,6 @@ end library http-common;
 
 define module http-common
   create
-    <http-version>,
     *http-common-log*,
     quote-html,
     <chunking-input-stream>,

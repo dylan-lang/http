@@ -214,7 +214,7 @@ define method finish-response
     (response :: <response>) => ()
   let request :: <request> = response.response-request;
   let socket :: <tcp-socket> = request.request-socket;
-  let http-version :: <symbol> = request.request-version;
+  let http-version :: <byte-string> = request.request-version;
   let content-length :: <byte-string> = "0";
 
   if (response.response-transfer-length > 0)
