@@ -119,6 +119,7 @@ define module http-server
     <response>,
     // See also: methods on <base-http-response> in common-dylan.
     current-response,            // Returns the active response of the thread.
+    response-headers,
     output,
     add-cookie;
 
