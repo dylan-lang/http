@@ -144,9 +144,9 @@ define method send-response-line
                                        $http-version, 
                                        response.response-code, 
                                        response.response-reason-phrase | "OK");
-  log-trace("-->%=", response-line);
   write(socket, response-line);
   write(socket, "\r\n");
+  log-trace("Sent response line: %=", response-line);
 end method send-response-line;
 
 // Exported
@@ -183,7 +183,7 @@ define sealed method send-header
     send-header(socket, name, tail(val));
   else
     format(socket, "%s: %s\r\n", name, val);
-    %log-debug(*http-common-log*, "-->%s: %s", name, val);
+    %log-debug(*http-common-log*, "Sent header %s: %s", name, val);
   end if;
 end;
 

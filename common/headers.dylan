@@ -58,7 +58,7 @@ define function read-message-headers
       values(headers, buffer, epos)
     else
       let (key, data) = split-header(buffer, bpos, epos);
-      log-debug(*http-common-log*, "<-- %s: %s", key, data);
+      log-debug(*http-common-log*, "Received header %s: %s", key, data);
       set-header(headers, key, data);
       loop(buffer, epos, peek-ch)
     end if

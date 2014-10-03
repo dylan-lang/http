@@ -80,10 +80,10 @@ define variable *content-log* :: <log>
          additive: #f);
 
 // Not yet configurable.
-define variable *log-content?* :: <boolean> = #f;
+define variable *log-content?* :: <boolean> = #t;
 
 define inline method log-content (content)
-  log-debug-if(*log-content?*, *content-log*, "==>%=", content);
+  log-debug-if(*log-content?*, *content-log*, "Sent content: %=", content);
 end;
 
 define class <multi-log-mixin> (<object>)
