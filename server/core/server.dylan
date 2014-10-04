@@ -97,7 +97,8 @@ define open class <http-server> (<multi-log-mixin>, <abstract-router>)
   //// Connection thread pooling
   constant slot server-executor :: <executor>
       = make(<fixed-thread-executor>,
-             name: "http-server request executor",
+             name: "request",   // thread names will be "request worker n"
+             // TODO(cgay): thread count should be configurable
              thread-count: 10),
     init-keyword: executor:;
 
