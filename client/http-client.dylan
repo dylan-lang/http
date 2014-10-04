@@ -87,6 +87,13 @@ define method initialize
   conn.connection-host := host;
 end method initialize;
 
+define method close
+    (conn :: <http-connection>, #key abort? :: <boolean>)
+ => ()
+  close(conn.connection-socket, abort?: abort?);
+  next-method();
+end method close;
+
 define method connection-port
     (conn :: <http-connection>)
  => (port :: <integer>)
