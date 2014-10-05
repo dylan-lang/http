@@ -70,7 +70,7 @@ define method initialize (response :: <response>, #rest args, #key)
   if (request.request-keep-alive?)
     set-header(response, "Connection", "Keep-Alive");
   end if;
-  if (request.request-version == #"http/1.0")
+  if (request.request-version == "HTTP/1.0")
     response-chunked?(response) := #f;
   end;
 end method initialize;
@@ -242,7 +242,7 @@ define method finish-response
       send-headers(response, socket);
     end;
 
-    if (send-body? & request.request-method.method-name ~= "HEAD")
+    if (send-body? & request.request-method ~== $http-head-method)
       let contents = response.response-stream.stream-sequence;
       write(socket, contents, start: 0, end: response-size);
       if (*log-content?*)

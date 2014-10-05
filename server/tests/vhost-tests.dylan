@@ -27,10 +27,8 @@ define test test-vhost-add-resource ()
   // Need to fire up a server for this test because it's very difficult
   // to make a <request> without creating clients, listeners, sockets, etc.
   let value = #f;
-  let resource-1 = make(<function-resource>,
-                        function: method () value := 1 end);
-  let resource-2 = make(<function-resource>,
-                        function: method () value := 2 end);
+  let resource-1 = function-resource(method () value := 1 end);
+  let resource-2 = function-resource(method () value := 2 end);
   with-http-server (server = make-server())
     let vhost = make(<virtual-host>);
     add-virtual-host(server, "localhost", vhost);

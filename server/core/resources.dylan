@@ -548,8 +548,8 @@ define open class <function-resource> (<resource>)
   // Since this is a raw function responder, there's nothing to dispatch
   // on so it needs a way to specify which request methods to respond to.
   //
-  constant slot resource-request-methods :: <collection> = #("GET", "POST"),
-    init-keyword: methods:;
+  constant slot resource-request-methods :: <sequence>,
+    required-init-keyword: methods:;
 
 end;
 
@@ -559,14 +559,13 @@ define function function-resource
     (function :: <function>, #key methods) => (resource :: <resource>)
   make(<function-resource>,
        function: function,
-       methods: methods | #("GET", "POST"))
-end;
+       methods: methods | vector($http-get-method))
+end function function-resource;
 
 define method respond
     (resource :: <function-resource>, #rest path-bindings, #key)
-  if (member?(current-request().request-method.method-name,
-              resource.resource-request-methods,
-              test: \=))
+  if (member?(current-request().request-method,
+              resource.resource-request-methods))
     apply(resource.resource-function, path-bindings);
   end;
 end;

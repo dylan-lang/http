@@ -776,7 +776,7 @@ define method send-error-response-internal
   let headers = http-error-headers(err) | make(<header-table>);
   let response = make(<response>, request: request, headers: headers);
   let one-liner = http-error-message-no-code(err);
-  unless (request.request-method.method-name = "HEAD")
+  unless (request.request-method = $http-head-method)
     // TODO: Display a pretty error page.
     set-header(response, "Content-Type", "text/plain");
     write(response, one-liner);

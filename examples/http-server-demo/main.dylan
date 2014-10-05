@@ -26,7 +26,7 @@ end;
 
 define method respond
     (resource :: <basic-resource-2>, #key)
-  if (current-request().request-method.method-name = "GET")
+  if (current-request().request-method = $http-get-method)
     set-header(current-response(), "Content-Type", "text/plain");
     output("This resource uses the 'respond' method directly.");
   else

@@ -3,7 +3,7 @@ Synopsis: Request method support
 Copyright: See LICENSE in this distribution for details.
 
 
-define class <http-method> (<object>)
+define class <http-method> (<singleton-object>)
   constant slot method-name :: <byte-string>, required-init-keyword: name:;
   constant slot method-responder :: <function>, required-init-keyword: responder:;
   constant slot method-safe? :: <boolean> = #f, init-keyword: safe?:;
@@ -17,7 +17,7 @@ define function register-http-method
     (meth :: <http-method>) => ()
   let name :: <byte-string> = meth.method-name;
   if (element($request-methods, name, default: #f))
-    error("Request method %= defined twice.", name);
+    error("Request method %= defined more than once.", name);
   else
     $request-methods[name] := meth;
   end;
@@ -41,6 +41,12 @@ define macro http-method-definer
   } => {
     define class "<" ## ?name ## "-method>" (<http-method>) end;
 
+    define constant "$http-" ## ?name ## "-method" :: <http-method>
+      = make("<" ## ?name ## "-method>",
+             name: uppercase(?"name"),
+             responder: "respond-to-" ## ?name,
+             ?adjectives);
+
     define open generic "respond-to-" ## ?name
         (resource :: <abstract-resource>, #key, #all-keys)
      => ();
@@ -50,10 +56,7 @@ define macro http-method-definer
       %method-not-allowed(uppercase(?"name"));
     end;
 
-    register-http-method(make("<" ## ?name ## "-method>",
-                              name: uppercase(?"name"),
-                              responder: "respond-to-" ## ?name,
-                              ?adjectives));
+    register-http-method("$http-" ## ?name ## "-method");
   }
  adjectives:
   {} => {}
