@@ -25,7 +25,7 @@ end;
 // order to delegate add/find-resource requests to the default virtual
 // host.  It simplifies the common case, i.e. no vhosts.
 //
-define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
+define open class <http-server> (<multi-log-mixin>, <abstract-router>)
   // Whether the server should run in debug mode or not.  If this is true then
   // errors encountered while servicing HTTP requests will not be handled by the
   // server itself.  Normally the server will handle them and return an "internal
@@ -97,7 +97,8 @@ define open class <http-server> (<multi-logger-mixin>, <abstract-router>)
   //// Connection thread pooling
   constant slot server-executor :: <executor>
       = make(<fixed-thread-executor>,
-             name: "http-server request executor",
+             name: "request",   // thread names will be "request worker n"
+             // TODO(cgay): thread count should be configurable
              thread-count: 10),
     init-keyword: executor:;
 
@@ -375,14 +376,14 @@ define method start-server
      #key background :: <boolean> = #f,
           wait :: <boolean> = #t)
  => (started? :: <boolean>)
-  // Binding these to the default vhost loggers here isn't quite right.
+  // Binding these to the default vhost logs here isn't quite right.
   // It means that log messages that don't pertain to a specific vhost
   // go in the default vhost logs.  Maybe have a separate log for the
   // server proper...
-  dynamic-bind (*debug-logger* = server.debug-logger,
-                *error-logger* = server.error-logger,
-                *request-logger* = server.request-logger,
-                *http-common-log* = *debug-logger*)
+  dynamic-bind (*debug-log* = server.debug-log,
+                *error-log* = server.error-log,
+                *request-log* = server.request-log,
+                *http-common-log* = *debug-log*)
     log-info("Starting %s", $server-name);
     ensure-sockets-started();
     log-info("Server root directory is %s", server-root(server));
@@ -501,10 +502,10 @@ define function start-http-listener
           end;
         end;
   local method run-listener-top-level ()
-          dynamic-bind (*debug-logger* = server.debug-logger,
-                        *error-logger* = server.error-logger,
-                        *request-logger* = server.request-logger,
-                        *http-common-log* = *debug-logger*)
+          dynamic-bind (*debug-log* = server.debug-log,
+                        *error-log* = server.error-log,
+                        *request-log* = server.request-log,
+                        *http-common-log* = *debug-log*)
             with-lock (server-lock) end; // Wait for setup to finish.
             block ()
               listener-top-level(server, listener);
@@ -649,10 +650,10 @@ define function %respond-top-level
     (client :: <client>)
   dynamic-bind (*request* = #f,
                 *server* = client.client-server,
-                *debug-logger* = *server*.debug-logger,
-                *error-logger* = *server*.error-logger,
-                *request-logger* = *server*.request-logger,
-                *http-common-log* = *debug-logger*)
+                *debug-log* = *server*.debug-log,
+                *error-log* = *server*.error-log,
+                *request-log* = *server*.request-log,
+                *http-common-log* = *debug-log*)
     block (exit-respond-top-level)
       while (#t)                      // keep alive loop
         with-simple-restart("Skip this request and continue with the next")
@@ -713,16 +714,13 @@ define method route-request
     // header, then to the server host.
     let vhost :: <virtual-host> = find-virtual-host(server, request.request-host);
 
-    *debug-logger* := vhost.debug-logger;
-    *error-logger* := vhost.error-logger;
-    *request-logger* := vhost.request-logger;
+    *debug-log* := vhost.debug-log;
+    *error-log* := vhost.error-log;
+    *request-log* := vhost.request-log;
 
     // Find a resource or signal an error.
     let (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
       = find-resource(vhost, request.request-url);
-
-    log-debug("Found resource %s, prefix = %=, suffix = %=",
-              resource, prefix, suffix);
     request.request-url-path-prefix := join(prefix, "/");
     request.request-url-path-suffix := join(suffix, "/");
 

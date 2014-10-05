@@ -140,7 +140,6 @@ define open generic rewrite-url
 define method rewrite-url
     (url :: <string>, rule :: <rewrite-rule>)
  => (url :: <string>, matched? :: <boolean>)
-  //log-debug("rewrite-url(%=, %=)", url, rules);
   let match = regex-search(rule.rewrite-rule-regex, url);
   if (match)
     local method do-replacement (x)
@@ -148,8 +147,10 @@ define method rewrite-url
                 x,
                 match-group(match, first(x)))
           end;
-    values(join(map(do-replacement, rule.rewrite-rule-replacement), ""),
-           #t)
+    let new-url :: <byte-string>
+      = join(map(do-replacement, rule.rewrite-rule-replacement), "");
+    log-debug("URL rewritten by rule: %s", new-url);
+    values(new-url, #t)
   else
     values(url, #f)
   end
@@ -160,21 +161,14 @@ end method rewrite-url;
 define method rewrite-url
     (url :: <string>, rules :: <sequence>)
  => (url :: <string>, rule :: false-or(<abstract-rewrite-rule>))
-  //log-debug("rewrite-url(%=, %=)", url, rules);
+  let rlen :: <integer> = rules.size;
   iterate loop (new-url = url, i = 0, prev = #f)
-    if (i >= rules.size)
-      log-debug("rewrite-url returning %=, %=", new-url, prev);
+    if (i >= rlen)
       values(new-url, prev)
     else
       let rule = rules[i];
       let (new, matched?) = rewrite-url(new-url, rule);
-      /* log-debug("  regex: %=, replacement: %=, new: %=, terminate?: %=",
-                rule.rewrite-rule-regex.regex-pattern,
-                rule.rewrite-rule-replacement,
-                new,
-                rule.rewrite-rule-terminal?); */
       if (matched? & rule.rewrite-rule-terminal?)
-        log-debug("rewrite-url returning %=, #t", new);
         values(new, rule)
       else
         loop(new, i + 1, iff(matched?, rule, prev))

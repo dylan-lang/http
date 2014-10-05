@@ -214,7 +214,7 @@ define method read
         inc!(stream.read-buffer-index);
       end;
     end while;
-    log-trace(*http-common-log*, "<==%=", string);
+    log-trace(*http-common-log*, "Received %=", string);
     string
   end block
 end method read;

@@ -160,7 +160,6 @@ end;
 define method add-resource
     (parent :: <resource>, url :: <uri>, child :: <abstract-resource>,
      #rest args, #key)
-  //log-debug("add-resource(%=, %=, %=)", parent, url, child);
   apply(add-resource, parent, url.uri-path, child, args)
 end;
 
@@ -168,7 +167,6 @@ end;
 define method add-resource
     (parent :: <resource>, url :: <string>, child :: <resource>,
      #key url-name :: false-or(<string>))
-  //log-debug("add-resource(%=, %=, %=)", parent, url, child);
   if (member?('/', url))
     add-resource(parent, split(url, '/'), child, url-name: url-name);
   elseif (path-variable?(url))
@@ -206,8 +204,6 @@ end method add-resource;
 define method add-resource
     (parent :: <resource>, path :: <sequence>, resource :: <resource>,
      #key url-name)
-  //log-debug("add-resource(%=, %=, %=)", parent, path, resource);
-
   // The root URL, "/", is a special case because it is both a leading
   // and trailing slash, which doesn't match our resource tree structure.
   // There is a corresponding hack in find-resource.
@@ -342,7 +338,6 @@ define method path-variable-bindings
         if (empty?(suffix))
           // TODO: It would be more helpful for debugging if this were part
           //       of the error message (only when server.debugging-enabled?).
-          log-debug("{%s}+ not matched", pvar.path-variable-name);
           %resource-not-found-error();
         else
           add!(bindings, pvar.path-variable-name);
@@ -352,7 +347,6 @@ define method path-variable-bindings
       <path-variable> =>
         let path-element = iff(empty?(suffix), #f, first(suffix));
         if (pvar.path-variable-required? & ~path-element)
-          log-debug("{%s} not matched", pvar.path-variable-name);
           %resource-not-found-error();
         else
           add!(bindings, pvar.path-variable-name);
@@ -395,7 +389,6 @@ end method do-resources;
 define method find-resource
     (router :: <resource>, url :: <uri>)
  => (resource :: <resource>, prefix :: <list>, suffix :: <list>)
-  log-debug("find-resource(%=, %=)", router, url);
   find-resource(router, url.uri-path)
 end;
 
@@ -403,7 +396,6 @@ end;
 define method find-resource
     (router :: <resource>, path :: <string>)
  => (resource :: <resource>, prefix :: <list>, suffix :: <list>)
-  log-debug("find-resource(%=, %=)", router, path);
   find-resource(router, split(path, '/'))
 end;
 
@@ -411,7 +403,6 @@ end;
 define method find-resource
     (router :: <resource>, path :: <sequence>)
  => (resource :: <resource>, prefix :: <list>, suffix :: <list>)
-  log-debug("find-resource(%=, %=)", router, path);
   // Special case the root path, "/", which is both a leading and
   // trailing slash, which doesn't match our resource tree structure.
   // There's a similar special case for add-resource.
