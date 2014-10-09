@@ -144,7 +144,7 @@ define test test-streaming-request ()
     with-http-connection(conn = root-url())
       // This uses a content-length header because currently http-server doesn't
       // support requests with chunked encoding.
-      start-request(conn, #"post", "/echo",
+      start-request(conn, "POST", "/echo",
                     headers: #[#["Content-Length", "7"],
                                #["Content-Type", "text/plain"]]);
       write(conn, "abcdefg");
@@ -246,7 +246,7 @@ define test test-read-from-response-after-done ()
   with-http-server (server = make-server(/* debug: #t */))
     register-test-resources(server);
     with-http-connection(conn = root-url())
-      send-request(conn, #"get", make-x-url(3));
+      send-request(conn, "GET", make-x-url(3));
       let response = read-response(conn, read-content: #t);
       check-condition("Reading past end of response signals <end-of-stream-error>",
                       <end-of-stream-error>,

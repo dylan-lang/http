@@ -47,6 +47,8 @@ define test test-repeated-start-stop-with-connection ()
   end;
 end test test-repeated-start-stop-with-connection;
 
+// This is expected to fail on non-Windows platforms, which signal
+// <unix-socket-error> for almost everything as of 2014.
 define test conflicting-listener-ips-test ()
   let server = make-server(listeners: list($listener-127, $listener-127));
   block ()

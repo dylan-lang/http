@@ -10,8 +10,6 @@ define library http-protocol-test-suite
   use testworks;
   use uri;
   use strings;
-  use io,
-    import: { format-out };
 
   export http-protocol-test-suite;
 end library http-protocol-test-suite;

@@ -74,18 +74,6 @@ define method unmatched-url-suffix
 end;
 
 
-// Pre-defined request methods each have a specific generic...
-
-define open generic respond-to-options (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-get     (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-head    (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-post    (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-put     (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-delete  (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-trace   (resource :: <abstract-resource>, #key, #all-keys);
-define open generic respond-to-connect (resource :: <abstract-resource>, #key, #all-keys);
-
-
 // The content type that will be sent in the HTTP response if no
 // Content-Type header is set by the respond* method.
 //
@@ -489,79 +477,6 @@ end function resource-url-path;
 
 
 
-define method respond-to-options
-    (resource :: <abstract-resource>, #key)
-  let request :: <request> = current-request();
-  if (request.request-raw-url-string = "*")
-    set-header(current-response(),
-               "Allow",
-               "GET, HEAD, OPTIONS, POST, PUT, DELETE, TRACE, CONNECT");
-  else
-    let methods = find-request-methods(resource);
-    if (~empty?(methods))
-      set-header(current-response(),
-                 "Allow",
-                 join(methods, ", ", key: as-uppercase))
-    end;
-  end;
-end method respond-to-options;
-
-define inline function %method-not-allowed
-    ()
-  method-not-allowed-error(
-    request-method: as-uppercase(as(<string>,
-                                    request-method(current-request()))));
-end;
-
-define method respond-to-get
-    (resource :: <abstract-resource>, #key)
-  %method-not-allowed();
-end;
-
-define method respond-to-head
-    (resource :: <abstract-resource>, #key)
-  %method-not-allowed()
-end;
-
-define method respond-to-post
-    (resource :: <abstract-resource>, #key)
-  %method-not-allowed()
-end;
-
-define method respond-to-put
-    (resource :: <abstract-resource>, #key)
-  %method-not-allowed()
-end;
-
-define method respond-to-delete
-    (resource :: <abstract-resource>, #key)
-  %method-not-allowed()
-end;
-
-define method respond-to-trace
-    (resource :: <abstract-resource>, #key)
-  %method-not-allowed()
-end;
-
-define method respond-to-connect
-    (resource :: <abstract-resource>, #key)
-  %method-not-allowed()
-end;
-
-define table $request-method-table = {
-    #"options" => respond-to-options,
-    #"get"     => respond-to-get,
-    #"head"    => respond-to-head,
-    #"post"    => respond-to-post,
-    #"put"     => respond-to-put,
-    #"delete"  => respond-to-delete,
-    #"trace"   => respond-to-trace,
-    #"connect" => respond-to-connect,
-    };
-
-// TODO: a way to add new request methods
-
-
 define inline function %respond
     (resource :: <abstract-resource>, bindings) => ()
   // Don't require every respond method to set the Content-Type header explicitly.
@@ -578,20 +493,15 @@ end;
 define method respond
     (resource :: <abstract-resource>, #rest args, #key)
   let request :: <request> = current-request();
-  let function = element($request-method-table, request.request-method,
-                         default: #f);
-  if (function)
-    apply(function, resource, args);
+  let name :: <byte-string> = request.request-method.method-name;
+  let meth :: false-or(<http-method>) = element($request-methods, name, default: #f);
+  if (meth)
+    apply(meth.method-responder, resource, args);
   else
-    // It's an extension method and there's no "respond" method for
+    // It's not a registered method and there's no "respond" method for
     // the resource.
-    %method-not-allowed()
+    %method-not-allowed(name)
   end;
-end;
-
-define method find-request-methods
-    (resource :: <abstract-resource>) => (methods :: <collection>)
-  #()  // TODO: determine request methods for OPTIONS request
 end;
 
 
@@ -638,8 +548,8 @@ define open class <function-resource> (<resource>)
   // Since this is a raw function responder, there's nothing to dispatch
   // on so it needs a way to specify which request methods to respond to.
   //
-  constant slot resource-request-methods :: <collection> = #(#"get", #"post"),
-    init-keyword: methods:;
+  constant slot resource-request-methods :: <sequence>,
+    required-init-keyword: methods:;
 
 end;
 
@@ -649,12 +559,12 @@ define function function-resource
     (function :: <function>, #key methods) => (resource :: <resource>)
   make(<function-resource>,
        function: function,
-       methods: methods | #(#"get", #"post"))
-end;
+       methods: methods | vector($http-get-method))
+end function function-resource;
 
 define method respond
     (resource :: <function-resource>, #rest path-bindings, #key)
-  if (member?(request-method(current-request()),
+  if (member?(current-request().request-method,
               resource.resource-request-methods))
     apply(resource.resource-function, path-bindings);
   end;

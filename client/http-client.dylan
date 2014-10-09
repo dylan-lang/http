@@ -129,34 +129,30 @@ end;
 // instead.
 define generic start-request
     (conn :: <http-connection>,
-     request-method :: <request-method>,
-     url :: <uri-or-string>,
+     request-method :: <byte-string>,
+     uri :: <uri-or-string>,
      #key headers,
-          standard-headers = #t,
-          http-version :: <http-version>)
+          standard-headers :: <boolean>,
+          http-version :: <byte-string>)
  => ();
 
 // TODO: http-version ~= 1.1 not supported yet
 //
 define method start-request
     (conn :: <http-connection>,
-     request-method :: <request-method>,
+     request-method :: <byte-string>,
      url :: <uri-or-string>,
      #key headers,
           standard-headers = #t,
-          http-version :: <http-version> = #"HTTP/1.1")
+          http-version :: <byte-string> = "HTTP/1.1")
  => ()
   if (instance?(url, <string>))
     url := parse-uri(url);
   end;
-  if (instance?(http-version, <string>))
-    http-version := as(<symbol>, http-version);
-  end;
-
   let headers = convert-headers(headers);
   if (standard-headers)
     // Add standard headers unless user has already set them.
-    if (http-version = #"HTTP/1.1")
+    if (http-version = "HTTP/1.1")
       // Host
       // uri-host should return #f, not "". :-(
       if (~get-header(headers, "Host"))
@@ -186,7 +182,7 @@ end method start-request;
 
 
 define generic send-request
-    (conn :: <http-connection>, request-method :: <request-method>,
+    (conn :: <http-connection>, request-method :: <byte-string>,
      url :: <uri-or-string>,
      #rest start-request-args,
      #key content :: <byte-string>,
@@ -194,7 +190,7 @@ define generic send-request
  => ();
 
 define method send-request
-    (conn :: <http-connection>, request-method :: <request-method>,
+    (conn :: <http-connection>, request-method :: <byte-string>,
      url :: <uri-or-string>,
      #rest start-request-args,
      #key content :: <byte-string> = "",
@@ -231,9 +227,9 @@ end method finish-request;
 //
 define method send-request-line
     (conn :: <http-connection>,
-     request-method :: <request-method>,
+     request-method :: <byte-string>,
      uri :: <uri>,
-     http-version :: <http-version>)
+     http-version :: <byte-string>)
   let proxy? = #f;  // TODO: probably in the connection
 
   // Determine the URL string to send in the request line.  If using a proxy an
@@ -247,14 +243,8 @@ define method send-request-line
   if (empty?(uri.uri-path))
     uri-string := concatenate("/", uri-string);
   end;
-  let req-meth = iff(instance?(request-method, <string>),
-                     request-method,
-                     as-uppercase(as(<byte-string>, request-method)));
   format(conn.connection-socket, "%s %s %s\r\n",
-         req-meth, uri-string,
-         iff(instance?(http-version, <symbol>),
-             as-uppercase(as(<byte-string>, http-version)),
-             http-version));
+         request-method, uri-string, http-version);
 end method send-request-line;
 
 // TODO: This and the function by the same name in the server should be
@@ -488,7 +478,7 @@ end method read-response;
 //
 define method read-status-line
     (stream :: <tcp-socket>)
- => (version :: <symbol>,
+ => (http-version :: <byte-string>,
      status-code :: <integer>,
      reason-phrase :: <string>)
   let (buffer, eol) = read-http-line(stream);
@@ -497,14 +487,14 @@ define method read-status-line
   let epos2 = bpos2 & whitespace-position(buffer, bpos2, eol);
   let bpos3 = epos2 & skip-whitespace(buffer, epos2, eol);
 
-  let version-string = epos1 & copy-sequence(buffer, end: epos1);
+  let http-version = epos1 & copy-sequence(buffer, end: epos1);
   let status-string = epos2 & copy-sequence(buffer, start: bpos2, end: epos2);
   let reason-phrase = bpos3 & copy-sequence(buffer, start: bpos3, end: eol);
 
-  if (version-string & status-string & reason-phrase)
-    let version :: <symbol> = validate-http-version(version-string);
+  if (http-version & status-string & reason-phrase)
+    let http-version :: <byte-string> = validate-http-version(http-version);
     let status-code :: <integer> = validate-http-status-code(status-string);
-    values(version, status-code, reason-phrase)
+    values(http-version, status-code, reason-phrase)
   else
     // The rationale for 500 here is that if the server sent us an incomplete
     // status line it is probably completely hosed.
@@ -629,7 +619,7 @@ end method read-and-discard-to-end;
 // TODO(cgay): Rename stream to output-stream for clarity.
 // TODO(cgay): Allow content to be an input stream.
 define sealed generic http-request
-    (request-method :: <request-method>, url :: <object>,
+    (request-method :: <byte-string>, url :: <object>,
      #key headers,
           parameters,
           content,
@@ -638,7 +628,7 @@ define sealed generic http-request
  => (response :: <http-response>);
 
 define method http-request
-    (request-method :: <request-method>, uri :: <string>,
+    (request-method :: <byte-string>, uri :: <string>,
      #key headers,
           parameters,
           content,
@@ -654,7 +644,7 @@ define method http-request
 end method http-request;
 
 define method http-request
-    (request-method :: <request-method>, uri :: <uri>,
+    (request-method :: <byte-string>, uri :: <uri>,
      #key headers,
           parameters :: false-or(<string-table>),
           content,
@@ -701,6 +691,7 @@ define method http-request
   end with-http-connection
 end method http-request;
 
+// Shorthand for the most common request methods.
 define constant http-get     = curry(http-request, "GET");
 define constant http-post    = curry(http-request, "POST");
 define constant http-put     = curry(http-request, "PUT");

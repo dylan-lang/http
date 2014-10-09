@@ -70,7 +70,7 @@ define method initialize (response :: <response>, #rest args, #key)
   if (request.request-keep-alive?)
     set-header(response, "Connection", "Keep-Alive");
   end if;
-  if (request.request-version == #"http/1.0")
+  if (request.request-version == "HTTP/1.0")
     response-chunked?(response) := #f;
   end;
 end method initialize;
@@ -214,8 +214,7 @@ define method finish-response
     (response :: <response>) => ()
   let request :: <request> = response.response-request;
   let socket :: <tcp-socket> = request.request-socket;
-  let http-version :: <symbol> = request.request-version;
-  let req-method :: <symbol> = request.request-method;
+  let http-version :: <byte-string> = request.request-version;
   let content-length :: <byte-string> = "0";
 
   if (response.response-transfer-length > 0)
@@ -243,7 +242,7 @@ define method finish-response
       send-headers(response, socket);
     end;
 
-    if (send-body? & req-method ~== #"head")
+    if (send-body? & request.request-method ~== $http-head-method)
       let contents = response.response-stream.stream-sequence;
       write(socket, contents, start: 0, end: response-size);
       if (*log-content?*)
@@ -261,7 +260,7 @@ define inline function log-request
     (req :: <request>, response-code :: <integer>, content-length :: <string>)
   // Log in Common Logfile Format
   // (http://www.w3.org/Daemon/User/Config/Logging.html)
-  let request = concatenate(as-uppercase(as(<string>, request-method(req))),
+  let request = concatenate(req.request-method.method-name,
                             " ",
                             // Can happen e.g. when client sends no data.
                             request-raw-url-string(req) | "-",

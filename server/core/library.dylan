@@ -54,6 +54,7 @@ define module http-server
     // See also: the methods for requests in http-common
     <request>,
     current-request,             // Returns the active request of the thread.
+    request-method,
     request-content-type,
     request-host,
     request-url-path-prefix,
@@ -70,19 +71,57 @@ define module http-server
                                  //   i.e., essentially within the dynamic scope of
                                  //   respond-to-get/post/etc
 
+  // Request methods
+  create
+    <http-method>,
+    method-name,
+    method-safe?,
+    method-idempotent?,
+    method-cacheable?,
+    respond-to-ACL,               $http-ACL-method,
+    respond-to-BASELINE-CONTROL,  $http-BASELINE-CONTROL-method,
+    // respond-to-BIND,              $http-BIND-method,
+    respond-to-CHECKIN,           $http-CHECKIN-method,
+    respond-to-CHECKOUT,          $http-CHECKOUT-method,
+    respond-to-CONNECT,           $http-CONNECT-method,
+    respond-to-COPY,              $http-COPY-method,
+    respond-to-DELETE,            $http-DELETE-method,
+    respond-to-GET,               $http-GET-method,
+    respond-to-HEAD,              $http-HEAD-method,
+    respond-to-LABEL,             $http-LABEL-method,
+    respond-to-LINK,              $http-LINK-method,
+    respond-to-LOCK,              $http-LOCK-method,
+    respond-to-MERGE,             $http-MERGE-method,
+    respond-to-MKACTIVITY,        $http-MKACTIVITY-method,
+    respond-to-MKCALENDAR,        $http-MKCALENDAR-method,
+    respond-to-MKCOL,             $http-MKCOL-method,
+    respond-to-MKREDIRECTREF,     $http-MKREDIRECTREF-method,
+    respond-to-MKWORKSPACE,       $http-MKWORKSPACE-method,
+    respond-to-MOVE,              $http-MOVE-method,
+    respond-to-OPTIONS,           $http-OPTIONS-method,
+    respond-to-ORDERPATCH,        $http-ORDERPATCH-method,
+    respond-to-PATCH,             $http-PATCH-method,
+    respond-to-POST,              $http-POST-method,
+    respond-to-PROPFIND,          $http-PROPFIND-method,
+    respond-to-PROPPATCH,         $http-PROPPATCH-method,
+    respond-to-PUT,               $http-PUT-method,
+    respond-to-REBIND,            $http-REBIND-method,
+    respond-to-REPORT,            $http-REPORT-method,
+    respond-to-SEARCH,            $http-SEARCH-method,
+    respond-to-TRACE,             $http-TRACE-method,
+    respond-to-UNBIND,            $http-UNBIND-method,
+    respond-to-UNCHECKOUT,        $http-UNCHECKOUT-method,
+    respond-to-UNLINK,            $http-UNLINK-method,
+    respond-to-UNLOCK,            $http-UNLOCK-method,
+    respond-to-UPDATE,            $http-UPDATE-method,
+    respond-to-UPDATEREDIRECTREF, $http-UPDATEREDIRECTREF-method,
+    respond-to-VERSION-CONTROL,   $http-VERSION-CONTROL-method;
+
   // Resource protocol
   create
     <abstract-resource>,
       default-content-type,
       respond,
-      respond-to-get,
-      respond-to-head,
-      respond-to-post,
-      respond-to-options,
-      respond-to-put,
-      respond-to-delete,
-      respond-to-trace,
-      respond-to-connect,
       unmatched-url-suffix;
 
   // Resource implementations

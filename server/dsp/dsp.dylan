@@ -73,12 +73,12 @@ define method page-source
 end;
 
 define method respond-to-post
-    (page :: <dylan-server-page>, #key)
+    (page :: <dylan-server-page>, #key) => ()
   process-template(page);
 end;
 
 define method respond-to-get
-    (page :: <dylan-server-page>, #key)
+    (page :: <dylan-server-page>, #key) => ()
   process-template(page);
 end;
 
