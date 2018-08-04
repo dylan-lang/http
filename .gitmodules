@@ -25,3 +25,6 @@
 [submodule "submodules/serialization"]
 	path = submodules/serialization
 	url = https://github.com/dylan-foundry/serialization.git
+[submodule "submodules/sphinx-extensions"]
+	path = submodules/sphinx-extensions
+	url = https://github.com/dylan-lang/sphinx-extensions
