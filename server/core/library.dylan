@@ -24,7 +24,8 @@ define library http-server
   use strings;
   use system,
     import: { date, file-system, locators, operating-system };
-  use uncommon-dylan;
+  use uncommon-dylan,
+    import: { uncommon-utils };
   use uri;
   use xml-parser;
 
@@ -277,7 +278,11 @@ define module httpi                             // http internals
   use streams-internals;
   use strings;
   use threads;               // from dylan lib
-  use uncommon-dylan;
+  use uncommon-utils,
+    import: { iff,
+              inc!,
+              <singleton-object>,
+              with-simple-restart };
   use uri;
   use xml-parser,
     prefix: "xml$";

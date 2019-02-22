@@ -19,10 +19,10 @@ define open class <paginator> (<sequence>)
     required-init-keyword: sequence:;
 
   // 1-based current page number
-  slot current-page-number :: <positive-integer> = 1,
+  slot current-page-number :: <int+> = 1,
     init-keyword: current-page-number:;
 
-  constant slot page-size :: <positive-integer> = 20,
+  constant slot page-size :: <int+> = 20,
     init-keyword: page-size:;
 end class <paginator>;
 

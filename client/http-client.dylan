@@ -23,7 +23,7 @@ define constant $default-http-port :: <integer> = 80;
 define constant $default-https-port :: <integer> = 443;
 
 define constant <uri-or-string> = type-union(<uri>, <string>);
-define constant <follow-redirects> = type-union(<boolean>, <nonnegative-integer>);
+define constant <follow-redirects> = type-union(<boolean>, <int*>);
 
 // This is bound to an <http-connection> for the duration of with-http-connection.
 //
@@ -74,8 +74,7 @@ end class <http-connection>;
 define method initialize
     (conn :: <http-connection>, #rest socket-args, #key host :: <string>)
   next-method();
-  conn.connection-socket := apply(make, <tcp-socket>,
-                                  remove-keys(socket-args, outgoing-chunk-size:));
+  conn.connection-socket := apply(make, <tcp-socket>, socket-args);
   conn.write-buffer := make(<byte-string>,
                              size: conn.outgoing-chunk-size, fill: ' ');
 

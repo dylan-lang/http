@@ -58,7 +58,7 @@ define generic remove-attribute
 define method has-attribute?
     (this :: <attributes-mixin>, key :: <string>)
  => (has-it? :: <boolean>)
-  key-exists?(this.attributes, key)
+  element(this.attributes, key, default: $unfound) ~= $unfound
 end;
 
 define method get-attribute
@@ -146,7 +146,7 @@ define constant $mime-wild :: <byte-string> = "*";
 // Matching type/subtype trumps all else.
 define method match-media-types
     (type1 :: <media-type>, type2 :: <media-type>)
- => (degree :: false-or(<nonnegative-integer>))
+ => (degree :: false-or(<int*>))
   let degree = 0;
   if ((type1.mime-type = type2.mime-type & inc!(degree, 100))
         | (type1.mime-type = $mime-wild & inc!(degree))
@@ -208,4 +208,3 @@ define method media-type-level
     (media-type :: <media-type>) => (level :: false-or(<integer>))
   get-attribute(media-type, "level")
 end;
-

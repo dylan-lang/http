@@ -16,7 +16,8 @@ define library dsp
   use strings;
   use system,
     import: { date, file-system, locators, operating-system };
-  use uncommon-dylan;
+  use uncommon-dylan,
+    import: { uncommon-utils };
   use uri;
   use xml-parser;
   use http-server;
@@ -70,8 +71,8 @@ define module dsp
     import: { find-substring, string-equal?, string-equal-ic?, strip, whitespace? };
   use threads,
     import: { dynamic-bind };
-  use uncommon-dylan,
-    import: { iff, <positive-integer> };
+  use uncommon-utils,
+    import: { iff, <int+> };
   use uri,
     import: { percent-decode };
   use xml-parser,

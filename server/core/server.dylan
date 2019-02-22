@@ -594,8 +594,12 @@ define function do-http-listen
             end method;
       with-lock (server-lock)
         block()
-          wrapping-inc!(listener.connections-accepted);
-          wrapping-inc!(server.connections-accepted);
+          if (listener.connections-accepted < $maximum-integer)
+            inc!(listener.connections-accepted);
+          end;
+          if (server.connections-accepted < $maximum-integer)
+            inc!(server.connections-accepted);
+          end;
           executor-request(server.server-executor, do-respond);
           client := make(<client>,
                          server: server,
@@ -639,8 +643,10 @@ define function respond-top-level
     end;
   cleanup
     unless (client.client-stays-alive?)
-      ignore-errors(<socket-condition>,
-                    close(client.client-socket, abort: #t));
+      block ()
+        close(client.client-socket, abort: #t);
+      exception (_ :: <socket-condition>)
+      end;
       release-client(client);
     end;
   end;
