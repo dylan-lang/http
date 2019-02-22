@@ -30,7 +30,8 @@ define library http-server-test-suite
       operating-system
     };
   use testworks;
-  use uncommon-dylan;
+  use uncommon-dylan,
+    import: { uncommon-utils };
   use uri;
 
   export
@@ -69,7 +70,8 @@ define module http-server-test-suite
   use strings;
   use testworks;
   use threads;
-  use uncommon-dylan;
+  use uncommon-utils,
+    import: { iff };
   use uri;
 
   export http-server-test-suite;

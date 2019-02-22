@@ -374,10 +374,9 @@ end;
 
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"module")
-  bind (name = get-attr(node, #"name"))
-    if (name)
-      load-module(name);
-    end;
+  let name = get-attr(node, #"name");
+  if (name)
+    load-module(name);
   end;
 end;
 

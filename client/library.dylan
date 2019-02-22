@@ -14,7 +14,8 @@ define library http-client
   use strings;
   use system,
     import: { threads };
-  use uncommon-dylan;
+  use uncommon-dylan,
+    import: { uncommon-utils };
   use uri;
 
   export
@@ -77,7 +78,8 @@ define module http-client-internals
   use streams;
   use strings;
   use threads;
-  use uncommon-dylan;
+  use uncommon-utils,
+    import: { iff, inc!, <int*> };
   use uri;
 
   // Internals

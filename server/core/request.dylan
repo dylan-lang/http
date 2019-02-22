@@ -302,27 +302,25 @@ end method process-request-content;
 //
 define method process-incoming-headers
     (request :: <request>)
-  bind (conn-values :: <sequence> = get-header(request, "Connection", parsed: #t) | #())
-    if (member?("close", conn-values, test: string-equal-ic?))
-      request-keep-alive?(request) := #f
-    elseif (member?("keep-alive", conn-values, test: string-equal-ic?))
-      request-keep-alive?(request) := #t
-    end;
+  let conn-values :: <sequence> = get-header(request, "Connection", parsed: #t) | #();
+  if (member?("close", conn-values, test: string-equal-ic?))
+    request-keep-alive?(request) := #f
+  elseif (member?("keep-alive", conn-values, test: string-equal-ic?))
+    request-keep-alive?(request) := #t
   end;
-  bind (host/port = get-header(request, "Host", parsed: #t))
-    let host = host/port & head(host/port);
-    let port = host/port & tail(host/port);
-    if (~host & request.request-version == #"HTTP/1.1")
-      // RFC 2616, 19.6.1.1 -- HTTP/1.1 requests MUST include a Host header.
-      bad-request-error(reason: "HTTP/1.1 requests must include a Host header");
-    end;
-    // RFC 2616, 5.2 -- If request host is already set then there was an absolute
-    // URL in the request line, which takes precedence, so ignore Host header here.
-    if (host & ~request.request-host)
-      request.request-host := host;
-    end;
+  let host/port = get-header(request, "Host", parsed: #t);
+  let host = host/port & head(host/port);
+  let port = host/port & tail(host/port);
+  if (~host & request.request-version == #"HTTP/1.1")
+    // RFC 2616, 19.6.1.1 -- HTTP/1.1 requests MUST include a Host header.
+    bad-request-error(reason: "HTTP/1.1 requests must include a Host header");
   end;
-end method process-incoming-headers;
+  // RFC 2616, 5.2 -- If request host is already set then there was an absolute
+  // URL in the request line, which takes precedence, so ignore Host header here.
+  if (host & ~request.request-host)
+    request.request-host := host;
+  end;
+end method;
 
 define inline function empty-line?
     (buffer :: <byte-string>, len :: <integer>) => (empty? :: <boolean>)
