@@ -5,18 +5,9 @@ Overview
 ========
 
 Dylan Server Pages (DSP) is a template engine for providing dynamic web site
-content using the Dylan language. They are similar in spirit to JavaServer
-Pages, but without the ability to mix program logic and page content, which is
-a bad idea anyway. All dynamic content is invoked via DSP tag calls such as
-``<xx:show-current-username/>``.
-
-(Okay, opinions can vary on the wisdom of closely mixing content and
-implementation, as with JSP scriptlets, but I contend that it's only ok for
-one-off hacks and small one-person projects. This isn't necessary in DSP
-because with Dylan's powerful language features writing custom tags is trivial
-and concise compared to JSP. And with `Open Dylan <http://www.opendylan.org/>`_,
-you often don't even need to restart your application to compile new custom
-tags and try them out.)
+content.  All dynamic content is invoked via DSP tag calls, which take the form
+``<taglib:tag-name/>``, where ``taglib`` is a tag library you define and
+``tag-name`` is the name of a tag in that tag library.
 
 Currently, a DSP application is implemented as a Dylan project that uses the
 HTTP server library. This effectively means that each DSP application has to
@@ -31,24 +22,25 @@ Authoring Overview
 ------------------
 
 DSP templates contain normal HTML plus DSP tag calls. DSP tag calls generate
-the dynamic content of you web pages. They use standard XML syntax.
+the dynamic content of your web pages. They use standard XML syntax.
 For example, ``<mylib:mytag arg="foo"/>`` is tag call with no body that passes
 one argument, arg, to mytag when it is invoked. "mylib" tells the DSP template
 engine what tag library (taglib for short) "mytag" will be found in.
 
 There are several special tags called :ref:`dsp-directives` defined that
-couldn't easily have been defined by the user.
-DSP directives use the same syntax as other tags, but they use the special tag
-library name ``%dsp``. For example, the include directive might look like
-this: ``<%dsp:include location="foo.dsp"/>``.
+couldn't easily have been defined by the user.  DSP directives use the same
+syntax as other tags, but they use the special tag library name ``%dsp``. For
+example, the include directive looks like this::
+
+  <%dsp:include location="foo.dsp"/>
 
 Each top-level template file must have a corresponding instance of
-:class:`<dylan-server-page>` associated with it. This is accomplished with
-the define page macro, which also publishes the URLs associated with the page.
+:class:`<dylan-server-page>` associated with it. This is accomplished with the
+``define page`` macro, which also publishes the URLs associated with the page.
 
 DSP template files may have any filename extension, but the extension ".dsp"
 may be treated specially in the future. For example, .dsp files may eventually
-be automatically exported as :class:`<dylan-server-page>` s.
+be automatically exported as :class:`<dylan-server-page>` .
 
 .. _dsp-directives:
 
