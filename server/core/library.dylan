@@ -56,6 +56,7 @@ define module http-server
     <request>,
     current-request,             // Returns the active request of the thread.
     request-method,
+    request-client-address,
     request-content-type,
     request-host,
     request-url-path-prefix,
