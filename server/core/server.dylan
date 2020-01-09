@@ -85,9 +85,8 @@ define open class <http-server> (<multi-log-mixin>, <abstract-router>)
   // The top of the directory tree under which the server's configuration, error,
   // and log files are kept.  Other pathnames are merged against this one, so if
   // they're relative they will be relative to this.  The server-root pathname is
-  // relative to the server executable, unless changed in the config file.
-  slot server-root :: <directory-locator>
-      = parent-directory(locator-directory(as(<file-locator>, application-filename()))),
+  // relative to the current directory, unless changed in the config file.
+  slot server-root :: <directory-locator> = working-directory(),
     init-keyword: server-root:;
 
   // This holds a <mime-type-map>, but in fact all the values are <media-type>s.

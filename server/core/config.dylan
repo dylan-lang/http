@@ -14,8 +14,6 @@ Copyright: See LICENSE in this distribution for details.
  *       Makes debugging your config file much easier sometimes.
  */
 
-define constant $config-dir :: <string> = "config";
-
 define constant $default-config-filename :: <string> = "config.xml";
 
 define thread variable %server = #f;
@@ -51,9 +49,7 @@ end;
 define method configure-server
     (server :: <http-server>, config-file :: false-or(<string>))
   let defaults
-    = merge-locators(merge-locators(as(<file-locator>, $default-config-filename),
-                                    as(<directory-locator>, $config-dir)),
-                     server.server-root);
+    = merge-locators(as(<file-locator>, $default-config-filename), server.server-root);
   let config-loc
     = as(<string>, merge-locators(as(<file-locator>, config-file | defaults),
                                   defaults));
@@ -408,10 +404,7 @@ define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"mime-type-map")
   let filename = get-attr(node, #"location");
   let mime-type-loc
-    = as(<string>,
-         merge-locators(merge-locators(as(<file-locator>, filename),
-                                       as(<directory-locator>, $config-dir)),
-                        server.server-root));
+    = as(<string>, merge-locators(as(<file-locator>, filename), server.server-root));
   log-info("Loading mime-type map from %s", mime-type-loc);
   let mime-text = file-contents(mime-type-loc);
   if (mime-text)
