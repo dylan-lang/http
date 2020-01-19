@@ -1,9 +1,6 @@
 [submodule "submodules/logging"]
 	path = submodules/logging
 	url = https://github.com/dylan-lang/logging.git
-[submodule "submodules/uncommon-dylan"]
-	path = submodules/uncommon-dylan
-	url = https://github.com/dylan-lang/uncommon-dylan.git
 [submodule "submodules/uri"]
 	path = submodules/uri
 	url = https://github.com/dylan-lang/uri.git

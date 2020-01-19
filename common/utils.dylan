@@ -146,7 +146,7 @@ define constant $mime-wild :: <byte-string> = "*";
 // Matching type/subtype trumps all else.
 define method match-media-types
     (type1 :: <media-type>, type2 :: <media-type>)
- => (degree :: false-or(<int*>))
+ => (degree :: false-or(<integer>))
   let degree = 0;
   if ((type1.mime-type = type2.mime-type & inc!(degree, 100))
         | (type1.mime-type = $mime-wild & inc!(degree))

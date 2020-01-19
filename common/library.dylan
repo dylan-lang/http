@@ -345,7 +345,7 @@ define module http-common-internals
   use strings;
   use threads;
   use uncommon-utils,
-    import: { <int*>, iff, inc!, dec! };
+    import: { iff, inc! };
   use uri;
 
   // Internals for test suite etc
