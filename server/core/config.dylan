@@ -174,8 +174,8 @@ define method process-config-element
         let cert = get-attr(node, #"certificate");
         let key = get-attr(node, #"key");
         if (~cert | ~key)
-          error("Both 'certificate' and 'key' are required for SSL listener %s:%d.",
-                address, port);
+          config-error("Both 'certificate' and 'key' are required for SSL listener %s:%d.",
+                       address, port);
         end;
         log-info("Adding HTTPS listener for %s:%d", address, port);
         add!(server.server-listeners,

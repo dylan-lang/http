@@ -155,8 +155,16 @@ define sealed domain initialize (<http-server>);
 //// Virtual hosts
 
 define open generic find-virtual-host
-    (server :: <http-server>, fqdn :: <string>)
+    (server :: <http-server>, fqdn :: false-or(<string>))
  => (vhost :: <virtual-host>);
+
+define method find-virtual-host
+    (server :: <http-server>, fqdn == #f)
+ => (vhost :: <virtual-host>)
+  iff(server.use-default-virtual-host?,
+      server.default-virtual-host,
+      %resource-not-found-error())
+end method;
 
 define method find-virtual-host
     (server :: <http-server>, fqdn :: <string>)
@@ -715,9 +723,6 @@ define method route-request
   if (new-path ~= old-path)
     do-rewrite-redirection(server, request, new-path, rule);
   else
-    // TODO(cgay): This can blow up if request-host is #f.  I think
-    // request-host needs to always be set.  If not to the host in the Host
-    // header, then to the server host.
     let vhost :: <virtual-host> = find-virtual-host(server, request.request-host);
 
     *debug-log* := vhost.debug-log;
