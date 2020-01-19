@@ -23,7 +23,7 @@ define constant $default-http-port :: <integer> = 80;
 define constant $default-https-port :: <integer> = 443;
 
 define constant <uri-or-string> = type-union(<uri>, <string>);
-define constant <follow-redirects> = type-union(<boolean>, <int*>);
+define constant <follow-redirects> = type-union(<boolean>, <integer>);
 
 // This is bound to an <http-connection> for the duration of with-http-connection.
 //

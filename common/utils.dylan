@@ -4,6 +4,24 @@ Author:    Carl Gay
 Copyright: See LICENSE in this distribution for details.
 
 
+// Brevity. (Copied from uncommon-dylan. Not worth having the dependency.)
+
+define macro iff
+    { iff(?test:expression, ?true:expression, ?false:expression) }
+ => { if (?test) ?true else ?false end }
+
+    { iff(?test:expression, ?true:expression) }
+ => { if (?test) ?true end }
+end;
+
+define macro inc!
+  { inc! (?place:expression, ?dx:expression) }
+    => { ?place := ?place + ?dx; }
+  { inc! (?place:expression) }
+    => { ?place := ?place + 1; }
+end macro inc!;
+
+
 // Things that expire.
 
 define open generic date-modified
@@ -146,7 +164,7 @@ define constant $mime-wild :: <byte-string> = "*";
 // Matching type/subtype trumps all else.
 define method match-media-types
     (type1 :: <media-type>, type2 :: <media-type>)
- => (degree :: false-or(<int*>))
+ => (degree :: false-or(<integer>))
   let degree = 0;
   if ((type1.mime-type = type2.mime-type & inc!(degree, 100))
         | (type1.mime-type = $mime-wild & inc!(degree))

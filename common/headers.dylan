@@ -189,9 +189,9 @@ define function read-header-line
       let prev-was-cr? = (pos > bpos & buffer[pos - 1] == $cr);
       if (ch == $lf & (~require-crlf? | prev-was-cr?))
         if (prev-was-cr?)
-          dec!(pos);      // don't include CR in result
+          pos := pos - 1;       // don't include CR in result
         end;
-        if (bpos == pos)  // empty line means end
+        if (bpos == pos)        // empty line means end
           values(buffer, bpos, pos, #f)
         else
           let ch = read-element(stream);
