@@ -15,10 +15,6 @@ define test test-convert-headers-method ()
   check-instance?("<header-table> from a <table>", <header-table>, headers);
 end test test-convert-headers-method;
 
-define suite request-test-suite ()
-  test test-convert-headers-method;
-end suite request-test-suite;
-
 
 /*
 tests to write:
@@ -295,7 +291,7 @@ define suite http-client-test-suite ()
   test test-follow-redirects;
   test test-redirect-loop-detection;
 
-  suite request-test-suite;
+  test test-convert-headers-method;
 
   // TODO: test the reaction to server errors
 end suite http-client-test-suite;
