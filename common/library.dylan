@@ -25,8 +25,6 @@ define library http-common
               locators,
               operating-system };
   use strings;
-  use uncommon-dylan,
-    import: { uncommon-utils };
   use uri;
   export
     http-common,
@@ -35,6 +33,11 @@ define library http-common
 end library http-common;
 
 define module http-common
+  // A few basic utils
+  create
+    iff,
+    inc!;
+
   create
     *http-common-log*,
     quote-html,
@@ -344,8 +347,6 @@ define module http-common-internals
   use streams;
   use strings;
   use threads;
-  use uncommon-utils,
-    import: { <int*>, iff, inc!, dec! };
   use uri;
 
   // Internals for test suite etc

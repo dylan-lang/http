@@ -669,7 +669,7 @@ define function %respond-top-level
                 *http-common-log* = *debug-log*)
     block (exit-respond-top-level)
       while (#t)                      // keep alive loop
-        with-simple-restart("Skip this request and continue with the next")
+        block ()
           let request :: <request> = make(<request>, client: client);
           *request* := request;
           block (finish-request)
@@ -706,7 +706,11 @@ define function %respond-top-level
               | ~request-keep-alive?(request))
             exit-respond-top-level();
           end;
-        end with-simple-restart;
+        exception (<simple-restart>,
+                   init-arguments: vector(format-string:,
+                                          "Skip this request and continue with the next"))
+          values(#f, #t)
+        end block;
       end while;
     end block; // exit-respond-top-level
   end dynamic-bind;

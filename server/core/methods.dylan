@@ -3,13 +3,13 @@ Synopsis: Request method support
 Copyright: See LICENSE in this distribution for details.
 
 
-define class <http-method> (<singleton-object>)
+define class <http-method> (<object>)
   constant slot method-name :: <byte-string>, required-init-keyword: name:;
   constant slot method-responder :: <function>, required-init-keyword: responder:;
   constant slot method-safe? :: <boolean> = #f, init-keyword: safe?:;
   constant slot method-idempotent? :: <boolean> = #f, init-keyword: idempotent?:;
   constant slot method-cacheable? :: <boolean> = #f, init-keyword: cacheable?:;
-end class <http-method>;
+end class;
 
 define constant $request-methods :: <string-table> = make(<string-table>);
 
