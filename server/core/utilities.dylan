@@ -32,15 +32,6 @@ define function file-contents (filename :: <pathname>)
   end
 end function file-contents;
 
-define method parent-directory
-    (dir :: <locator>, #key levels = 1) => (dir :: <directory-locator>)
-  for (i from 1 to levels)
-    // is there a better way to get the containing directory?
-    dir := simplify-locator(subdirectory-locator(dir, ".."));
-  end;
-  dir
-end;
-
 
 
 // These logs are used if no other logs are configured.

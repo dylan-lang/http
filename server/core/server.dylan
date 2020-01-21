@@ -85,9 +85,8 @@ define open class <http-server> (<multi-log-mixin>, <abstract-router>)
   // The top of the directory tree under which the server's configuration, error,
   // and log files are kept.  Other pathnames are merged against this one, so if
   // they're relative they will be relative to this.  The server-root pathname is
-  // relative to the server executable, unless changed in the config file.
-  slot server-root :: <directory-locator>
-      = parent-directory(locator-directory(as(<file-locator>, application-filename()))),
+  // relative to the current directory, unless changed in the config file.
+  slot server-root :: <directory-locator> = working-directory(),
     init-keyword: server-root:;
 
   // This holds a <mime-type-map>, but in fact all the values are <media-type>s.
@@ -155,8 +154,16 @@ define sealed domain initialize (<http-server>);
 //// Virtual hosts
 
 define open generic find-virtual-host
-    (server :: <http-server>, fqdn :: <string>)
+    (server :: <http-server>, fqdn :: false-or(<string>))
  => (vhost :: <virtual-host>);
+
+define method find-virtual-host
+    (server :: <http-server>, fqdn == #f)
+ => (vhost :: <virtual-host>)
+  iff(server.use-default-virtual-host?,
+      server.default-virtual-host,
+      %resource-not-found-error())
+end method;
 
 define method find-virtual-host
     (server :: <http-server>, fqdn :: <string>)
@@ -715,9 +722,6 @@ define method route-request
   if (new-path ~= old-path)
     do-rewrite-redirection(server, request, new-path, rule);
   else
-    // TODO(cgay): This can blow up if request-host is #f.  I think
-    // request-host needs to always be set.  If not to the host in the Host
-    // header, then to the server host.
     let vhost :: <virtual-host> = find-virtual-host(server, request.request-host);
 
     *debug-log* := vhost.debug-log;
