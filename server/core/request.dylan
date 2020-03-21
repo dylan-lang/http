@@ -256,8 +256,8 @@ define open generic process-request-content
 
 define method process-request-content
     (request :: <request>, content-type :: <object>)
-  // do nothing
-end;
+  log-warning("process-request-content not implemented for content type %=", content-type);
+end method;
 
 define method process-request-content
     (request :: <request>, content-type == #"application/x-www-form-urlencoded")
