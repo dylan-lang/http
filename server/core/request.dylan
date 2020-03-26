@@ -25,7 +25,8 @@ define open primary class <request>
   slot request-host :: false-or(<string>) = #f;
 
   // Query values from either the URL or the body of the POST, if Content-Type
-  // is application/x-www-form-urlencoded.
+  // is application/x-www-form-urlencoded or multipart/form-data. Values are
+  // strings, #t, or lists of either. See get-query-value(s) and uri:uri:split-query.
   constant slot request-query-values :: <string-table>,
     init-function: curry(make, <string-table>);
 
@@ -114,6 +115,7 @@ define method read-request
   // further requests on the same connection.  This is temporary and needs
   // to be handled with more finesse.
   read-request-content(request);
+  process-request-content(request, request-content-type(request));
 end method read-request;
 
 // Parse the Request-Line and modify the request appropriately.
@@ -135,6 +137,8 @@ define function parse-request-line
   remove-all-keys!(request.request-query-values);  // appears unnecessary
   if (url.uri-query)
     for (value keyed-by key in url.uri-query)
+      // TODO: what should happen with duplicate keys? For form data all values
+      // for the key are retained but here we overwrite.
       request.request-query-values[key] := value;
     end;
   end;
@@ -204,7 +208,6 @@ define function read-request-content
       request-content(request) := buffer;
     end;
   end;
-  process-request-content(request, request-content-type(request));
 end function read-request-content;
 
 define inline function request-content-type (request :: <request>)
@@ -256,8 +259,8 @@ define open generic process-request-content
 
 define method process-request-content
     (request :: <request>, content-type :: <object>)
-  // do nothing
-end;
+  // do nothing special for this content type
+end method;
 
 define method process-request-content
     (request :: <request>, content-type == #"application/x-www-form-urlencoded")
@@ -271,30 +274,56 @@ define method process-request-content
   end for;
   // ---TODO: Deal with content types intelligently.
   // For now this'll have to do.
-end method process-request-content;
+end method;
 
-/* TODO: REWRITE
+// See https://tools.ietf.org/html/rfc7578 for full semantics of
+// multipart/form-data. This code is in no way complete. It is enough to get
+// play.opendylan.org working though.
 define method process-request-content
-    (content-type == #"multipart/form-data",
-     request :: <request>,
-     buffer :: <byte-string>,
-     content-length :: <integer>)
- => (content :: <string>)
-  let header-content-type = split(get-header(request, "content-type"), ';');
-  if (header-content-type.size < 2)
-    bad-request-error(...)
-  end;
-  let boundary = split(second(header-content-type), '=');
-  if (element(boundary, 1, default: #f))
-    let boundary-value = second(boundary);
-    extract-form-data(buffer, boundary-value, request);
-    // ???
-    request-content(request) := buffer
-  else
-    bad-request-error(...)
-  end if;
-end method process-request-content;
-*/
+    (request :: <request>, content-type == #"multipart/form-data")
+  local method fail (msg :: <string>)
+          bad-request-error(reason: msg);
+        end;
+  // By the time we get here request-query-values has already been bound to a
+  // <string-table> containing the URL query values.
+  let header :: <media-type> = get-header(request, "Content-Type", parsed: #t);
+  let boundary
+    = get-attribute(header, "boundary")
+        | fail("'Content-Type: multipart/form-data' missing 'boundary' parameter");
+  boundary := concatenate("--", boundary);
+
+  let parts = split(request.request-content, boundary,
+                    remove-if-empty?: #t); // first separator is at position 0
+
+  // Treat each part like a full HTTP request: headers, blank line, body
+  let qvalues = request.request-query-values;
+  for (part in parts, i from 1)
+    // In Chrome, the "--" separator appears immediately following the last
+    // occurrence of the boundary. Skip it if it's the last element. Spec is
+    // vague on this.
+    if (~(i = parts.size & starts-with?(part, "--")))
+      part := strip-left(part);
+      let (headers, _, epos)
+        = with-input-from-string (stream = part)
+            read-message-headers(stream)
+          end;
+      // TODO: handle different content-types, charsets, transfer encodings.
+
+      let disposition :: <avalue>
+        = get-header(headers, "Content-Disposition", parsed: #t)
+            | fail("multipart/form-data missing 'Content-Disposition' header");
+      let name = element(disposition, "name", default: #f)
+                   | fail("multipart/form-data missing 'name' parameter");
+      let form-value = copy-sequence(part, start: epos);
+      let val = element(qvalues, name, default: #f);
+      qvalues[name] := case
+                         ~val => form-value;
+                         instance?(val, <string>) => list(val, form-value);
+                         otherwise => pair(form-value, val); // val is a list
+                       end;
+    end if;
+  end for;
+end method;
 
 // Do whatever we need to do depending on the incoming headers for
 // this request.  e.g., handle "Connection: Keep-alive", store
@@ -327,80 +356,40 @@ define inline function empty-line?
   len == 1 & buffer[0] == $cr
 end;
 
-/*
-
-// This isn't used in the server, but I see a reference in network/turboblog
-// which also isn't used, as far as I know.  Commenting it out until I have
-// time to assess it.  --cgay
-
-define class <http-file> (<object>)
-  constant slot http-file-filename :: <string>,
-    required-init-keyword: filename:;
-  constant slot http-file-content :: <byte-string>,
-    required-init-keyword: content:;
-  constant slot http-file-mime-type :: <string>,
-    required-init-keyword: mime-type:;
-end;
-
-define method extract-form-data
- (buffer :: <string>, boundary :: <string>, request :: <request>)
-  // strip everything after end-boundary
-  let buffer = first(split(buffer, concatenate("--", boundary, "--")));
-  let parts = split(buffer, concatenate("--", boundary));
-  for (part in parts) 
-    let part = split(part, "\r\n\r\n");
-    let header-entries = split(first(part), "\r\n");
-    let disposition = #f;
-    let name = #f;
-    let type = #f;
-    let filename = #f;
-    for (header-entry in header-entries)
-      let header-entry-parts = split(header-entry, ';');
-      for (header-entry-part in header-entry-parts)
-        let eq-pos = char-position('=', header-entry-part, 0, size(header-entry-part));
-        let p-pos = char-position(':', header-entry-part, 0, size(header-entry-part));
-        if (p-pos & (substring(header-entry-part, 0, p-pos) = "Content-Disposition"))
-          disposition := substring(header-entry-part, p-pos + 2, size(header-entry-part));
-        elseif (p-pos & (substring(header-entry-part, 0, p-pos) = "Content-Type"))
-          type := substring(header-entry-part, p-pos + 2, size(header-entry-part));
-        elseif (eq-pos & (substring(header-entry-part, 0, eq-pos) = "name"))
-          // name unquoted
-          name := substring(header-entry-part, eq-pos + 2, size(header-entry-part) - 1);
-        elseif (eq-pos & (substring(header-entry-part, 0, eq-pos) = "filename"))
-          // filename unquoted
-          filename := substring(header-entry-part, eq-pos + 2, size(header-entry-part) - 1);
-        end if;
-      end for;
-    end for;
-    if (part.size > 1)
-      // TODO: handle disposition = "multipart/form-data" and parse that again
-      //disposition = "multipart/form-data" => ...
-      if (disposition = "form-data")
-        let content = substring(second(part), 0, size(second(part)) - 1);
-        request.request-query-values[name]
-          := if (filename & type)
-               make(<http-file>, filename: filename, content: content, mime-type: type);
-             else
-               content;
-             end if;
-      end if;
-    end if;
-  end for;
-end method extract-form-data;
-*/
-
 // Hey look!  More stuff to get rid of or move...
 
+// Query values are
+//   * URL parameters
+//   * multipart/form-data body content
+//   * application/x-www-form-urlencoded body content
+
+// get-query-value returns the first value for `key`. Use get-query-values if
+// you want a vector of all the values for that key. For example, form data for
+// multiple files uploaded under the same key.
 define inline function get-query-value
     (key :: <string>, #key as: as-type :: false-or(<type>))
  => (value :: <object>)
   let val = element(*request*.request-query-values, key, default: #f);
-  if (as-type & val)
+  let val = if (instance?(val, <list>) & ~empty?(val))
+              head(val)
+            else
+              val
+            end;
+  if (as-type & instance?(val, <string>))
     as(as-type, val)
   else
     val
   end
 end function get-query-value;
+
+define inline function get-query-values (key :: <string>) => (values :: <sequence>)
+  let v = element(*request*.request-query-values, key, default: #f);
+  select (v by instance?)
+    <list> => v;
+    singleton(#f) => #();
+    otherwise => list(v);
+  end
+end function;
 
 // with-query-values (name, type, go as go?, search) x end;
 //   

@@ -170,7 +170,7 @@ end;
 // Appear in Accept: and Content-Type: header fields
 
 
-//---TODO: add more to this table.  max-age, ...
+//---TODO: add more to this table.  max-age, boundary, ...
 define table $parameter-parsers :: <string-table>
   = { "q"     => quality-value,
       "level" => parse-integer-value };

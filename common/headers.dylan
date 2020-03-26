@@ -105,6 +105,9 @@ define open generic get-header
     (object :: <object>, header-name :: <byte-string>, #key parsed :: <boolean>)
  => (header-value :: <object>);
 
+// TODO(cgay): can't remember why we'd ever want to retrieve an unparsed header.
+// If there isn't a need for this distinction, remove it. Simplify simplify simplify.
+// If there is, default to parsed and change the keyword arg to raw?.
 define method get-header
     (table :: <table>, header-name :: <byte-string>, #key parsed :: <boolean>)
  => (header-value :: <object>)

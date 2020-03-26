@@ -342,6 +342,33 @@ The HTTP-SERVER module
    :parameter #key as: An instance of ``false-or(<type>)``.
    :value value: An instance of ``<object>``.
 
+   Return the first (and usually the only) query value associated with ``key``,
+   or ``#f`` if no value found.
+
+   Query values are any values from the query portion of the URL or from POST
+   data for requests encoded as either ``application/x-www-form-urlencoded`` or
+   ``multipart/form-data``.
+
+   See also: :func:`get-query-values`
+
+.. function:: get-query-values
+
+   :signature: get-query-values (key) => (values)
+
+   :parameter key: An instance of ``<string>``.
+   :value values: An instance of ``<sequence>``.
+
+   Returns all query values associated with ``key``, or an empty sequence if no
+   values are found.
+
+   Query values are any values from the query portion of the URL or from POST
+   data for requests encoded as either ``application/x-www-form-urlencoded`` or
+   ``multipart/form-data``. In some cases, such as file upload that allows
+   multiple file to be selected, there may be several values for a single key
+   and :func:`get-query-values` is what you need in that case.
+
+   For most common cases, however, :func:`get-query-value` is the right choice.
+
 .. generic-function:: get-session
 
    :signature: get-session (request) => (#rest results)

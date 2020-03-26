@@ -61,6 +61,7 @@ define module http-server
     request-absolute-url,
     request-query-values,        // get the keys/vals from the current GET or POST request
       get-query-value,           // Get a query value that was passed in a URL or a form
+      get-query-values,          // Get a list of query values having the same key.
       do-query-values,           // Call f(key, val) for each query in the URL or form
       count-query-values,
       with-query-values,
