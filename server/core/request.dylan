@@ -267,7 +267,12 @@ define method process-request-content
   // By the time we get here request-query-values has already
   // been bound to a <string-table> containing the URL query
   // values. Now we augment it with any form values.
-  let content = replace-substrings(request-content(request), "+", " ");
+  let content :: <byte-string> = request-content(request);
+  for (i from 0, char in content)
+    if (char == '+')
+      content[i] := ' ';
+    end;
+  end;
   let parsed-query = split-query(content);
   for (value keyed-by key in parsed-query)
     request.request-query-values[key] := value;
