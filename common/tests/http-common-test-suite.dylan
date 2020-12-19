@@ -2,8 +2,6 @@ Module: http-common-test-suite
 Copyright: See LICENSE in this distribution for details.
 
 
-//// --- parsing test suite ---
-
 define test test-quality-value ()
   for (pair in #[#["0.2", 0.2],
                  #["0.02", 0.02],
@@ -16,14 +14,7 @@ define test test-quality-value ()
                 expected,
                 quality-value(string, 0, string.size));
   end;
-end test test-quality-value;
-
-define suite parsing-test-suite ()
-  test test-quality-value;
-end;
-
-
-//// --- headers test suite ---
+end test;
 
 // See also: test-parse-media-type
 define test test-accept-header ()
@@ -32,14 +23,7 @@ define test test-accept-header ()
               list(make-media-type("audio", "*", #["q", 0.5], #["r", "2"]),
                    make-media-type("audio", "mp3", #["q", 1.0])),
               parse-header-value(#"accept", raw-header));
-end test test-accept-header;
-
-define suite headers-test-suite ()
-  test test-accept-header;
-end;
-
-
-//// --- media-type test suite ---
+end test;
 
 define function make-media-type
     (type :: <byte-string>, subtype :: <byte-string>, #rest attributes)
@@ -51,13 +35,13 @@ define function make-media-type
        type: type,
        subtype: subtype,
        attributes: attrs)
-end;
+end function;
 
 define function parse-media-type-helper
     (media-type :: <string>)
  => (media-type :: <media-type>)
   parse-media-type(media-type, 0, media-type.size)
-end;
+end function;
 
 define constant text/plain = make-media-type("text", "plain");
 
@@ -106,7 +90,7 @@ define test test-parse-media-type ()
   check-equal("parse-media-type converts level to integer?",
               2,
               media-type-level(parse-media-type-helper("text/plain; q=0.3; level=2")));
-end test test-parse-media-type;
+end test;
 
 define test test-match-media-types ()
   for (item in list(list("text", "plain"),
@@ -132,7 +116,7 @@ define test test-match-media-types ()
     check-false(format-to-string("media-types-match?(text/plain, %s/%s) is false?", t, s),
                 match-media-types(text/plain, make-media-type(t, s)));
   end;
-end test test-match-media-types;
+end test;
 
 define test test-media-type-more-specific? ()
   let text/html-level-1 = make-media-type("text", "html", #["level", 1]);
@@ -143,7 +127,7 @@ define test test-media-type-more-specific? ()
               list(text/html-level-1, text/html, text/*, wild/*), // expected
               sort(list(text/*, text/html, text/html-level-1, wild/*),
                    test: media-type-more-specific?));
-end test test-media-type-more-specific?;
+end test;
 
 define test test-media-type-exact? ()
   check-true("media-type-exact?(text/plain)", media-type-exact?(text/plain));
@@ -151,7 +135,7 @@ define test test-media-type-exact? ()
               media-type-exact?(make-media-type("text", $mime-wild)));
   check-false("media-type-exact?(*/*)",
               media-type-exact?(make-media-type($mime-wild, $mime-wild)));
-end test test-media-type-exact?;
+end test;
 
 define test test-media-type-quality ()
   check-equal("'q' attribute defines media type quality value?",
@@ -160,29 +144,11 @@ define test test-media-type-quality ()
   check-equal("Default quality value is 1.0?",
               1.0,
               make-media-type("a", "b").media-type-quality);
-end test test-media-type-quality;
+end test;
 
 define test test-media-type-level ()
   check-equal("'level' attribute defines media type level?",
               2,
               make-media-type("a", "b", #["level", 2]).media-type-level);
   check-false("Default level is #f?", make-media-type("a", "b").media-type-level);
-end test test-media-type-level;
-
-define suite media-type-test-suite ()
-  test test-parse-media-type;
-  test test-media-type-quality;
-  test test-media-type-level;
-  test test-media-type-exact?;
-  test test-media-type-more-specific?;
-  test test-match-media-types;
-end suite media-type-test-suite;
-
-
-//// --- top level suite ---
-
-define suite http-common-test-suite ()
-  suite parsing-test-suite;
-  suite headers-test-suite;
-  suite media-type-test-suite;
-end;
+end test;

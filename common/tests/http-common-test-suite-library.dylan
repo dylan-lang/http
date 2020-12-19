@@ -8,7 +8,7 @@ define library http-common-test-suite
   use testworks;
   use io;
   export http-common-test-suite;
-end;
+end library;
 
 define module http-common-test-suite
   use common-dylan;
@@ -16,6 +16,5 @@ define module http-common-test-suite
   use http-common-internals;
   use testworks;
   use format;
-  export http-common-test-suite;
-end;
+end module;
 

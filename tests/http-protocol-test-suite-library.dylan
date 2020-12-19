@@ -12,7 +12,7 @@ define library http-protocol-test-suite
   use strings;
 
   export http-protocol-test-suite;
-end library http-protocol-test-suite;
+end library;
 
 define module http-protocol-test-suite
   use common-dylan;
@@ -24,6 +24,4 @@ define module http-protocol-test-suite
   use testworks;
   use uri;
   use strings;
-
-  export http-protocol-test-suite;
-end module http-protocol-test-suite;
+end module;
