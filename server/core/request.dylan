@@ -106,10 +106,7 @@ define method read-request
             request.request-method,
             request.request-raw-url-string,
             request.request-version);
-  read-message-headers(socket,
-                       buffer: buffer,
-                       start: len,
-                       headers: request.raw-headers);
+  read-headers!(socket, buffer, request.raw-headers);
   process-incoming-headers(request);
   // Unconditionally read all request content in case we need to process
   // further requests on the same connection.  This is temporary and needs
@@ -259,8 +256,8 @@ define open generic process-request-content
 
 define method process-request-content
     (request :: <request>, content-type :: <object>)
-  // do nothing special for this content type
-end method;
+  // No special processing for this content type.
+end;
 
 define method process-request-content
     (request :: <request>, content-type == #"application/x-www-form-urlencoded")
@@ -281,9 +278,14 @@ define method process-request-content
   // For now this'll have to do.
 end method;
 
-// See https://tools.ietf.org/html/rfc7578 for full semantics of
-// multipart/form-data. This code is in no way complete. It is enough to get
-// play.opendylan.org working though.
+// Augment the current request-query-values with the values in the
+// multipart/form-data body.
+//
+// https://tools.ietf.org/html/rfc2046#section-5.1 -- Multipart Media Type
+// https://tools.ietf.org/html/rfc7578 -- Returning Values from Forms: multipart/form-data
+//
+// This code is in no way complete or optimized; it is enough to get
+// play.opendylan.org working. There is much unnecessary string copying.
 define method process-request-content
     (request :: <request>, content-type == #"multipart/form-data")
   local method fail (msg :: <string>)
@@ -295,38 +297,44 @@ define method process-request-content
   let boundary
     = get-attribute(header, "boundary")
         | fail("'Content-Type: multipart/form-data' missing 'boundary' parameter");
-  boundary := concatenate("--", boundary);
+  if (boundary.size == 0 | boundary.size > 70)
+    fail("multipart/form-data boundary size must be 1-70 characters");
+  end;
+  boundary := concatenate("--", boundary); // inefficient
 
-  let parts = split(request.request-content, boundary,
-                    remove-if-empty?: #t); // first separator is at position 0
-
-  // Treat each part like a full HTTP request: headers, blank line, body
+  let content :: <byte-string> = request.request-content;
+  let parts = split(content, boundary, remove-if-empty?: #t);
   let qvalues = request.request-query-values;
-  for (part in parts, i from 1)
-    // In Chrome, the "--" separator appears immediately following the last
-    // occurrence of the boundary. Skip it if it's the last element. Spec is
-    // vague on this.
-    if (~(i = parts.size & starts-with?(part, "--")))
-      part := strip-left(part);
-      let (headers, _, epos)
-        = with-input-from-string (stream = part)
-            read-message-headers(stream)
-          end;
-      // TODO: handle different content-types, charsets, transfer encodings.
+  let headers = make(<header-table>);
+  let buffer = make-header-buffer();
+  for (part in parts,
+       while: ~starts-with?(part, "--"))
+    // Each part should begin and end with CRLF. The initial CRLF is technically the
+    // terminator for the boundary line but we're not really processing this by lines.
+    if (~starts-with?(part, "\r\n"))
+      fail("invalid multipart/form-data boundary -- no trailing CRLF");
+    end;
+    if (~ends-with?(part, "\r\n"))
+      fail("invalid multipart/form-data -- no CRLF at end of part");
+    end;
+    let epos = with-input-from-string (stream = part, start: 2, end: part.size - 2)
+                 remove-all-keys!(headers);
+                 read-headers!(stream, buffer, headers);
+               end;
+    // TODO: handle different content-types, charsets, transfer encodings.
 
-      let disposition :: <avalue>
-        = get-header(headers, "Content-Disposition", parsed: #t)
-            | fail("multipart/form-data missing 'Content-Disposition' header");
-      let name = element(disposition, "name", default: #f)
-                   | fail("multipart/form-data missing 'name' parameter");
-      let form-value = copy-sequence(part, start: epos);
-      let val = element(qvalues, name, default: #f);
-      qvalues[name] := case
-                         ~val => form-value;
-                         instance?(val, <string>) => list(val, form-value);
-                         otherwise => pair(form-value, val); // val is a list
-                       end;
-    end if;
+    let disposition :: <avalue>
+      = get-header(headers, "Content-Disposition", parsed: #t)
+          | fail("multipart/form-data missing 'Content-Disposition' header");
+    let name = element(disposition, "name", default: #f)
+                 | fail("multipart/form-data missing 'name' parameter");
+    let form-value = copy-sequence(part, start: epos, end: part.size - 2);
+    let val = element(qvalues, name, default: #f);
+    qvalues[name] := case
+                       ~val => form-value;
+                       instance?(val, <string>) => list(val, form-value);
+                       otherwise => pair(form-value, val); // val is a list
+                     end;
   end for;
 end method;
 
@@ -338,9 +346,9 @@ define method process-incoming-headers
     (request :: <request>)
   let conn-values :: <sequence> = get-header(request, "Connection", parsed: #t) | #();
   if (member?("close", conn-values, test: string-equal-ic?))
-    request-keep-alive?(request) := #f
+    request-keep-alive?(request) := #f;
   elseif (member?("keep-alive", conn-values, test: string-equal-ic?))
-    request-keep-alive?(request) := #t
+    request-keep-alive?(request) := #t;
   end;
   let host/port = get-header(request, "Host", parsed: #t);
   let host = host/port & head(host/port);

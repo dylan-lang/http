@@ -426,10 +426,7 @@ end method chunked-transfer-encoding?;
 // The string returned does not include the CRLF.  Second return value
 // is the end-of-line index.
 //
-// See also: read-header-line
-// todo -- Callers of this that are in the server should pass a max-size
-//         argument, at which point an error should be signaled.
-//
+// TODO(cgay): Redo this to be more like read-http-line!.
 define method read-http-line
     (stream :: <stream>)
  => (buffer :: <byte-string>, len :: <integer>)
