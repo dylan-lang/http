@@ -268,7 +268,7 @@ define module http-common
     <header-table>,
     get-header,
     set-header,
-    read-message-headers,
+    read-headers!,
     raw-headers,
     parsed-headers,
     <avalue>,
@@ -285,10 +285,11 @@ define module http-common
 
   // lower level header APIs...
   create
-    read-header-line,
-    read-http-line,
+    grow-header-buffer,
+    make-header-buffer,
     parse-header-value,
-    grow-header-buffer;
+    read-header-line!,
+    read-http-line;
 
   // Cookies
   create

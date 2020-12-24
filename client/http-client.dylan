@@ -449,7 +449,8 @@ define method read-response
  => (response :: <http-response>)
   let socket :: <tcp-socket> = conn.connection-socket;
   let (http-version, status-code, reason-phrase) = read-status-line(socket);
-  let headers :: <header-table> = read-message-headers(socket);
+  let headers :: <header-table> = make(<header-table>);
+  read-headers!(socket, make-header-buffer(), headers);
   let response = make(response-class,
                       connection: conn,
                       // TODO: add version to <http-response> class

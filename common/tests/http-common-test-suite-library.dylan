@@ -8,14 +8,14 @@ define library http-common-test-suite
   use testworks;
   use io;
   export http-common-test-suite;
-end;
+end library;
 
 define module http-common-test-suite
   use common-dylan;
   use http-common;
   use http-common-internals;
+  use streams;
   use testworks;
   use format;
-  export http-common-test-suite;
-end;
+end module;
 

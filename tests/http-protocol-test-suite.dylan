@@ -23,7 +23,7 @@ define function full-url
   parse-url(fmt("http://%s:%d%s", *test-host*, *test-port*, join(segments, "/")));
 end function full-url;
 
-
+//---------------------------------------------------------------------
 
 define test test-options-method (tags: #("online"))
   let response = http-options(full-url("/"));
@@ -31,7 +31,7 @@ define test test-options-method (tags: #("online"))
   assert-equal(#("GET", "HEAD", "OPTIONS"),
                sort(split(get-header(response, "Allow"), ", ")),
                "Allowed methods");
-end test test-options-method;
+end test;
 
 define test test-get-method (tags: #("online"))
   let response = http-get(full-url("/"));
@@ -49,7 +49,7 @@ define test test-get-method (tags: #("online"))
   response := http-get(full-url("/get"), headers: h);
   check-equal("200 OK", response.response-code, 200);
   check-true("Send headers", response-content-contains?(response, "X-Test-Header"));
-end test test-get-method;
+end test;
 
 define test test-get-method-allow-redirect (tags: #("online"))
   let response = http-get(full-url("/redirect", "1"));
@@ -62,7 +62,7 @@ define test test-get-method-allow-redirect (tags: #("online"))
 
   response := http-get(full-url("/redirect", "3"), follow-redirects: 3);
   check-equal("follow-redirects: 3", response.response-code, 200);
-end test test-get-method-allow-redirect;
+end test;
 
 define test test-post-method (tags: #("online"))
   let response = http-post(full-url("/post"), content: "{\"key1\": \"value1\"}");
@@ -76,12 +76,12 @@ define test test-post-method (tags: #("online"))
   check-true("Send data as form-encoded (value)",
              find-substring(response.response-content,
                             concatenate("\"key2\":", " \"", payload["key2"], "\"")));
-end test test-post-method;
+end test;
 
 define test test-head-method (tags: #("online"))
   let response = http-head(full-url("/"));
   check-equal("200 OK", response.response-code, 200);
-end test test-head-method;
+end test;
 
 define test test-put-method (tags: #("online"))
   let payload = make(<string-table>, size: 2);
@@ -90,32 +90,20 @@ define test test-put-method (tags: #("online"))
   let response = http-put(full-url("/put"), content: payload);
   check-true("Send data as form-encoded (key)", response-content-contains?(response, "key1"));
   check-equal("200 OK", response.response-code, 200);
-end test test-put-method;
+end test;
 
 define test test-delete-method (tags: #("online"))
   let response = http-delete(full-url("/delete"));
   check-equal("200 OK", response.response-code, 200);
-end test test-delete-method;
+end test;
 
 define test test-trace-method ()
   // Not implemented by httpbin
-end test test-trace-method;
+end test;
 
 define test test-connect-method ()
   // Not implemented by httpbin
-end test test-connect-method;
-
-define suite method-test-suite ()
-  test test-options-method;
-  test test-get-method;
-  test test-get-method-allow-redirect;
-  test test-post-method;
-  test test-head-method;
-  test test-put-method;
-  test test-delete-method;
-  test test-trace-method;
-  test test-connect-method;
-end;
+end test;
 
 
 define test test-date-header-parsing ()
@@ -136,32 +124,15 @@ define test test-date-header-parsing ()
                 date,
                 parse-http-date(test-date, 0, test-date.size));
   end;
-end test test-date-header-parsing;
-
-define suite header-test-suite ()
-  test test-date-header-parsing;
-end suite header-test-suite;
+end test;
 
 
 define test test-cookies ()
-end test test-cookies;
+end test;
 
 define test test-cookies-on-301 ()
-end test test-cookies-on-301;
+end test;
 
 define test test-cookies-on-redirect ()
   // This test requires a class to persist status between requests (session?)
-end test test-cookies-on-redirect;
-
-define suite cookies-test-suite ()
-  test test-cookies;
-  test test-cookies-on-301;
-  test test-cookies-on-redirect;
-end suite cookies-test-suite;
-
-
-define suite http-protocol-test-suite ()
-  suite method-test-suite;
-  suite header-test-suite;
-  suite cookies-test-suite;
-end suite http-protocol-test-suite;
+end test;
