@@ -13,7 +13,8 @@ define constant $default-https-port :: <integer> = 8443;
 // and extend this server (e.g., wiki) may want to add their own <option-parser>s to
 // this before calling http-server-main().
 define variable *command-line-parser* :: <command-line-parser>
-  = make(<command-line-parser>);
+  = make(<command-line-parser>,
+         help: "Dylan HTTP server");
 
 
 // Max size of data in a POST.
