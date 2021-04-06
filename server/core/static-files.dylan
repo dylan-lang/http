@@ -230,7 +230,11 @@ define method copy-to-end
   let buffer :: <sequence> = make(stream-sequence-class(in-stream),
                                   size: buffer-size);
   iterate loop ()
-    let count = read-into!(in-stream, buffer-size, buffer, on-end-of-stream: #f);
+    let count = block ()
+                  read-into!(in-stream, buffer-size, buffer)
+                exception (ex :: <incomplete-read-error>)
+                   ex.stream-error-count
+                end;
     write(out-stream, buffer, end: count);
     if (count = buffer-size)
       loop()
