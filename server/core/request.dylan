@@ -51,6 +51,12 @@ define inline function request-socket
   request.request-client.client-socket
 end;
 
+define inline function request-client-address
+    (request :: <request>)
+ => (address :: <string>)
+  request.request-socket.remote-host.host-address
+end;
+
 define inline function request-server
     (request :: <request>)
  => (server :: <http-server>)

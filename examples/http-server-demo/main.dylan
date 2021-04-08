@@ -2,7 +2,10 @@ Module: http-server-demo
 Synopsis: Examples of how to use the http-server and dsp libraries
 Author: Carl Gay
 
-// TODO: Need an example of using a paginator and some other DSP utilities.
+// TODO:
+// * example of using a paginator
+// * example of using page context
+
 
 
 //// Low-level server API examples
