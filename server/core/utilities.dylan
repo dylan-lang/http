@@ -56,11 +56,13 @@ define thread variable *error-log* :: <log> = $default-log;
 
 define thread variable *request-log* :: <log> = $default-log;
 
-define constant log-trace   = curry(%log-trace, *debug-log*);
-define constant log-debug   = curry(%log-debug, *debug-log*);
-define constant log-info    = curry(%log-info, *debug-log*);
-define constant log-warning = curry(%log-warning, *error-log*);
-define constant log-error   = curry(%log-error, *error-log*);
+//apply(log-message, $trace-level, *log*, object, args);
+
+define constant log-trace   = curry(log-message, $trace-level, *debug-log*);
+define constant log-debug   = curry(log-message, $debug-level, *debug-log*);
+define constant log-info    = curry(log-message, $info-level,  *debug-log*);
+define constant log-warning = curry(log-message, $warn-level,  *error-log*);
+define constant log-error   = curry(log-message, $error-level, *error-log*);
 
 // For debugging only.
 // For logging request and response content data only.
@@ -75,7 +77,9 @@ define variable *content-log* :: <log>
 define variable *log-content?* :: <boolean> = #f;
 
 define inline method log-content (content)
-  log-debug-if(*log-content?*, *content-log*, "Sent content: %=", content);
+  if (*log-content?*)
+    log-message($debug-level, *content-log*, "Sent content: %=", content);
+  end;
 end;
 
 define class <multi-log-mixin> (<object>)
