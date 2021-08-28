@@ -10,7 +10,7 @@ define test test-convert-headers-method ()
   headers := convert-headers(#(#("k1", "v1"), #("k2", "v2")));
   check-instance?("<header-table> from a <sequence>", <header-table>, headers);
 
-  let h = table(<string-table>, "k1" => "v1", "k2" => "v2");
+  let h = tabling(<string-table>, "k1" => "v1", "k2" => "v2");
   headers := convert-headers(h);
   check-instance?("<header-table> from a <table>", <header-table>, headers);
 end test test-convert-headers-method;
