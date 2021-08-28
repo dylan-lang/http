@@ -1,0 +1,15 @@
+{
+    "name": "http",
+    "deps": [
+        "base64@0.1",
+        "concurrency@0.1",
+        "logging@2.1",
+        "meta@0.1",
+        "mime@0.1",
+        "serialization@0.1",
+        "sphinx-extensions@0.1",
+        "uri@1.0",
+        "xml-parser@0.1"
+    ],
+    "location": "https://github.com/dylan-lang/http"
+}
