@@ -179,7 +179,6 @@ define module http-server
   create
     log-content,
     *log-content?*,
-    // These are wrappers for the defs by the same name in the logging library.
     log-trace,
     log-debug,
     log-info,
@@ -261,11 +260,7 @@ define module httpi                             // http internals
             },
     exclude: { <url> };  // this comes from the uri library now.
   use logging,
-    rename: { log-trace => %log-trace,
-              log-debug => %log-debug,
-              log-info => %log-info,
-              log-warning => %log-warning,
-              log-error => %log-error };
+    exclude: { log-trace, log-debug, log-info, log-warning, log-error };
   use memory-manager;
   use mime;
   use operating-system;        // from system lib

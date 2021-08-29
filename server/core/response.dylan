@@ -191,7 +191,7 @@ define sealed method send-header
     send-header(socket, name, tail(val));
   else
     format(socket, "%s: %s\r\n", name, val);
-    %log-debug(*http-common-log*, "Sent header %s: %s", name, val);
+    log-message($debug-level, *http-common-log*, "Sent header %s: %s", name, val);
   end if;
 end;
 
@@ -296,7 +296,7 @@ define inline function log-request
                   " \"", as(<string>, get-header(req, "referer") | "-"),
                   "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
                   "\"");
-  %log-info(*request-log*, "%s", log-entry);
+  log-message($info-level, *request-log*, "%s", log-entry);
 end function log-request;
 
 // Exported
