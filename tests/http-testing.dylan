@@ -89,3 +89,6 @@ define function make-x-url
   test-url(format-to-string("/x?n=%d", n))
 end;
 
+begin
+  start-sockets();
+end;

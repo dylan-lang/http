@@ -11,6 +11,7 @@ define library http-client
   use logging;
   use network,
     import: { sockets };
+  use ssl-network;
   use strings;
   use system,
     import: { threads };
@@ -72,6 +73,8 @@ define module http-client-internals
   use logging;
   use sockets,
     exclude: { start-server };
+  // ssl-sockets loaded for side-effects: sideways methods on ssl-[server-]socket-class.
+  use ssl-sockets;
   use standard-io;
   use streams;
   use strings;
