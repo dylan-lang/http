@@ -106,3 +106,8 @@ define suite http-server-test-suite ()
   suite virtual-host-test-suite;
   suite request-test-suite;
 end;
+
+begin
+  start-sockets();
+  run-test-application()
+end

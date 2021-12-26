@@ -136,3 +136,8 @@ end test;
 define test test-cookies-on-redirect ()
   // This test requires a class to persist status between requests (session?)
 end test;
+
+begin
+  start-sockets();
+  run-test-application()
+end

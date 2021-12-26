@@ -295,3 +295,8 @@ define suite http-client-test-suite ()
 
   // TODO: test the reaction to server errors
 end suite http-client-test-suite;
+
+begin
+  start-sockets();
+  run-test-application()
+end

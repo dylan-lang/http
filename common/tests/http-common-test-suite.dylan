@@ -152,3 +152,8 @@ define test test-media-type-level ()
               make-media-type("a", "b", #["level", 2]).media-type-level);
   check-false("Default level is #f?", make-media-type("a", "b").media-type-level);
 end test;
+
+begin
+  start-sockets();
+  run-test-application()
+end

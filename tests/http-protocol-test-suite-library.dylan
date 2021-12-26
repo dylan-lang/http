@@ -7,6 +7,8 @@ define library http-protocol-test-suite
   use http-client;
   use http-common;
   use http-testing;
+  use network;
+  use ssl-network;
   use testworks;
   use uri;
   use strings;
@@ -21,6 +23,9 @@ define module http-protocol-test-suite
   use http-common;
   use http-testing,
     import: { fmt };
+  use sockets,
+    import: { start-sockets };
+  use ssl-sockets;              // for side-effect
   use testworks;
   use uri;
   use strings;
