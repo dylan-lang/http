@@ -13,10 +13,6 @@ TODO:
 * Optional strict mode in which reads/writes signal an error if the
   chunk size is wrong or content length is wrong.  Give the user a way
   to recover from the error.
-* This code isn't currently designed to support HTTP over anything
-  other than a <tcp-socket>.  It does not support <ssl-socket>s. (It's
-  also conceivable for there to be an <ipc-socket> class.)
-
 */
 
 define constant $default-http-port :: <integer> = 80;
@@ -57,7 +53,7 @@ end;
 // after which one reads from the response object itself.
 //
 define open class <http-connection> (<basic-stream>)
-  slot connection-socket :: <tcp-socket>;
+  slot connection-socket :: <tcp-socket>; // can be <ssl-socket>
   slot connection-host :: <string>;
 
   slot outgoing-chunk-size :: <integer> = 8192,
@@ -68,7 +64,6 @@ define open class <http-connection> (<basic-stream>)
   slot write-buffer-index :: <integer> = 0;
   // Number of bytes written so far for the current request message body only.
   slot message-bytes-written :: <integer> = 0;
-
 end class <http-connection>;
 
 define method initialize
@@ -511,44 +506,35 @@ end method read-status-line;
 ///////////////////////////////////////////
 
 define function make-http-connection
-    (host-or-url, #rest initargs, #key port, #all-keys)
-  let host = host-or-url;
-  // It's convenient to be able to use a string for the URL.
-  if (instance?(host, <string>) & any?(member?(_, host), "/:"))
-    host := parse-url(host);
+    (uri :: <uri>, #rest initargs) => (conn :: <http-connection>)
+  let host = uri-host(uri);
+  if (empty?(host))
+    error("The URI provided, %s, must have a host component.", build-uri(uri));
   end;
-  if (instance?(host, <uri>))
-    let uri :: <uri> = host;
-    host := uri-host(uri);
-    if (empty?(host))
-      error("The URI provided, %s, must have a host component.",
-            build-uri(uri));
-    end if;
-    port := port | uri.uri-port;
-    if (~port)
-      // TODO(cgay): The uri library should supply port defaults for schemes
-      // that specify it, so we don't have to do this here.
-      select (uri.uri-scheme by  string-equal-ic?)
-        "http", "" => port := $default-http-port;
-        "https"    => port := $default-https-port;
-        otherwise => error("The URI provided, %s, must be an http or https URI.",
-                           build-uri(uri));
-      end;
-    end;
-  end if;
-  apply(make, <http-connection>, host: host, port: port, initargs)
+  let ssl? = #f;
+  let port = select (uri.uri-scheme by  string-equal-ic?)
+               "http"  =>
+                 uri.uri-port | $default-http-port;
+               "https" =>
+                 ssl? := #t;
+                 uri.uri-port | $default-https-port;
+               otherwise =>
+                 error("The URI provided, %s, must be an http or https URI.",
+                       build-uri(uri));
+             end;
+  apply(make, <http-connection>, host: host, port: port, ssl?: ssl?, initargs)
 end function make-http-connection;
 
 // with-http-connection(conn = url) blah end;
 // with-http-connection(conn = host, ...<http-connection> initargs...) blah end;
 //
 define macro with-http-connection
-  { with-http-connection (?conn:name = ?host-or-url:expression, #rest ?initargs:*)
+  { with-http-connection (?conn:name = ?url:expression, #rest ?initargs:*)
       ?:body
     end }
     => { let _conn = #f;
          block ()
-           _conn := make-http-connection(?host-or-url, ?initargs);
+           _conn := make-http-connection(?url, ?initargs);
            let ?conn = _conn;
            // Bind *http-connection* so that start-request knows it should add
            // a "Connection: Keep-alive" header if no Connection header is present.

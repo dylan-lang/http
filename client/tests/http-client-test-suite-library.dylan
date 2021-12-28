@@ -10,6 +10,8 @@ define library http-client-test-suite
   use http-common;
   use http-server;
   use http-testing;
+  use network;
+  use ssl-network;
   use testworks;
   use uri;
   use strings;
@@ -27,6 +29,9 @@ define module http-client-test-suite
   use http-common;
   use http-server;
   use http-testing;
+  use sockets,
+    import: { start-sockets };
+  use ssl-sockets;              // for side-effect
   use testworks;
   use uri;
   use streams;

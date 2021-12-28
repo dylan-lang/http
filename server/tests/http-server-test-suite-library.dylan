@@ -20,6 +20,7 @@ define library http-server-test-suite
   use mime;
   use network,
     import: { sockets };
+  use ssl-network;
   use regular-expressions;
   use strings;
   use system,
@@ -64,6 +65,7 @@ define module http-server-test-suite
       <address-in-use>,
       start-sockets
     };
+  use ssl-sockets;              // for side-effect
   use streams;
   use strings;
   use testworks;

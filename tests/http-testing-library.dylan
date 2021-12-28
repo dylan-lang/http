@@ -7,6 +7,7 @@ define library http-testing
   use http-common;
   use http-server;
   use logging;
+  use network;
   use uri;
   use io, import: { format };
 
@@ -22,6 +23,8 @@ define module http-testing
     exclude: { log-trace, log-debug, log-info, log-warning, log-error };
   use logging,
     import: { <log>, log-level-setter, $debug-level };
+  use sockets,
+    import: { start-sockets };
   use uri,
     import: { parse-url, <url> };
 

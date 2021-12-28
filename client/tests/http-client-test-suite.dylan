@@ -2,7 +2,6 @@ Module: http-client-test-suite
 Author: Francesco Ceccon
 Copyright: See LICENSE in this distribution for details.
 
-
 define test test-convert-headers-method ()
   let headers = convert-headers(#f);
   check-instance?("#f is an empty <header-table>", <header-table>, headers);
@@ -266,6 +265,20 @@ define test test-redirect-loop-detection ()
   end;
 end test test-redirect-loop-detection;
 
+define test test-https ()
+  // This puts a dependency on github.com and on the network being up while
+  // this test suite is run, but the test infrastructure to set up an https
+  // server side doesn't yet exist. TODO...
+  //
+  // This is a convenient case where I happen to know it should return a 302
+  // with a specific Location header.
+  let res = http-get("https://github.com/dylan-lang/pacman-catalog/releases/latest",
+                     follow-redirects: #f);
+  assert-equal(302, res.response-code);
+  assert-true(starts-with?(get-header(res, "Location"),
+                           "https://github.com/dylan-lang/pacman-catalog/releases/tag/"));
+end;
+
 define suite http-client-test-suite ()
   test test-http-get-to-string;
   test test-http-get-to-stream;
@@ -295,3 +308,8 @@ define suite http-client-test-suite ()
 
   // TODO: test the reaction to server errors
 end suite http-client-test-suite;
+
+begin
+  start-sockets();
+  run-test-application()
+end
