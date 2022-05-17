@@ -1,6 +1,8 @@
 {
     "name": "http",
-    "deps": [
+    "category": "network",
+    "description": "HTTP client, server, and templating engine",
+    "dependencies": [
         "base64@0.1",
         "concurrency@0.1",
         "logging@2.1",
@@ -11,5 +13,9 @@
         "uri@1.0",
         "xml-parser@0.1"
     ],
-    "location": "https://github.com/dylan-lang/http"
+    "dev-dependencies": [
+        "testworks@2.1"
+    ],
+    "url": "https://github.com/dylan-lang/http",
+    "version": "1.1.1"
 }
