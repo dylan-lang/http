@@ -296,8 +296,7 @@ define function main () => ()
   add-resource(server, "/", make(<index-page>));
   add-resource(server, "/symbol/{library-name}/{module-name?}/{symbol-name?}", make(<symbol-page>));
   add-resource(server, "/search", make(<search-page>));
-  http-server-main(server: server,
-                   description: "Dylan Code Browser");
+  http-server-main(server: server);
 end;
 
 define function collect-projects () => (res :: <collection>)
