@@ -12,7 +12,7 @@ define test test-convert-headers-method ()
   let h = tabling(<string-table>, "k1" => "v1", "k2" => "v2");
   headers := convert-headers(h);
   check-instance?("<header-table> from a <table>", <header-table>, headers);
-end test test-convert-headers-method;
+end test;
 
 
 /*
@@ -59,7 +59,7 @@ define test test-http-get-to-string ()
                   response.response-content);
     end;
   end;
-end test test-http-get-to-string;
+end test;
 
 // Verify that getting a URL with no path component is the same
 // as getting the same URL with / as the path.  That is, http://host
@@ -75,7 +75,7 @@ define test test-http-get-no-path ()
                 response-content(http-get(root-url())),
                 response-content(http-get(no-path-url)));
   end;
-end test test-http-get-no-path;
+end test;
 
 define test test-http-get-to-stream ()
   with-http-server (server = make-server(/* debug: #t */))
@@ -93,19 +93,19 @@ define test test-http-get-to-stream ()
       // read-to-end(response);  // cleanup
     end;
   end;
-end test test-http-get-to-stream;
+end test;
 
 define test test-encode-form-data ()
   // NYI
-end test test-encode-form-data;
+end test;
 
 define test test-http-connections ()
   // NYI
-end test test-http-connections;
+end test;
 
 define test test-with-http-connection ()
   // NYI
-end test test-with-http-connection;
+end test;
 
 define test test-reuse-http-connection ()
   with-http-server (server = make-server(/* debug: #t */))
@@ -131,7 +131,7 @@ define test test-reuse-http-connection ()
       // we need to flush/discard the extra data to make the connection 
       // usable again...presumably.
   end;
-end test test-reuse-http-connection;
+end test;
 
 define test test-streaming-request ()
   with-http-server (server = make-server(/* debug: #t */))
@@ -149,7 +149,7 @@ define test test-streaming-request ()
                   response-content(read-response(conn)));
     end;
   end;
-end test test-streaming-request;
+end test;
 
 define test test-streaming-response ()
   with-http-server (server = make-server(/* debug: #t */))
@@ -163,7 +163,7 @@ define test test-streaming-response ()
                   data);
     end;
   end;
-end test test-streaming-response;
+end test;
 
 define test test-write-chunked-request ()
   with-http-server (server = make-server(/* debug: #t */))
@@ -184,7 +184,7 @@ define test test-write-chunked-request ()
       end for;
     end;
   end;
-end test test-write-chunked-request;
+end test;
 
 define test test-read-chunked-response ()
   with-http-server (server = make-server(/* debug: #t */))
@@ -207,15 +207,15 @@ define test test-read-chunked-response ()
       // actually chunked.  
     end;
   end;
-end test test-read-chunked-response;
+end test;
 
 define test test-non-chunked-request ()
   // NYI
-end test test-non-chunked-request;
+end test;
 
 define test test-non-chunked-response ()
   // NYI
-end test test-non-chunked-response;
+end test;
 
 define test test-resource-not-found-error ()
   with-http-server (server = make-server(/* debug: #t */))
@@ -223,19 +223,19 @@ define test test-resource-not-found-error ()
                     <resource-not-found-error>,
                     http-get(test-url("/no-such-url")));
   end;
-end test test-resource-not-found-error;
+end test;
 
 define test test-invalid-response-chunk-sizes ()
   // NYI
-end test test-invalid-response-chunk-sizes;
+end test;
 
 define test test-invalid-response-content-lengths ()
   // NYI
-end test test-invalid-response-content-lengths;
+end test;
 
 define test test-invalid-request-content-lengths ()
   // NYI
-end test test-invalid-request-content-lengths;
+end test;
 
 define test test-read-from-response-after-done ()
   with-http-server (server = make-server(/* debug: #t */))
@@ -248,11 +248,11 @@ define test test-read-from-response-after-done ()
                       read-element(response));
     end;
   end;
-end test test-read-from-response-after-done;
+end test;
 
 define test test-follow-redirects ()
   // NYI
-end;
+end test;
 
 // Test redirect loop detection. See RFC 2616 section 10.3.
 define test test-redirect-loop-detection ()
@@ -263,7 +263,7 @@ define test test-redirect-loop-detection ()
                    http-get(url, follow-redirects: #t),
                    "Infinite redirect loop signals <redirect-loop-detected>");
   end;
-end test test-redirect-loop-detection;
+end test;
 
 define test test-https ()
   // This puts a dependency on github.com and on the network being up while
@@ -279,37 +279,7 @@ define test test-https ()
                            "https://github.com/dylan-lang/pacman-catalog/releases/tag/"));
 end;
 
-define suite http-client-test-suite ()
-  test test-http-get-to-string;
-  test test-http-get-to-stream;
-  test test-http-get-no-path;
-  test test-encode-form-data;
-  test test-with-http-connection;
-  test test-http-connections;
-  test test-reuse-http-connection;
-  test test-streaming-request;
-  test test-streaming-response;
-
-  test test-write-chunked-request;
-  test test-read-chunked-response;
-  test test-non-chunked-request;
-  test test-non-chunked-response;
-  test test-resource-not-found-error;
-  test test-invalid-response-chunk-sizes;
-  test test-invalid-response-content-lengths;
-  test test-invalid-request-content-lengths;
-
-  test test-read-from-response-after-done;
-
-  test test-follow-redirects;
-  test test-redirect-loop-detection;
-
-  test test-convert-headers-method;
-
-  // TODO: test the reaction to server errors
-end suite http-client-test-suite;
-
 begin
   start-sockets();
   run-test-application()
-end
+end;

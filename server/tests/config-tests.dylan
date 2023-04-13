@@ -20,7 +20,7 @@ define function config-document
 end;
 
 // Try to configure a server with the given document (a string containing
-// an XML configuration description).  
+// an XML configuration description).
 define function configure
     (configuration :: <string>)
  => (server :: <http-server>)
@@ -28,7 +28,7 @@ define function configure
   configure-from-string(server, configuration);
   server
 end function configure;
-  
+
 define test basic-config-test ()
   let texts = #("",
                 "<barbaloot>",
@@ -43,7 +43,7 @@ define test basic-config-test ()
                   configure(config-document("")));
   check-no-errors("Unknown element ignored",
                   configure(config-document("<unknown></unknown>")));
-end test basic-config-test;
+end test;
 
 define test listener-config-test ()
   let texts = #(// valid
@@ -58,7 +58,7 @@ define test listener-config-test ()
   for (text in texts)
     check-no-errors(text, configure(config-document(text)));
   end;
-end test listener-config-test;
+end test;
 
 define test alias-config-test ()
   let server = make-server();
@@ -75,10 +75,9 @@ define test alias-config-test ()
                   "/abc", get-header(response, "Location"));
     end;
   end;
-end test alias-config-test;
+end test;
 
 
-
 // Verify that the <document-root> setting is respected, by setting it
 // to the directory containing application-filename() and then requesting
 // the executable file.
@@ -95,7 +94,7 @@ define test test-directory-resource ()
       check-no-errors("<directory> resource config", read-response(conn));
     end;
   end;
-end test test-directory-resource;
+end test;
 
 define test test-directory-resource-default-documents ()
   let resource = make(<directory-resource>, directory: temp-directory());
@@ -126,20 +125,4 @@ define test test-directory-resource-default-documents ()
               list(as(<file-locator>, "one"),
                    as(<file-locator>, "two")),
               resource.default-documents);
-end test test-directory-resource-default-documents;
-
-define suite directory-resource-test-suite ()
-  test test-directory-resource;
-  test test-directory-resource-default-documents;
-end;
-
-
-
-define suite configuration-test-suite ()
-  test basic-config-test;
-  test listener-config-test;
-  test alias-config-test;
-  suite directory-resource-test-suite;
-end suite configuration-test-suite;
-
-
+end test;

@@ -1,5 +1,4 @@
 Module:   dylan-user
-Author:   Carl Gay
 Copyright: See LICENSE in this distribution for details.
 Synopsis: HTTP server test suite
 
@@ -71,6 +70,4 @@ define module http-server-test-suite
   use testworks;
   use threads;
   use uri;
-
-  export http-server-test-suite;
 end module http-server-test-suite;

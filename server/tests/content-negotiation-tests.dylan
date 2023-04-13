@@ -1,5 +1,4 @@
 Module: http-server-test-suite
-Author: Carl Gay
 Copyright: See LICENSE in this distribution for details.
 Synopsis: Tests for the content negotiation code
 
@@ -20,21 +19,24 @@ define test test-media-type-from-header ()
                 expected-quality,
                 media-type-from-header(header, mt1).media-type-quality);
   end;
-end test test-media-type-from-header;
+end test;
 
 define test test-locators-matching ()
-end;
+  // TODO
+end test;
 
 define test test-document-variant ()
-end;
+  // TODO
+end test;
 
 define test test-find-multi-view-file ()
   // We need a better temp directory/file generator library.
   // Also, it would be nice if testworks had a standard way of creating directories
   // for a given test so that an entire test run has temp data stored in a standard
   // location for logs etc.
-  let test-directory = subdirectory-locator(as(<directory-locator>, temp-directory()),
-                                            "multi-view-test");
+  let test-directory
+    = subdirectory-locator(as(<directory-locator>, temp-directory()),
+                           "multi-view-test");
   local method write-file (locator, content)
           with-open-file(stream = locator, direction: output:)
             write(stream, content);
@@ -58,7 +60,8 @@ define test test-find-multi-view-file ()
   block ()
     if (~file-exists?(test-directory))
       // create-directory has a weird signature!
-      create-directory(locator-directory(test-directory), locator-name(test-directory));
+      create-directory(locator-directory(test-directory),
+                       locator-name(test-directory));
     end;
     for (extension in list("html", "txt", "jpg", "gif"))
       let file = as(<file-locator>, concatenate("foo.", extension));
@@ -105,11 +108,4 @@ define test test-find-multi-view-file ()
       //remove-directory(test-directory);
     end;
   end block;
-end test test-find-multi-view-file;
-
-define suite multi-views-test-suite ()
-  test test-media-type-from-header;
-  test test-locators-matching;
-  test test-document-variant;
-  test test-find-multi-view-file;
-end;
+end test;
