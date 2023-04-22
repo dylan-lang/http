@@ -11,12 +11,23 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import os
+import sys
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../../submodules/sphinx-extensions/sphinxcontrib'))
+
+# Temporary hack. When "current" links are created by `dylan update` in the
+# local workspace this can all be replaced by relative links like this:
+# ../../_pkg/sphinx-extensions/current/src/sphinxcontrib
+join = os.path.join
+insert = sys.path.insert
+abspath = os.path.abspath
+_dylan = os.getenv("DYLAN")
+if _dylan is None:
+    _dylan = join(os.getenv("HOME"), "dylan")
+insert (0, abspath(join(_dylan, 'pkg/sphinx-extensions/0.2.0/src/sphinxcontrib')))
 import dylan.themes as dylan_themes
 
 
