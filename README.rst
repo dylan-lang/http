@@ -1,26 +1,24 @@
-**************
-HTTP Libraries
-**************
+****
+HTTP
+****
 
-HTTP server, client, tests, and examples.  All required repositories
-are included as submodules so if you clone with --recursive you should
-have everything you need for building.
+Dylan HTTP server, client, tests, and examples.
 
 
 Documentation
 =============
 
-Building the documentation requires that Python be able to find the
-`Dylan extensions to Sphinx <https://github.com/dylan-lang/sphinx-extensions>`_.
+Full documentation is here:
+https://docs.opendylan.org/packages/http/documentation/source/index.html
 
-The easiest way to do this is to check them out somewhere and put
-them on your ``PYTHONPATH``::
+To build the documentation from source requires Sphinx::
 
-    export PYTHONPATH=path/to/sphinx-extensions:$PYTHONPATH
-
-You can clone sphinx-extensions with::
-
-    git clone git@github.com:dylan-lang/sphinx-extensions
+  $ sudo apt install sphinx-doc   # Install sphinx-build command
+  $ dylan update                  # Install sphinx-extensions package
+  $ cd documentation
+  $ make html
+  $ cd build/html
+  $ python -m http.server
 
 
 Testing
@@ -32,6 +30,6 @@ Fixing this should be #1 priority.
 However, to run all the tests::
 
   $ for suite in common client server; do
-      dylan-compiler -build http-${suite}-test-suite
+      dylan build --all
       _build/bin/http-${suite}-test-suite
     done

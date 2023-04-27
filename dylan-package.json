@@ -11,7 +11,7 @@
         "serialization@0.1",
         "sphinx-extensions@0.1",
         "uri@1.0",
-        "xml-parser@0.1"
+        "xml-parser@0.2"
     ],
     "dev-dependencies": [
         "testworks@2.1"
