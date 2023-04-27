@@ -177,8 +177,6 @@ define module http-server
 
   // Logging
   create
-    log-content,
-    *log-content?*,
     log-trace,
     log-debug,
     log-info,

@@ -10,8 +10,6 @@ The HTTP-SERVER module
 
 .. variable:: *command-line-parser*
 
-.. variable:: *log-content?*
-
 .. class:: <abstract-resource>
    :open:
    :abstract:
@@ -383,13 +381,6 @@ The HTTP-SERVER module
    :parameter #key server: An instance of ``false-or(<http-server>)``.
    :parameter #key description: An instance of ``false-or(<string>)``.
    :parameter #key before-startup: An instance of ``false-or(<function>)``.
-
-.. generic-function:: log-content
-
-   :signature: log-content (content) => (#rest results)
-
-   :parameter content: An instance of ``<object>``.
-   :value #rest results: An instance of ``<object>``.
 
 .. constant:: log-debug
 

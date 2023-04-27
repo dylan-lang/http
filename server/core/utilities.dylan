@@ -64,24 +64,6 @@ define constant log-info    = curry(log-message, $info-level,  *debug-log*);
 define constant log-warning = curry(log-message, $warn-level,  *error-log*);
 define constant log-error   = curry(log-message, $error-level, *error-log*);
 
-// For debugging only.
-// For logging request and response content data only.
-// So verbose it needs to be explicitly enabled.
-define variable *content-log* :: <log>
-  = make(<log>,
-         name: "http.server.content",
-         targets: list($stdout-log-target),
-         additive: #f);
-
-// Not yet configurable.
-define variable *log-content?* :: <boolean> = #f;
-
-define inline method log-content (content)
-  if (*log-content?*)
-    log-message($debug-level, *content-log*, "Sent content: %=", content);
-  end;
-end;
-
 define class <multi-log-mixin> (<object>)
   slot request-log :: <log> = *request-log*,
     init-keyword: request-log:;

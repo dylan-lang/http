@@ -130,15 +130,11 @@ define method send-chunk
   let count-string = integer-to-string(count, base: 16);
   write(socket, count-string);
   write(socket, "\r\n");
-  log-content(count-string);
 
   let contents = response.response-stream.stream-sequence;
 
   write(socket, contents, end: count);
   write(socket, "\r\n");
-  if (*log-content?*)
-    log-content(copy-sequence(contents, end: count));
-  end;
 
   // Reset the response buffer.
   clear-contents(response.response-stream);
@@ -253,11 +249,6 @@ define method finish-response
     if (send-body? & request.request-method ~== $http-head-method)
       let contents = response.response-stream.stream-sequence;
       write(socket, contents, start: 0, end: response-size);
-      if (*log-content?*)
-        log-content(copy-sequence(contents,
-                                  start: 0,
-                                  end: response-size));
-      end;
       // TODO: close connection if this is 1.0?
     end;
   end if;
