@@ -191,7 +191,7 @@ define sealed method send-header
     send-header(socket, name, tail(val));
   else
     format(socket, "%s: %s\r\n", name, val);
-    log-message($debug-level, *http-common-log*, "Sent header %s: %s", name, val);
+    log-debug("Sent header %s: %s", name, val);
   end if;
 end;
 

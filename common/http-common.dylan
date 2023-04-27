@@ -3,22 +3,6 @@ Synopsis: Code shared by HTTP client and server.
 Copyright: See LICENSE in this distribution for details.
 
 
-// Clients can bind this if they want to combine this library's logs with
-// there own.  Adding a log target to the default value here doesn't work
-// for the HTTP server, which wants to log to different targets for different
-// virtual hosts.  If they don't care about that they can just remove the
-// default target and add their own.
-//
-// Message headers are logged at debug level and message content is logged
-// at trace level.
-//
-define thread variable *http-common-log* :: <log>
-  = make(<log>,
-         name: "http.common",
-         targets: list($stdout-log-target),
-         level: $info-level);
-
-
 /////////////// Parsing //////////////
 
 // RFC 2616, 2.2
@@ -207,7 +191,6 @@ define method read
         inc!(stream.read-buffer-index);
       end;
     end while;
-    log-trace(*http-common-log*, "Received %=", string);
     string
   end block
 end method read;

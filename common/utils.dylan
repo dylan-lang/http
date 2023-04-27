@@ -169,11 +169,11 @@ define method match-media-types
   if ((type1.mime-type = type2.mime-type & inc!(degree, 100))
         | (type1.mime-type = $mime-wild & inc!(degree))
         | (type2.mime-type = $mime-wild & inc!(degree)))
-    log-debug(*http-common-log*, "  MMT: 1 - degree = %s", degree);
+    log-debug("  MMT: 1 - degree = %s", degree);
     if ((type1.mime-subtype = type2.mime-subtype & inc!(degree, 100))
           | (type1.mime-subtype = $mime-wild & inc!(degree))
           | (type2.mime-subtype = $mime-wild & inc!(degree)))
-      log-debug(*http-common-log*, "  MMT: 2 - degree = %s", degree);
+      log-debug("  MMT: 2 - degree = %s", degree);
       // a point for each matching parameter, ignoring "q".
       for (value keyed-by key in type1.attributes)
         if (key ~= "q" & value = element(type2.attributes, key, default: #f))
@@ -183,7 +183,7 @@ define method match-media-types
     end;
   end;
   if (degree ~= 0)
-    log-debug(*http-common-log*, "  MMT: 3 - returning degree = %s", degree);
+    log-debug("  MMT: 3 - returning degree = %s", degree);
     degree
   end;
 end method match-media-types;

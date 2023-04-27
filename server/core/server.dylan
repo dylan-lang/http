@@ -389,8 +389,7 @@ define method start-server
   // server proper...
   dynamic-bind (*debug-log* = server.debug-log,
                 *error-log* = server.error-log,
-                *request-log* = server.request-log,
-                *http-common-log* = *debug-log*)
+                *request-log* = server.request-log)
     log-info("Starting %s", $server-name);
     ensure-sockets-started();
     log-info("Server root directory is %s", server-root(server));
@@ -511,8 +510,7 @@ define function start-http-listener
   local method run-listener-top-level ()
           dynamic-bind (*debug-log* = server.debug-log,
                         *error-log* = server.error-log,
-                        *request-log* = server.request-log,
-                        *http-common-log* = *debug-log*)
+                        *request-log* = server.request-log)
             with-lock (server-lock) end; // Wait for setup to finish.
             block ()
               listener-top-level(server, listener);
@@ -665,8 +663,7 @@ define function %respond-top-level
                 *server* = client.client-server,
                 *debug-log* = *server*.debug-log,
                 *error-log* = *server*.error-log,
-                *request-log* = *server*.request-log,
-                *http-common-log* = *debug-log*)
+                *request-log* = *server*.request-log)
     block (exit-respond-top-level)
       while (#t)                      // keep alive loop
         block ()

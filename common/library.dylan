@@ -39,7 +39,6 @@ define module http-common
     inc!;
 
   create
-    *http-common-log*,
     quote-html,
     <chunking-input-stream>,
     content-length,
