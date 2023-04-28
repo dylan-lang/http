@@ -14,3 +14,4 @@ files:	library
 	static-files
 	content-negotiation
 	command-line
+Target-type: dll
