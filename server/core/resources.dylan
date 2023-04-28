@@ -6,10 +6,9 @@ Copyright: See LICENSE in this distribution for details.
 
 //// Resource protocol
 
-// The <abstract-router> class gives libraries a way to provide an
-// alternate routing mechanism if they don't like the default, by
-// storing a different subclass of <abstract-router> in the
-// <virtual-host>.
+// The <abstract-router> class allows libraries to provide an alternative
+// routing mechanism, by storing a different subclass of <abstract-router> in
+// the <virtual-host>.
 define open abstract class <abstract-router> (<object>)
 end;
 

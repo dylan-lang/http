@@ -60,7 +60,7 @@ The HTTP-SERVER module
 .. class:: <http-server>
    :open:
 
-   :superclasses: <multi-logger-mixin>:httpi, <abstract-router>
+   :superclasses: <abstract-router>
 
    :keyword clients-shutdown-notification:
    :keyword debug:
@@ -131,7 +131,7 @@ The HTTP-SERVER module
 
 .. class:: <virtual-host>
 
-   :superclasses: <multi-logger-mixin>:httpi, <abstract-router>, <abstract-resource>
+   :superclasses: <abstract-router>, <abstract-resource>
 
    :keyword router:
 
@@ -381,16 +381,6 @@ The HTTP-SERVER module
    :parameter #key server: An instance of ``false-or(<http-server>)``.
    :parameter #key description: An instance of ``false-or(<string>)``.
    :parameter #key before-startup: An instance of ``false-or(<function>)``.
-
-.. constant:: log-debug
-
-.. constant:: log-error
-
-.. constant:: log-info
-
-.. constant:: log-trace
-
-.. constant:: log-warning
 
 .. function:: output
 

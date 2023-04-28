@@ -19,10 +19,8 @@ define module http-testing
   use common-dylan;
   use http-client;
   use http-common;
-  use http-server,
-    exclude: { log-trace, log-debug, log-info, log-warning, log-error };
-  use logging,
-    import: { <log>, log-level-setter, $debug-level };
+  use http-server;
+  use logging;
   use sockets,
     import: { start-sockets };
   use uri,

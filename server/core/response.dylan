@@ -258,7 +258,7 @@ end method finish-response;
 define inline function log-request
     (req :: <request>, response-code :: <integer>, content-length :: <string>)
   // Log in Common Logfile Format
-  // (http://www.w3.org/Daemon/User/Config/Logging.html)
+  // (https://en.wikipedia.org/wiki/Common_Log_Format)
   let request = concatenate(req.request-method.method-name,
                             " ",
                             // Can happen e.g. when client sends no data.
@@ -287,7 +287,7 @@ define inline function log-request
                   " \"", as(<string>, get-header(req, "referer") | "-"),
                   "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
                   "\"");
-  log-message($info-level, *request-log*, "%s", log-entry);
+  log-message($info-level, request-log(*virtual-host*), "%s", log-entry);
 end function log-request;
 
 // Exported

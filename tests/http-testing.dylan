@@ -50,7 +50,7 @@ define function make-server
   let server = apply(make, <http-server>,
                      listeners: listeners | list($listener-any),
                      keys);
-  server.debug-log.log-level := $debug-level;
+  log-level(*log*) := $debug-level;
   server
 end function make-server;
 

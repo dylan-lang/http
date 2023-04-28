@@ -436,8 +436,8 @@ define method parse-tag-arg
     "true", "yes", "on", "#t" => #t;
     "false", "no", "off", "#f" => #f;
     otherwise =>
-      log-warning("Tag call argument %= should be a boolean value such as"
-                  " true/false, yes/no, or on/off.  false will be used.",
+      log-warning("Tag call argument %= should be one of true/false,"
+                    " yes/no, or on/off.  false will be used.",
                   arg);
       #f;
   end;

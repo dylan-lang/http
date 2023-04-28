@@ -228,8 +228,3 @@ Connections
    :parameter value: An instance of :drm:`<object>`.
    :parameter object: An instance of :drm:`<object>`.
    :value #rest results: An instance of :drm:`<object>`.
-
-Miscellaneous
--------------
-
-.. variable:: *http-client-log*

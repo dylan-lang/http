@@ -1,7 +1,7 @@
 Module:    httpi
 Author:    Carl Gay
 Copyright: See LICENSE in this distribution for details.
-Synopsis:  Variables and utilities 
+Synopsis:  Variables and utilities
 
 
 define constant $http-version :: <byte-string> = "HTTP/1.1";
@@ -34,46 +34,7 @@ define function file-contents (filename :: <pathname>)
 end function file-contents;
 
 
-
-// These logs are used if no other logs are configured.
-// Usually that should only happen very early during startup when
-// *server* isn't bound, if at all.
-
-// Log used as last resort if no other logs are defined.
-// This is the initial value used for the *request-log*, *debug-log*, and
-// *error-log* variables, which in turn are used as the default logs for
-// each <http-server>.
-//
-define constant $default-log
-  = make(<log>,
-         name: "http.server",
-         level: $info-level,
-         targets: list($stdout-log-target));
-
-define thread variable *debug-log* :: <log> = $default-log;
-
-define thread variable *error-log* :: <log> = $default-log;
-
-define thread variable *request-log* :: <log> = $default-log;
-
-//apply(log-message, $trace-level, *log*, object, args);
-
-define constant log-trace   = curry(log-message, $trace-level, *debug-log*);
-define constant log-debug   = curry(log-message, $debug-level, *debug-log*);
-define constant log-info    = curry(log-message, $info-level,  *debug-log*);
-define constant log-warning = curry(log-message, $warn-level,  *error-log*);
-define constant log-error   = curry(log-message, $error-level, *error-log*);
-
-define class <multi-log-mixin> (<object>)
-  slot request-log :: <log> = *request-log*,
-    init-keyword: request-log:;
-
-  slot error-log :: <log> = *error-log*,
-    init-keyword: error-log:;
-
-  slot debug-log :: <log> = *debug-log*,
-    init-keyword: debug-log:;
-end class <multi-log-mixin>;
+define thread variable *virtual-host* :: false-or(<virtual-host>) = #f;
 
 
 // We want media types (with attributes) rather than plain mime types,

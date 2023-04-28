@@ -47,8 +47,7 @@ define module http-server-test-suite
   use http-common;
   use http-common-internals;
   use http-testing;
-  use http-server,
-    exclude: { log-trace, log-debug, log-info, log-warning, log-error };
+  use http-server;
   use http-server-unit;
   use locators,
     exclude: { <http-server>, <url> };

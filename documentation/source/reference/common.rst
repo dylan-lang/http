@@ -160,8 +160,6 @@ The HTTP-COMMON module
 
 .. constant:: $use-proxy-redirect
 
-.. variable:: *http-common-log*
-
 .. class:: <application-error>
 
    :superclasses: <http-server-protocol-error>
