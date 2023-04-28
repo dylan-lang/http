@@ -4,9 +4,16 @@ Author:    Gail Zacharias, Carl Gay
 Copyright: See LICENSE in this distribution for details.
 
 
-// TODO(cgay): Move these into <http-server> slots.
+// I'd like a decent, less generic name for the server. "Koala" was fine but
+// sort of connotes slowness (?) so I stopped using it.
 define constant $server-name = "Dylan HTTP Server";
-define constant $server-version = "0.9";
+
+// The Makefile replaces EVERYTHING BETWEEN THE /*__*/ MARKERS with the actual
+// tagged version before building, so don't move them.  Using the comment
+// markers enables recovery if someone commits a string other than "HEAD" by
+// accident. git's `ident` attribute doesn't use tag names and `filter` looks
+// more complex than it's worth.
+define constant $server-version :: <string> = /*__*/ "HEAD" /*__*/;
 
 // This is needed to handle sockets shutdown.
 define variable *exiting-application* = #f;
@@ -398,7 +405,6 @@ define method start-server
   if (wait)
     // Connect to each listener or signal error.
     wait-for-listeners-to-start(server.server-listeners);
-    log-info("%s %s ready for service", $server-name, $server-version);
   end;
   if (~background)
     // Main thread has nothing to do but wait.
