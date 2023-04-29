@@ -1,0 +1,36 @@
+# For now this just does a clean build because the test suites hang.
+# https://github.com/dylan-lang/http/issues/90
+
+name: test-suite
+
+on:
+  push:
+    # all branches
+  pull_request:
+    branches:
+      - main
+      - master
+
+  # This enables the Run Workflow button on the Actions tab.
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: dylan-lang/install-dylan-tool@v2
+
+      - name: make install
+        env:
+          DYLAN: dylan-root
+        run: make install
+
+      - name: Run http-server --help
+        env:
+          DYLAN: dylan-root
+        run: dylan-root/bin/http-server --help
