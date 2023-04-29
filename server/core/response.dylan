@@ -130,15 +130,11 @@ define method send-chunk
   let count-string = integer-to-string(count, base: 16);
   write(socket, count-string);
   write(socket, "\r\n");
-  log-content(count-string);
 
   let contents = response.response-stream.stream-sequence;
 
   write(socket, contents, end: count);
   write(socket, "\r\n");
-  if (*log-content?*)
-    log-content(copy-sequence(contents, end: count));
-  end;
 
   // Reset the response buffer.
   clear-contents(response.response-stream);
@@ -191,7 +187,7 @@ define sealed method send-header
     send-header(socket, name, tail(val));
   else
     format(socket, "%s: %s\r\n", name, val);
-    log-message($debug-level, *http-common-log*, "Sent header %s: %s", name, val);
+    log-debug("Sent header %s: %s", name, val);
   end if;
 end;
 
@@ -253,11 +249,6 @@ define method finish-response
     if (send-body? & request.request-method ~== $http-head-method)
       let contents = response.response-stream.stream-sequence;
       write(socket, contents, start: 0, end: response-size);
-      if (*log-content?*)
-        log-content(copy-sequence(contents,
-                                  start: 0,
-                                  end: response-size));
-      end;
       // TODO: close connection if this is 1.0?
     end;
   end if;
@@ -267,7 +258,7 @@ end method finish-response;
 define inline function log-request
     (req :: <request>, response-code :: <integer>, content-length :: <string>)
   // Log in Common Logfile Format
-  // (http://www.w3.org/Daemon/User/Config/Logging.html)
+  // (https://en.wikipedia.org/wiki/Common_Log_Format)
   let request = concatenate(req.request-method.method-name,
                             " ",
                             // Can happen e.g. when client sends no data.
@@ -296,7 +287,7 @@ define inline function log-request
                   " \"", as(<string>, get-header(req, "referer") | "-"),
                   "\" \"", as(<string>, get-header(req, "user-agent") | "-"),
                   "\"");
-  log-message($info-level, *request-log*, "%s", log-entry);
+  log-message($info-level, request-log(*virtual-host*), "%s", log-entry);
 end function log-request;
 
 // Exported

@@ -4,9 +4,16 @@ Author:    Gail Zacharias, Carl Gay
 Copyright: See LICENSE in this distribution for details.
 
 
-// TODO(cgay): Move these into <http-server> slots.
+// I'd like a decent, less generic name for the server. "Koala" was fine but
+// sort of connotes slowness (?) so I stopped using it.
 define constant $server-name = "Dylan HTTP Server";
-define constant $server-version = "0.9";
+
+// The Makefile replaces EVERYTHING BETWEEN THE /*__*/ MARKERS with the actual
+// tagged version before building, so don't move them.  Using the comment
+// markers enables recovery if someone commits a string other than "HEAD" by
+// accident. git's `ident` attribute doesn't use tag names and `filter` looks
+// more complex than it's worth.
+define constant $server-version :: <string> = /*__*/ "HEAD" /*__*/;
 
 // This is needed to handle sockets shutdown.
 define variable *exiting-application* = #f;
@@ -22,10 +29,10 @@ end;
 
 // The user instantiates this class directly, passing configuration
 // options as init args.  An <http-server> is an <abstract-router> in
-// order to delegate add/find-resource requests to the default virtual
+// order to delegate {add,find}-resource requests to the default virtual
 // host.  It simplifies the common case, i.e. no vhosts.
 //
-define open class <http-server> (<multi-log-mixin>, <abstract-router>)
+define open class <http-server> (<abstract-router>)
   // Whether the server should run in debug mode or not.  If this is true then
   // errors encountered while servicing HTTP requests will not be handled by the
   // server itself.  Normally the server will handle them and return an "internal
@@ -170,9 +177,9 @@ define method find-virtual-host
  => (vhost :: <virtual-host>)
   let fqdn = as-lowercase(fqdn);
   element(server.virtual-hosts, fqdn, default: #f)
-  | iff(server.use-default-virtual-host?,
-        server.default-virtual-host,
-        %resource-not-found-error())
+    | iff(server.use-default-virtual-host?,
+          server.default-virtual-host,
+          %resource-not-found-error())
 end method find-virtual-host;
 
 define open generic add-virtual-host
@@ -199,7 +206,7 @@ end method add-virtual-host;
 
 // Adding a resource directly to an <http-server> adds it to the default
 // virtual host.  If you want to add it to a specific virtual host, use
-// find-virtual-host(server, fqdn).
+// find-virtual-host(server, hostname).
 define method add-resource
     (server :: <http-server>, url :: <object>, resource :: <abstract-resource>,
      #rest args, #key)
@@ -383,37 +390,27 @@ define method start-server
      #key background :: <boolean> = #f,
           wait :: <boolean> = #t)
  => (started? :: <boolean>)
-  // Binding these to the default vhost logs here isn't quite right.
-  // It means that log messages that don't pertain to a specific vhost
-  // go in the default vhost logs.  Maybe have a separate log for the
-  // server proper...
-  dynamic-bind (*debug-log* = server.debug-log,
-                *error-log* = server.error-log,
-                *request-log* = server.request-log,
-                *http-common-log* = *debug-log*)
-    log-info("Starting %s", $server-name);
-    ensure-sockets-started();
-    log-info("Server root directory is %s", server-root(server));
-    if (empty?(server.server-listeners))
-      log-info("No listeners were configured; using default (0.0.0.0:%d).",
-               $default-http-port);
-      add!(server.server-listeners, make(<listener>, host: "0.0.0.0",
-                                         port: $default-http-port));
-    end if;
-    for (listener in server.server-listeners)
-      start-http-listener(server, listener)
-    end;
-    if (wait)
-      // Connect to each listener or signal error.
-      wait-for-listeners-to-start(server.server-listeners);
-      log-info("%s %s ready for service", $server-name, $server-version);
-    end;
-    if (~background)
-      // Main thread has nothing to do but wait.
-      join-listeners(server);
-    end;
-    #t
-  end dynamic-bind
+  log-info("Starting %s", $server-name);
+  ensure-sockets-started();
+  log-info("Server root directory is %s", server-root(server));
+  if (empty?(server.server-listeners))
+    log-info("No listeners were configured; using default (0.0.0.0:%d).",
+             $default-http-port);
+    add!(server.server-listeners, make(<listener>, host: "0.0.0.0",
+                                       port: $default-http-port));
+  end if;
+  for (listener in server.server-listeners)
+    start-http-listener(server, listener)
+  end;
+  if (wait)
+    // Connect to each listener or signal error.
+    wait-for-listeners-to-start(server.server-listeners);
+  end;
+  if (~background)
+    // Main thread has nothing to do but wait.
+    join-listeners(server);
+  end;
+  #t
 end method start-server;
 
 define function wait-for-listeners-to-start
@@ -509,20 +506,15 @@ define function start-http-listener
           end;
         end;
   local method run-listener-top-level ()
-          dynamic-bind (*debug-log* = server.debug-log,
-                        *error-log* = server.error-log,
-                        *request-log* = server.request-log,
-                        *http-common-log* = *debug-log*)
-            with-lock (server-lock) end; // Wait for setup to finish.
-            block ()
-              listener-top-level(server, listener);
-            cleanup
-              close(listener.listener-socket, abort?: #t);
-              with-lock (server-lock)
-                release-listener();
-              end;
+          with-lock (server-lock) end; // Wait for setup to finish.
+          block ()
+            listener-top-level(server, listener);
+          cleanup
+            close(listener.listener-socket, abort?: #t);
+            with-lock (server-lock)
+              release-listener();
             end;
-          end dynamic-bind;
+          end;
         end method;
   with-lock (server-lock)
     let handler <serious-condition>
@@ -663,10 +655,7 @@ define function %respond-top-level
     (client :: <client>)
   dynamic-bind (*request* = #f,
                 *server* = client.client-server,
-                *debug-log* = *server*.debug-log,
-                *error-log* = *server*.error-log,
-                *request-log* = *server*.request-log,
-                *http-common-log* = *debug-log*)
+                *virtual-host* = default-virtual-host(*server*))
     block (exit-respond-top-level)
       while (#t)                      // keep alive loop
         block ()
@@ -728,10 +717,6 @@ define method route-request
   else
     let vhost :: <virtual-host> = find-virtual-host(server, request.request-host);
 
-    *debug-log* := vhost.debug-log;
-    *error-log* := vhost.error-log;
-    *request-log* := vhost.request-log;
-
     // Find a resource or signal an error.
     let (resource :: <abstract-resource>, prefix :: <list>, suffix :: <list>)
       = find-resource(vhost, request.request-url);
@@ -742,7 +727,9 @@ define method route-request
     if (~empty?(leftovers))
       unmatched-url-suffix(resource, leftovers);
     end;
-    %respond(resource, bindings);
+    dynamic-bind (*virtual-host* = vhost)
+      %respond(resource, bindings);
+    end;
     if (instance?(resource, <sse-resource>))
       request.request-client.client-stays-alive? := #t;
     end;
@@ -803,6 +790,7 @@ define method send-error-response-internal
       write(response, condition-to-string(err));
       write(response, "\r\n");
     end;
+    log-info("Error handling request: %s", err);
   end unless;
   response.response-code := http-status-code(err);
   response.response-reason-phrase := one-liner;

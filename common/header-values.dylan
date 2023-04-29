@@ -72,7 +72,7 @@ define function quality-value (str :: <byte-string>,
     when ((val == 0 | val == 1) & (pos == epos | str[pos] == '.'))
       val := val * 1000.0;
       iterate a2f (pos = pos + 1, val = val, expt = 2)
-        log-info(*http-common-log*, "a2f(%=, %=, %=, %=)",
+        log-info("a2f(%=, %=, %=, %=)",
                  copy-sequence(str, start: bpos, end: epos), pos, val, expt);
         if (expt < 0 | pos >= epos)
           val / 1000.0

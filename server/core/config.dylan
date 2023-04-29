@@ -144,6 +144,11 @@ define function true-value?
   member?(val, #("yes", "true", "on"), test: string-equal?)
 end;
 
+// Inside a <virtual-host> element?
+define function inside-virtual-host?
+    (server :: <http-server>) => (_ :: <boolean>)
+  %vhost ~== server.default-virtual-host
+end;
 
 
 //// config.xml elements.  One method for each element name.
@@ -271,42 +276,26 @@ define method process-config-element
 
 end method process-config-element;
 
-// TODO: There is currently no way to configure (for example) the
-//       "http.common.headers" log.  We should really just have one
-//       configuration element, <log>, that names a log that exists
-//       in the code and says how to configure it.  The logs for each
-//       virtual host should be named <vhost-name>.debug etc.  Needs more
-//       thought, but I think it will be an improvement.
-
-define method process-config-element
-    (server :: <http-server>, node :: xml$<element>, name == #"error-log")
-  let format-control = get-attr(node, #"format");
-  let name = get-attr(node, #"name") | "http.server.error";
-  let log = process-log-config-element(server, node, format-control, name,
-                                       $stderr-log-target);
-  error-log(%vhost) := log;
-  *error-log* := log;
-end method process-config-element;
-
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"debug-log")
-  let format-control = get-attr(node, #"format");
-  let name = get-attr(node, #"name") | "http.server.debug";
-  let log = process-log-config-element(server, node, format-control, name,
-                                       $stdout-log-target);
-  debug-log(%vhost) := log;
-  *debug-log* := log;
-end method process-config-element;
+  if (inside-virtual-host?(server))
+    config-error("The debug-log setting must be at top level, not inside"
+                   " a <virtual-host> element.");
+  end;
+  *log* := process-log-config-element(server, node,
+                                      get-attr(node, #"format"),
+                                      "http.server.debug",
+                                      $stdout-log-target);
+end method;
 
 define method process-config-element
     (server :: <http-server>, node :: xml$<element>, name == #"request-log")
   let format-control = get-attr(node, #"format") | "%{message}";
-  let name = get-attr(node, #"name") | "http.server.request";
-  let log = process-log-config-element(server, node, format-control, name,
-                                       $stdout-log-target);
-  request-log(%vhost) := log;
-  *request-log* := log;
-end method process-config-element;
+  request-log(%vhost)
+    := process-log-config-element(server, node, format-control,
+                                  "http.server.request",
+                                  $stdout-log-target);
+end method;
 
 define function process-log-config-element
     (server :: <http-server>, node :: xml$<element>,

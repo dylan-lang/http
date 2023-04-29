@@ -15,7 +15,7 @@ define test test-parse-replacement ()
                 parsed,
                 parse-replacement(text));
   end;
-end test test-parse-replacement;
+end test;
 
 // Verify that specific URLs are rewritten correctly.
 //
@@ -29,7 +29,7 @@ define test test-rewrite-one-url ()
                 output,
                 rewrite-url(input, rewrite-rule));
   end;
-end test test-rewrite-one-url;
+end test;
 
 
 // Verify that chaining rewrite rules works, and terminates correctly.
@@ -53,10 +53,4 @@ define test test-rewrite-rule-chaining ()
   check-equal("Rewrite rule chaining",
               "aaa123bbb",
               rewrite-url("abc123", rules));
-end test test-rewrite-rule-chaining;
-
-define suite rewrite-rules-test-suite ()
-  test test-parse-replacement;
-  test test-rewrite-one-url;
-  test test-rewrite-rule-chaining;
-end;
+end test;

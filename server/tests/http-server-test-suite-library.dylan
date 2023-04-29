@@ -1,5 +1,4 @@
 Module:   dylan-user
-Author:   Carl Gay
 Copyright: See LICENSE in this distribution for details.
 Synopsis: HTTP server test suite
 
@@ -48,8 +47,7 @@ define module http-server-test-suite
   use http-common;
   use http-common-internals;
   use http-testing;
-  use http-server,
-    exclude: { log-trace, log-debug, log-info, log-warning, log-error };
+  use http-server;
   use http-server-unit;
   use locators,
     exclude: { <http-server>, <url> };
@@ -71,6 +69,4 @@ define module http-server-test-suite
   use testworks;
   use threads;
   use uri;
-
-  export http-server-test-suite;
 end module http-server-test-suite;

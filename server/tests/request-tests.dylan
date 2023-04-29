@@ -50,8 +50,4 @@ define test test-parse-request-line-values ()
 
     end if;
   end for;
-end test test-parse-request-line-values;
-
-define suite request-test-suite ()
-  test test-parse-request-line-values;
-end;
+end test;

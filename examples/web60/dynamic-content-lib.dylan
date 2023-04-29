@@ -15,4 +15,3 @@ define module web60-dynamic-content
   use http-server;
   use streams, import: { write };
 end;
-

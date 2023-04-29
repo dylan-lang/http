@@ -177,16 +177,7 @@ define module http-server
 
   // Logging
   create
-    log-content,
-    *log-content?*,
-    log-trace,
-    log-debug,
-    log-info,
-    log-warning,
-    log-error,
-    debug-log,
-    request-log,
-    error-log;
+    request-log;
 
   // Configuration
   create
@@ -259,8 +250,7 @@ define module httpi                             // http internals
               <file-server> => <file-server-url>
             },
     exclude: { <url> };  // this comes from the uri library now.
-  use logging,
-    exclude: { log-trace, log-debug, log-info, log-warning, log-error };
+  use logging;
   use memory-manager;
   use mime;
   use operating-system;        // from system lib

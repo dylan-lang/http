@@ -58,12 +58,7 @@ define module dsp
               simplify-locator,
               merge-locators,
               locator-directory };
-  use logging,
-    rename: { log-trace => %log-trace,
-              log-debug => %log-debug,
-              log-info => %log-info,
-              log-warning => %log-warning,
-              log-error => %log-error };
+  use logging;
   use streams,
     import: { format, with-output-to-string, write };
   use strings,

@@ -1,27 +1,28 @@
-all: client common server
+# The impetus for this Makefile was to include Git version info in the
+# generated executable and to install http-server-app as a static executable
+# named simply "http-server".
+#
+# The expectation is that during development people will use `dylan build
+# --all` or similar to build libraries.
 
-.PHONY: client common server client-test common-test server-test clean
+DYLAN		?= $${HOME}/dylan
 
-client:
-	dylan-compiler -build http-client
+.PHONY: build clean install
 
-common:
-	dylan-compiler -build http-common
+build:
+	file="server/core/server.dylan"; \
+	backup=$$(mktemp); \
+	temp=$$(mktemp); \
+	cp -p $${file} $${backup}; \
+	cat $${file} | sed "s,/.__./.*/.__./,/*__*/ \"$$(git describe --always --tags)\" /*__*/,g" > $${temp}; \
+	mv $${temp} $${file}; \
+	dylan update; \
+	dylan build --unify http-server-app; \
+	cp -p $${backup} $${file}
 
-server:
-	dylan-compiler -build http-server
-
-client-test:
-	dylan-compiler -build http-client-test-suite-app
-
-protocol-test:
-	dylan-compiler -build http-protocol-test-suite-app
-
-common-test:
-	dylan-compiler -build http-common-test-suite-app
-
-server-test:
-	dylan-compiler -build http-server-test-suite-app
+install: build
+	mkdir -p $(DYLAN)/bin
+	cp _build/sbin/http-server-app $(DYLAN)/bin/http-server
 
 clean:
-	rm -rf _build
+	rm -rf _build registry

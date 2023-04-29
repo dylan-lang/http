@@ -14,4 +14,3 @@ let server = make(<http-server>,
                   listeners: list("0.0.0.0:8888"));
 add-resource(server, "/", make(<clock-page>));
 start-server(server);
-

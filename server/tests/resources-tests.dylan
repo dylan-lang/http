@@ -40,7 +40,7 @@ define test test-add-resource-basics ()
   add-and-find("/foo", "/foo");
   add-and-find("/foo/bar/", "/foo/bar/");
 
-end test test-add-resource-basics;
+end test;
 
 // More specific descendant takes precedence?
 define test test-add-resource-precedence ()
@@ -52,7 +52,7 @@ define test test-add-resource-precedence ()
   check-equal("Deeper resource takes precedence?",
               deep,
               find-resource(root, "/foo/bar"));
-end test test-add-resource-precedence;
+end test;
 
 // add-resource sets parent to first child added?
 // Also check that generated url path is correct, since it's related.
@@ -73,7 +73,7 @@ define test test-add-resource-parent ()
   check-equal("generated url path unchanged after second child added?",
               "foo",
               child.resource-url-path);
-end test test-add-resource-parent;
+end test;
 
 // add-resource sets path variables correctly?
 define test test-add-resource-path-variables ()
@@ -94,14 +94,7 @@ define test test-add-resource-path-variables ()
   check-condition("trailing slash after path variables signals error?",
                   <http-server-api-error>,
                   add-resource(root, "b/{x}/{y}/", child));
-end test test-add-resource-path-variables;
-
-define suite add-resource-test-suite ()
-    test test-add-resource-basics;
-    test test-add-resource-precedence;
-    test test-add-resource-parent;
-    test test-add-resource-path-variables;
-end;
+end test;
 
 
 //// One-off tests, directly in add-resource-test-suite
@@ -132,7 +125,7 @@ define test test-find-resource ()
   find-and-verify(root, parse-url("http://host/aaa/xxx"), aaa, #("", "aaa"), #("xxx"));
   find-and-verify(root, parse-url("http://host/bbb"),     bbb, #("", "bbb"), #());
   find-and-verify(root, parse-url("http://host/bbb/ccc"), ccc, #("", "bbb", "ccc"), #());
-end test test-find-resource;
+end test;
 
 
 
@@ -153,7 +146,7 @@ define test test-parse-path-variable ()
     check-equal(fmt("%s name", text), name, pvar.path-variable-name);
     check-equal(fmt("%s required?", text), required?, pvar.path-variable-required?);
   end;
-end test test-parse-path-variable;
+end test;
 
 
 // Verify that a leaf mapping (one that doesn't expect any URL suffix) gives
@@ -202,17 +195,4 @@ define test test-path-variable-binding ()
       end;
     end for;
   end with-http-server;
-end test test-path-variable-binding;
-
-
-define suite path-variable-test-suite ()
-  test test-path-variable-binding;
-  test test-parse-path-variable;
-end;
-
-
-define suite resources-test-suite ()
-  suite add-resource-test-suite;
-  suite path-variable-test-suite;
-  test test-find-resource;
-end;
+end test;

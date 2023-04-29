@@ -11,7 +11,7 @@ define test start-stop-basic-test ()
   cleanup
     stop-server(server);
   end;
-end test start-stop-basic-test;
+end test;
 
 // Make sure there are no timing problems related to threads and
 // starting and stopping the server.
@@ -26,7 +26,7 @@ define test repeated-start-stop-test ()
       stop-server(server);
     end;
   end;
-end test repeated-start-stop-test;
+end test;
 
 // The same as repeated-start-stop-test, but make a connection to the
 // listener each time the server is started.
@@ -45,7 +45,7 @@ define test test-repeated-start-stop-with-connection ()
       stop-server(server);
     end;
   end;
-end test test-repeated-start-stop-with-connection;
+end test;
 
 // This is expected to fail on non-Windows platforms, which signal
 // <unix-socket-error> for almost everything as of 2014.
@@ -58,14 +58,7 @@ define test conflicting-listener-ips-test ()
   cleanup
     stop-server(server);
   end;
-end test conflicting-listener-ips-test;
-
-define suite start-stop-test-suite ()
-  test start-stop-basic-test;
-  test repeated-start-stop-test;
-  test test-repeated-start-stop-with-connection;
-  test conflicting-listener-ips-test;
-end suite start-stop-test-suite;
+end test;
 
 // Test that the server can handle the "Transfer-encoding: chunked" header
 // by setting the outgoing-chunk-size of the client's connection.
@@ -90,24 +83,9 @@ define test chunked-request-test ()
       log-debug($log, "Error: %s", ex);
     end;
   end;
-end test chunked-request-test;
-
-define suite chunking-test-suite ()
-  test chunked-request-test;
-end;
-
-define suite http-server-test-suite ()
-  suite start-stop-test-suite;
-  suite chunking-test-suite;
-  suite configuration-test-suite;
-  suite multi-views-test-suite;
-  suite resources-test-suite;
-  suite rewrite-rules-test-suite;
-  suite virtual-host-test-suite;
-  suite request-test-suite;
-end;
+end test;
 
 begin
   start-sockets();
-  run-test-application()
-end
+  run-test-application();
+end;

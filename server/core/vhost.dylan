@@ -4,16 +4,17 @@ Author:    Carl Gay
 Copyright: See LICENSE in this distribution for details.
 
 
-// A virtual host simply delegates to the router in its virtual-host-router
-// slot and provides for separate logging from other virtual hosts.  (It
-// uses delegation rather than inheritance so that the user can supply
-// a different kind of router when making a <virtual-host>.)
+// A virtual host simply delegates to its router and provides a separate
+// request log from other virtual hosts.  It uses delegation to the router
+// rather than inheritance so that the user can supply a different kind of
+// router when making a <virtual-host>.
 //
-define class <virtual-host>
-    (<multi-log-mixin>, <abstract-router>, <abstract-resource>)
+define class <virtual-host> (<abstract-router>, <abstract-resource>)
   constant slot virtual-host-router :: <abstract-router> = make(<resource>),
     init-keyword: router:;
-end;
+  slot request-log :: <log> = *log*,
+    init-keyword: request-log:;
+end class;
 
 define method do-resources
     (router :: <virtual-host>, function :: <function>,

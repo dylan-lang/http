@@ -7,3 +7,4 @@ Files: http-server-test-suite-library
        rewrite-rules-tests
        request-tests
        http-server-tests
+Target-type: executable

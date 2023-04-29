@@ -10,8 +10,6 @@ The HTTP-SERVER module
 
 .. variable:: *command-line-parser*
 
-.. variable:: *log-content?*
-
 .. class:: <abstract-resource>
    :open:
    :abstract:
@@ -62,7 +60,7 @@ The HTTP-SERVER module
 .. class:: <http-server>
    :open:
 
-   :superclasses: <multi-logger-mixin>:httpi, <abstract-router>
+   :superclasses: <abstract-router>
 
    :keyword clients-shutdown-notification:
    :keyword debug:
@@ -133,7 +131,7 @@ The HTTP-SERVER module
 
 .. class:: <virtual-host>
 
-   :superclasses: <multi-logger-mixin>:httpi, <abstract-router>, <abstract-resource>
+   :superclasses: <abstract-router>, <abstract-resource>
 
    :keyword router:
 
@@ -383,23 +381,6 @@ The HTTP-SERVER module
    :parameter #key server: An instance of ``false-or(<http-server>)``.
    :parameter #key description: An instance of ``false-or(<string>)``.
    :parameter #key before-startup: An instance of ``false-or(<function>)``.
-
-.. generic-function:: log-content
-
-   :signature: log-content (content) => (#rest results)
-
-   :parameter content: An instance of ``<object>``.
-   :value #rest results: An instance of ``<object>``.
-
-.. constant:: log-debug
-
-.. constant:: log-error
-
-.. constant:: log-info
-
-.. constant:: log-trace
-
-.. constant:: log-warning
 
 .. function:: output
 

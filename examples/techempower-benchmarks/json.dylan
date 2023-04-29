@@ -8,7 +8,7 @@ define class <json-page> (<resource>)
 end class;
 
 define method initialize (page :: <json-page>, #key)
-  page.message := table(<string-table>, "message" => "Hello, World!");
+  page.message := tabling(<string-table>, "message" => "Hello, World!");
 end method;
 
 // set the correct content-type, then send "Hello, World!".
@@ -17,3 +17,5 @@ define method respond (page :: <json-page>, #key)
   output(write-object-to-json-string(page.message));
 end method respond;
 
+// for now
+ignore(message);

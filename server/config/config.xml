@@ -40,8 +40,8 @@
          no host matching the request's Host header or URL host
          can be found.
      -->
-<server root="/foo"
-        working-directory="/foo/bar"
+<server root="/tmp"
+        working-directory="/tmp"
         debug="no"
         use-default-virtual-host="yes"
         />
@@ -54,67 +54,42 @@
 <dsp reparse-templates="no" />
 
 
-<!-- Log messages come in three types: HTTP requests, errors, and
-     debug/info messages.  Where these log messages are stored is
-     determined by the <request-log>, <error-log> and <debug-log>
-     configuration settings, respectively.  Logging can be configured
-     to send all messages to the same place, or to separate them out
-     into different files.  The request-log messages follow a
-     specific format like that of other web servers which can be
-     parsed by automated tools.  Errors and debug info are more free
-     form.
+<!-- Debug logging.
 
-     Each virtual host has its own request, error, and debug log
-     targets, but by default they all forward their log messages to
-     the log targets set for the default virtual host, which in turn
-     defaults to logging to stdout/stderr.
+     The following options are recognized for each of the three logging
+     configuration options:
 
-     The following options are recognized for each of the three
-     logging configuration options:
+       location - A filename relative to the server root directory.  If not
+                  specified, stderr will be used for the error log and stdout
+                  will be used for everything else.
 
-       name     - Loggers are arranged in a hierarchy based on their
-                  names.  This can be used, along with additivity
-                  (below), to flexibly arrange logging to either
-                  multiple files or just one, and to combine different
-                  types of log messages together or separately.
+       level    - error, warn, info (the default), debug, or trace.
 
-       additive - Whether the logger should pass log messages on to
-                  its parent logger.  Default is off.
+       max-size - The maximum size in bytes before the log is rotated.
+                  Only useful if location is specified.
 
-       location - A filename relative to the server root directory.
-                  If not specified, stderr will be used for the error
-                  log and stdout will be used for everything else.
+       format   - A format control string that determines what each log line
+                  will look like.  The default shows the time, log level,
+                  thread, and message.
 
-       max-size - The maximum size in bytes before the log is
-                  rotated.  Only useful if location is specified.
+     Logging docs:
+     https://docs.opendylan.org/packages/logging/documentation/source/index.html
 
-       format   - A format control string that determines what each
-                  log line will look like.  The default value is:
-                  "%{date} %-5{level} [%{thread}] %{message}"
-                  Other options are %{millis} and %{pid}.  You get
-                  the idea.
-
-     The logs should be configured near the beginning of this config
-     file so debugging statements emitted during config file parsing
-     are logged to the correct targets.
+     Logging should be configured near the beginning of this config file so
+     debugging statements emitted during config file parsing are logged to the
+     correct targets.
   -->
 <debug-log
-   name="http.server"
-   location="logs/http-server.log"
-   level="trace" />
+    location="logs/debug.log"
+    level="debug"
+    />
 
-<!-- log errors to the same place as debug messages -->
-<error-log
-   name="http.server.debug"
-   additive="yes" />
-
-<!-- request lines go to a separate log -->
-<!-- format defaults to "%{message}" for the request log -->
+<!-- The request log follows https://en.wikipedia.org/wiki/Common_Log_Format
+     which can be parsed by automated tools.
+  -->
 <request-log
-   name="http.server.requests"
-   additive="no"
-   location="logs/request.log"
-   max-size="20000000" />
+    location="logs/request.log"
+    />
 
 
 <!-- DIRECTORY elements make file-system directories available at a
@@ -122,7 +97,7 @@
      be followed even if the target is outside of the specified
      "location".
   -->
-<directory  url = "/"
+<directory  url = "/my-dir"
             location = "/some/filesystem/path"
             allow-multi-view = "yes"
             allow-directory-listing = "no"
@@ -135,7 +110,7 @@
      to listen for HTTP requests.  Use 0.0.0.0 to listen on all
      interfaces.  There may be multiple listener specs.  The default
      is to listen on 0.0.0.0:80 (non-ssl) if not specified.  -->
-<listener address="0.0.0.0" port="80" ssl="no"/>
+<listener address="0.0.0.0" port="8000" ssl="no"/>
 
 <!-- Location of the mime-type file.  By default the contents of the
      file augment the server's default mime-type map.  If clear is enabled
@@ -159,7 +134,7 @@
 
 <virtual-host name="127.0.0.1">
 
-    <directory url="/"
+    <directory url="/seekret-stuff"
                location="/my/seekret/documents"
                allow-directory-listing="no" />
 
@@ -167,11 +142,5 @@
     <host-alias name="alias" />
 
 </virtual-host>
-
-
-<!-- For the web-framework library and its clients, e.g. wiki.
-     Set the content-directory to wherever you want content (e.g.,
-     wiki pages, user database, etc to be stored. -->
-<web-framework content-directory="www/wiki" />
 
 </http-server>

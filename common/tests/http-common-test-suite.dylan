@@ -156,4 +156,4 @@ end test;
 begin
   start-sockets();
   run-test-application()
-end
+end;

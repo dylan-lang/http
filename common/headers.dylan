@@ -51,11 +51,10 @@ define sealed method set-header
   if (~old)
     headers[header-name] := value;
   elseif (if-exists? = #"replace")
-    log-debug(*http-common-log*, "Replacing header %s: %s -> %s",
-              header-name, old, value);
+    log-debug("Replacing header %s: %s -> %s", header-name, old, value);
     headers[header-name] := value;
   elseif (if-exists? = #"append")
-    log-debug(*http-common-log*, "Appending to header %s: %s", header-name, value);
+    log-debug("Appending to header %s: %s", header-name, value);
     headers[header-name] := iff(instance?(old, <pair>),
                                 concatenate!(old, list(value)),
                                 list(old, value));
@@ -63,7 +62,7 @@ define sealed method set-header
     error("Attempt to add header \"%s: %s\" which has already been added.",
           header-name, value);
   else
-    log-debug(*http-common-log*, "Ignoring header %s: %s", header-name, value);
+    log-debug("Ignoring header %s: %s", header-name, value);
     assert(if-exists? == #"ignore");
   end;
 end method set-header;
@@ -156,7 +155,7 @@ define function read-headers!
     let (epos, n) = read-header-line!(stream, buffer);
     if (epos > 0)
       let (name, value) = split-header(buffer, epos);
-      log-debug(*http-common-log*, "Received header %s: %s", name, value);
+      log-debug("Received header %s: %s", name, value);
       set-header(headers, name, value);
       loop(nbytes + n);
     else

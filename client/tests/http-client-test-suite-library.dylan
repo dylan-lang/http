@@ -16,9 +16,7 @@ define library http-client-test-suite
   use uri;
   use strings;
   use io, import: { format, streams };
-
-  export http-client-test-suite;
-end library http-client-test-suite;
+end library;
 
 define module http-client-test-suite
   use common-dylan;
@@ -37,6 +35,4 @@ define module http-client-test-suite
   use streams;
   use strings;
   use format;
-
-  export http-client-test-suite;
-end module http-client-test-suite;
+end module;

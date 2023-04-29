@@ -41,7 +41,7 @@ define test test-vhost-add-resource ()
     check-equal("find-resource(router, <request>) uses correct virtual host - #2",
                 2, value);
   end;
-end test test-vhost-add-resource;
+end test;
 
 /*
 // Verify that find-resource(vhost-router, request) finds the correct
@@ -72,7 +72,7 @@ define test test-vhost-find-resource ()
               find-resource(router, build-request("127.0.0.1", "/one")));
 
   check-condition("http://127.0.0.1/two errs because fall-back disabled?",
-                  
+
               find-resource(router, build-request("127.0.0.1", "/one")));
 
   check-equal("http://127.0.0.1/one finds resource-1?",
@@ -82,9 +82,3 @@ define test test-vhost-find-resource ()
 
 note: verify that fall-back doesn't occur if the vhost IS found but the URL path ISN'T.
 */
-
-
-define suite virtual-host-test-suite ()
-    test test-vhost-add-resource;
-    //test test-vhost-find-resource;
-end;

@@ -138,10 +138,3 @@ define function http-server-main
     start-server(*server*);
   end dynamic-bind;
 end function http-server-main;
-
-begin
-  let filename = locator-name(as(<file-locator>, application-name()));
-  if (split(filename, ".")[0] = "http-server")
-    http-server-main();
-  end;
-end;
