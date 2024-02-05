@@ -10,7 +10,7 @@
         "mime@0.1",
         "serialization@0.1",
         "uri@1.0",
-        "xml-parser@0.2"
+        "xml-parser@0.2.1"
     ],
     "dev-dependencies": [
         "testworks@2.1",
