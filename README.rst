@@ -9,7 +9,7 @@ Documentation
 =============
 
 Full documentation is here:
-https://docs.opendylan.org/packages/http/documentation/source/index.html
+https://package.opendylan.org/http/
 
 To build the documentation from source requires Sphinx::
 
