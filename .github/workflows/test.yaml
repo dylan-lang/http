@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: dylan-lang/install-dylan-tool@v2
+      - uses: dylan-lang/install-dylan-tool@v3
 
       - name: make install
         env:
