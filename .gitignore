@@ -1,5 +1,23 @@
-*.hdp
-*.iml
-_build
-.idea
+# backup files
 *~
+*.bak
+.DS_Store
+
+# project file
+*.hdp
+
+# compiler build directory
+_build/
+
+# dylan tool package cache
+_packages/
+
+# package registry folder
+registry/
+
+# IntelliJ IDEA
+*.iml
+*.idea
+
+# documentation build directory
+/documentation/build/
