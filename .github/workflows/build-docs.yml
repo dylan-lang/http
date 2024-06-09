@@ -1,0 +1,56 @@
+name: Build and deploy documentation
+
+on:
+  push:
+    # all branches
+    paths:
+      - 'documentation/**'
+
+  # This enables the Run Workflow button on the Actions tab.
+  workflow_dispatch:
+
+# https://github.com/JamesIves/github-pages-deploy-action#readme
+permissions:
+    contents: write
+
+# Set DYLAN environment variable to GITHUB_WORKSPACE so packages are
+# installed in ../../_packages relative to documentation's Makefile
+env:
+  DYLAN: ${{ github.workspace }}
+
+jobs:
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check links
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ghcr.io/fraya/dylan-docs
+          options: -v ${{ github.workspace }}/documentation:/docs
+          run: make linkcheck
+
+      - name: Build docs with Furo theme
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ghcr.io/fraya/dylan-docs
+          options: -v ${{ github.workspace }}/documentation:/docs
+          run: make html
+
+      - name: Upload html artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: anaphora-doc-html
+          path: documentation/build/html/
+
+      - name: Bypassing Jekyll on GH Pages
+        run: sudo touch documentation/build/html/.nojekyll
+
+      - name: Deploy documents to GH pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: documentation/build/html
