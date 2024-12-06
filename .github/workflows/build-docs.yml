@@ -27,12 +27,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check links
-        uses: addnab/docker-run-action@v3
-        with:
-          image: ghcr.io/fraya/dylan-docs
-          options: -v ${{ github.workspace }}/documentation:/docs
-          run: make linkcheck
+      # Doesn't work due to http://127.0.0.1 links in the docs.
+      # - name: Check links
+      #   uses: addnab/docker-run-action@v3
+      #   with:
+      #     image: ghcr.io/fraya/dylan-docs
+      #     options: -v ${{ github.workspace }}/documentation:/docs
+      #     run: make linkcheck
 
       - name: Build docs with Furo theme
         uses: addnab/docker-run-action@v3
