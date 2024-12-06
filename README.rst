@@ -11,14 +11,18 @@ Documentation
 Full documentation is here:
 https://package.opendylan.org/http/
 
-To build the documentation from source requires Sphinx::
+To build the documentation from source requires `Sphinx <https://sphinx-doc.org>`_, the
+`Furo <https://github.com/pradyunsg/furo>`_ theme, and `sphinx-copybutton
+<https://sphinx-copybutton.readthedocs.io>`_.
 
-  $ sudo apt install sphinx-doc   # Install sphinx-build command
-  $ dylan update                  # Install sphinx-extensions package
-  $ cd documentation
-  $ make html
-  $ cd build/html
-  $ python -m http.server
+::
+   $ pip3 install -U Sphinx furo sphinx-copybutton
+   $ deft update
+   $ make -C documentation html
+   $ deft build http-server-app
+   $ _build/bin/http-server-app -d documentation/build/html
+
+Then navigate to http://localhost:8000 in your browser to view the documentation.
 
 
 Testing
@@ -27,9 +31,9 @@ Testing
 As of Dec 2020 there are serious problems with the tests and many of them hang.
 Fixing this should be #1 priority.
 
-However, to run all the tests::
+In any case, to run all the tests::
 
+  $ deft build --all
   $ for suite in common client server; do
-      dylan build --all
       _build/bin/http-${suite}-test-suite
     done
