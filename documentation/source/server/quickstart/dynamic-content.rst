@@ -1,9 +1,9 @@
 Serving Dynamic Content
 =======================
 
-`Previous: Serving Static Content <static-content.html>`_
+:doc:`Previous: Serving Static Content <static-content>`
 
-`Back to top <index.html>`_
+:doc:`Back to top <index>`
 
 This example will show how to dynamically generate the contents of a web page.
 
@@ -53,7 +53,7 @@ To make our resource do something we define a method on :func:`respond`.  (If we
     add-resource(server, "/", make(<clock-page>));
     start-server(server);
 
-In the `previous example <static-content.html>`_ we already saw how to create and start a server, so the new bit here is using :func:`add-resource` to map a URL to a :class:`<resource>`.  The first argument to :func:`add-resource` is the URL router.  (In `Routes <http://routes.groovie.org>`_ terminology it would be a "mapper".)  For convenience, an :class:`<http-server>` is a kind of router so we can add resources directly to the server.  In a future example, I will show how to do more complex URL routing, which will explain the reason for the mysterious ``#key`` in the ``respond`` definition above.
+In the :doc:`previous example <static-content>` we already saw how to create and start a server, so the new bit here is using :func:`add-resource` to map a URL to a :class:`<resource>`.  The first argument to :func:`add-resource` is the URL router.  (In `Routes <https://routes.readthedocs.io/en/latest/>`_ terminology it would be a "mapper".)  For convenience, an :class:`<http-server>` is a kind of router so we can add resources directly to the server.  In a future example, I will show how to do more complex URL routing, which will explain the reason for the mysterious ``#key`` in the ``respond`` definition above.
 
 Here's the complete code:
 
@@ -97,7 +97,7 @@ Here's the complete code:
     start-server(server);
 
 
-| `Previous: Serving Static Content <static-content.html>`_
-| `Next: Static URL Routing <static-routing.html>`_
+| :doc:`Previous: Serving Static Content <static-content>`
+| :doc:`Next: Static URL Routing <static-routing>`
 
-`Back to top <index.html>`_
+:doc:`Back to top <index>`

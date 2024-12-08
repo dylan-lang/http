@@ -93,7 +93,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = dylan_themes.get_html_theme_default()
+html_theme = 'furo'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -285,3 +285,7 @@ epub_copyright = u'2012, Dylan Hackers'
 
 # Allow duplicate toc entries.
 #epub_tocdup = True
+
+# -- Options for Linkcheck ----------------------------------------------------
+
+linkcheck_ignore = [r'http://127.0.0.1:\d+/']
