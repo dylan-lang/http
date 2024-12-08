@@ -285,3 +285,7 @@ epub_copyright = u'2012, Dylan Hackers'
 
 # Allow duplicate toc entries.
 #epub_tocdup = True
+
+# -- Options for Linkcheck ----------------------------------------------------
+
+linkcheck_ignore = [r'http://127.0.0.1:\d+/']
