@@ -1,9 +1,9 @@
 Serving Static Content
 ======================
 
-`Next: Serving Dynamic Content <dynamic-content.html>`_
+:doc:`Next: Serving Dynamic Content <dynamic-content>`
 
-`Back to top <index.html>`_
+:doc:`Back to top <index>`
 
 This example will show you how to use the Dylan web server (http-server) to
 serve static content from the file-system.  First I'll go through the
@@ -107,6 +107,6 @@ accomplish the same thing::
 
     http-server --listen 0.0.0.0:8888 --directory /tmp
 
-`Next: Serving Dynamic Content <dynamic-content.html>`_
+:doc:`Next: Serving Dynamic Content <dynamic-content>`
 
-`Back to top <index.html>`_
+:doc:`Back to top <index>`

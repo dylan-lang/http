@@ -1,22 +1,22 @@
 Static URL Routing
 ==================
 
-`Previous: Serving Dynamic Content <dynamic-content.html>`_
+:doc:`Previous: Serving Dynamic Content <dynamic-content>`
 
-`Back to top <index.html>`_
+:doc:`Back to top <index>`
 
 This example will show how URL routing works in the Dylan web server, and how
 to handle optional URL elements for your resources.
 
 I will skip the library and module definitions since they're essentially the
-same as in `the previous examples <dynamic-content.html>`_, but they are
+same as in :doc:`the previous examples <dynamic-content>`, but they are
 included in the full code listing at the end.
 
 In the Dylan web server, :func:`add-resource` maps a URL to a resource.  The
 default implementation of :func:`add-resource` builds up a tree structure whose
 paths are defined by URL path elements and whose leaves are :class:`<resource>`
 objects.  (`Idea stolen from twisted.web
-<http://twistedmatrix.com/documents/current/web/howto/web-in-60/static-dispatch.html>`_.
+<https://docs.twistedmatrix.com/en/stable/web/howto/web-in-60/static-dispatch.html>`_.
 I hope to add a simple regular expression based router in the future, for
 comparison.)
 
@@ -134,6 +134,6 @@ Here's the full code listing:
     start-server($server);
 
 
-`Previous: Serving Dynamic Content <dynamic-content.html>`_
+:doc:`Previous: Serving Dynamic Content <dynamic-content>`
 
-`Back to top <index.html>`_
+:doc:`Back to top <index>`
