@@ -1,0 +1,749 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="copyright" title="Copyright" href="../copyright.html" /><link rel="next" title="Copyright" href="../copyright.html" /><link rel="prev" title="The DSP library" href="dsp.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
+        <title>The HTTP-CLIENT library - HTTP Libraries 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">HTTP Libraries 1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">HTTP Libraries 1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../server/index.html">HTTP Server</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of HTTP Server</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../server/quickstart/index.html">Dylan Web in 60 Seconds</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Dylan Web in 60 Seconds</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../server/quickstart/static-content.html">Serving Static Content</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../server/quickstart/dynamic-content.html">Serving Dynamic Content</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../server/quickstart/static-routing.html">Static URL Routing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../server/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../server/routing.html">URL Routing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../server/dylan-server-pages.html">Dylan Server Pages (DSP)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../server/stand-alone-server-app.html">Stand-Alone Server App</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../client/index.html">HTTP Client</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="server.html">The HTTP-SERVER library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">The HTTP-COMMON library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dsp.html">The DSP library</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">The HTTP-CLIENT library</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">Copyright</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/reference/client.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="the-http-client-library">
+<h1>The HTTP-CLIENT library<a class="headerlink" href="#the-http-client-library" title="Link to this heading">¶</a></h1>
+<section id="the-http-client-module">
+<h2>The HTTP-CLIENT module<a class="headerlink" href="#the-http-client-module" title="Link to this heading">¶</a></h2>
+<section id="requests">
+<h3>Requests<a class="headerlink" href="#requests" title="Link to this heading">¶</a></h3>
+<dl class="dylan generic-function">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:http-request">
+<span class="sig-name descname"><span class="pre">http-request</span></span> <em class="property"><span class="pre">Sealed</span> <span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#http-client:http-client:http-request" title="Link to this definition">¶</a></dt>
+<dd><p>Perform a complete HTTP request and response.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Signature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>http-request (request-method url #key headers parameters content follow-redirects stream) =&gt; (response)</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>request-method</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a></p></li>
+<li><p><strong>url</strong> – A string or a URI.</p></li>
+<li><p><strong>headers</strong> (<em>#key</em>) – A <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#table"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;table&gt;</span></code></a> of strings mapping header names to values.</p></li>
+<li><p><strong>parameters</strong> (<em>#key</em>) – A <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#table"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;table&gt;</span></code></a> of strings mapping query parameter names to values.</p></li>
+<li><p><strong>content</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code></a> or <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#table"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;table&gt;</span></code></a>.  If given a
+<a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#table"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;table&gt;</span></code></a> it will be converted to application/x-www-urlencoded-form.</p></li>
+<li><p><strong>follow-redirects</strong> (<em>#key</em>) – A <a class="reference external" href="https://opendylan.org/books/drm/Simple_Object_Classes#boolean"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;boolean&gt;</span></code></a> or <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a>.  If an integer, this
+is the maximum number of redirects to follow.  <code class="docutils literal notranslate"><span class="pre">#t</span></code> means no limit.</p></li>
+<li><p><strong>stream</strong> (<em>#key</em>) – A stream to which response content will be copied.  If this is provided
+the response data will not be stored in the <a class="reference internal" href="#http-client:http-client:response-content"><code class="xref dylan dylan-func docutils literal notranslate"><span class="pre">response-content</span></code></a> slot.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Values<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>response</strong> – An instance of <a class="reference internal" href="#http-client:http-client:[http-response]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-response&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="dylan constant">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:http-delete">
+<span class="sig-name descname"><span class="pre">http-delete</span></span> <em class="property"><span class="pre">Constant</span></em><a class="headerlink" href="#http-client:http-client:http-delete" title="Link to this definition">¶</a></dt>
+<dd><p>Convenience function for performing a DELETE request, equivalent to curry(http-request, “DELETE”).</p>
+</dd></dl>
+
+<dl class="dylan constant">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:http-get">
+<span class="sig-name descname"><span class="pre">http-get</span></span> <em class="property"><span class="pre">Constant</span></em><a class="headerlink" href="#http-client:http-client:http-get" title="Link to this definition">¶</a></dt>
+<dd><p>Convenience function for performing a GET request, equivalent to curry(http-request, “GET”).</p>
+</dd></dl>
+
+<dl class="dylan constant">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:http-head">
+<span class="sig-name descname"><span class="pre">http-head</span></span> <em class="property"><span class="pre">Constant</span></em><a class="headerlink" href="#http-client:http-client:http-head" title="Link to this definition">¶</a></dt>
+<dd><p>Convenience function for performing a HEAD request, equivalent to curry(http-request, “HEAD”).</p>
+</dd></dl>
+
+<dl class="dylan constant">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:http-options">
+<span class="sig-name descname"><span class="pre">http-options</span></span> <em class="property"><span class="pre">Constant</span></em><a class="headerlink" href="#http-client:http-client:http-options" title="Link to this definition">¶</a></dt>
+<dd><p>Convenience function for performing an OPTIONS request, equivalent to curry(http-request, “OPTIONS”).</p>
+</dd></dl>
+
+<dl class="dylan constant">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:http-post">
+<span class="sig-name descname"><span class="pre">http-post</span></span> <em class="property"><span class="pre">Constant</span></em><a class="headerlink" href="#http-client:http-client:http-post" title="Link to this definition">¶</a></dt>
+<dd><p>Convenience function for performing a POST request, equivalent to curry(http-request, “POST”).</p>
+</dd></dl>
+
+<dl class="dylan constant">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:http-put">
+<span class="sig-name descname"><span class="pre">http-put</span></span> <em class="property"><span class="pre">Constant</span></em><a class="headerlink" href="#http-client:http-client:http-put" title="Link to this definition">¶</a></dt>
+<dd><p>Convenience function for performing a PUT request, equivalent to curry(http-request, “PUT”).</p>
+</dd></dl>
+
+<dl class="dylan generic-function">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:send-request">
+<span class="sig-name descname"><span class="pre">send-request</span></span> <em class="property"><span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#http-client:http-client:send-request" title="Link to this definition">¶</a></dt>
+<dd><p>Send an HTTP request over an existing connection.  This is a low-level API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Signature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>send-request (conn request-method url #rest start-request-args #key content #all-keys) =&gt; ()</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>conn</strong> – An instance of <a class="reference internal" href="#http-client:http-client:[http-connection]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-connection&gt;</span></code></a>.</p></li>
+<li><p><strong>request-method</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a>.</p></li>
+<li><p><strong>url</strong> – An instance <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code></a> or <code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;uri&gt;</span></code>.</p></li>
+<li><p><strong>start-request-args</strong> (<em>#rest</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+<li><p><strong>content</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="dylan generic-function">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:start-request">
+<span class="sig-name descname"><span class="pre">start-request</span></span> <em class="property"><span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#http-client:http-client:start-request" title="Link to this definition">¶</a></dt>
+<dd><p>Send the request line and request headers over an existing connection but do
+not send any content.  This is a low-level API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Signature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>start-request (conn request-method url #key headers standard-headers http-version) =&gt; ()</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>conn</strong> – An instance of <a class="reference internal" href="#http-client:http-client:[http-connection]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-connection&gt;</span></code></a>.</p></li>
+<li><p><strong>request-method</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a>.</p></li>
+<li><p><strong>url</strong> – An instance <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code></a> or <code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;uri&gt;</span></code>.</p></li>
+<li><p><strong>headers</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+<li><p><strong>standard-headers</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+<li><p><strong>http-version</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="dylan generic-function">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:finish-request">
+<span class="sig-name descname"><span class="pre">finish-request</span></span> <em class="property"><span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#http-client:http-client:finish-request" title="Link to this definition">¶</a></dt>
+<dd><p>Finish sending a request over an existing connection by, for example, sending a zero-length chunk in a chunked request.  This is a low-level API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Signature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>finish-request (conn) =&gt; ()</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>conn</strong> – An instance of <a class="reference internal" href="#http-client:http-client:[http-connection]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-connection&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="responses">
+<h3>Responses<a class="headerlink" href="#responses" title="Link to this heading">¶</a></h3>
+<dl class="dylan class">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:[http-response]">
+<span class="sig-name descname"><span class="pre">&lt;http-response&gt;</span></span> <em class="property"><span class="pre">Open</span> <span class="pre">Primary</span> <span class="pre">Class</span></em><a class="headerlink" href="#http-client:http-client:[http-response]" title="Link to this definition">¶</a></dt>
+<dd><p>All HTTP requests result in an instance of this class being created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Superclasses<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="common.html#http-common:http-common:[chunking-input-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;chunking-input-stream&gt;</span></code></a>, <a class="reference internal" href="common.html#http-common:http-common:[base-http-response]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;base-http-response&gt;</span></code></a>, <code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;message-headers-mixin&gt;</span></code></p>
+</dd>
+<dt class="field-even">Init-Keywords<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>content</strong></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="dylan generic-function">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:read-response">
+<span class="sig-name descname"><span class="pre">read-response</span></span> <em class="property"><span class="pre">Open</span> <span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#http-client:http-client:read-response" title="Link to this definition">¶</a></dt>
+<dd><p>Read the content of a response from an existing connection after headers
+have already been read.  This is a low-level API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Signature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>read-response (conn #key read-content response-class) =&gt; (response)</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>conn</strong> – An instance of <a class="reference internal" href="#http-client:http-client:[http-connection]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-connection&gt;</span></code></a>.</p></li>
+<li><p><strong>read-content</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Simple_Object_Classes#boolean"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;boolean&gt;</span></code></a>.</p></li>
+<li><p><strong>response-class</strong> (<em>#key</em>) – A subclass of <a class="reference internal" href="#http-client:http-client:[http-response]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-response&gt;</span></code></a>.  The default is <a class="reference internal" href="#http-client:http-client:[http-response]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-response&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Values<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>response</strong> – An instance of <a class="reference internal" href="#http-client:http-client:[http-response]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-response&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="dylan generic-function">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:response-content">
+<span class="sig-name descname"><span class="pre">response-content</span></span> <em class="property"><span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#http-client:http-client:response-content" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch the content of a response from a <a class="reference internal" href="#http-client:http-client:[http-response]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-response&gt;</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Signature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>response-content (response) =&gt; (content)</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>response</strong> – An instance of <a class="reference internal" href="#http-client:http-client:[http-response]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-response&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Values<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>content</strong> – <code class="docutils literal notranslate"><span class="pre">#f</span></code> or an instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="errors">
+<h3>Errors<a class="headerlink" href="#errors" title="Link to this heading">¶</a></h3>
+<dl class="dylan class">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:[maximum-redirects-exceeded]">
+<span class="sig-name descname"><span class="pre">&lt;maximum-redirects-exceeded&gt;</span></span> <em class="property"><span class="pre">Open</span> <span class="pre">Class</span></em><a class="headerlink" href="#http-client:http-client:[maximum-redirects-exceeded]" title="Link to this definition">¶</a></dt>
+<dd><p>Signaled when an HTTP request results in too many redirects, based on the
+<code class="docutils literal notranslate"><span class="pre">follow-redirects:</span></code> keyword argument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Superclasses<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="common.html#http-common:http-common:[http-error]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-error&gt;</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="dylan class">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:[redirect-loop-detected]">
+<span class="sig-name descname"><span class="pre">&lt;redirect-loop-detected&gt;</span></span> <em class="property"><span class="pre">Open</span> <span class="pre">Class</span></em><a class="headerlink" href="#http-client:http-client:[redirect-loop-detected]" title="Link to this definition">¶</a></dt>
+<dd><p>Signaled when an HTTP request results in a redirect loop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Superclasses<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="common.html#http-common:http-common:[http-error]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-error&gt;</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="connections">
+<h3>Connections<a class="headerlink" href="#connections" title="Link to this heading">¶</a></h3>
+<dl class="dylan macro">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:with-http-connection">
+<span class="sig-name descname"><span class="pre">with-http-connection</span></span> <em class="property"><span class="pre">Macro</span></em><a class="headerlink" href="#http-client:http-client:with-http-connection" title="Link to this definition">¶</a></dt>
+<dd><p>Open an HTTP connection and keep it open by automatically adding
+“Connection: Keep-alive” headers.  For most uses, this should be the only
+connection-related API needed.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span><span class="o">-</span><span class="n">http</span><span class="o">-</span><span class="n">connection</span> <span class="p">(</span><span class="n">conn</span> <span class="o">=</span> <span class="s2">&quot;opendylan.org&quot;</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span> <span class="n">outgoing</span><span class="o">-</span><span class="n">chunk</span><span class="o">-</span><span class="n">size</span><span class="p">:</span> <span class="mi">8192</span><span class="p">)</span>
+  <span class="n">send</span><span class="o">-</span><span class="n">request</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+  <span class="n">let</span> <span class="n">response</span> <span class="p">::</span> <span class="o">&lt;</span><span class="n">http</span><span class="o">-</span><span class="n">response</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">read</span><span class="o">-</span><span class="n">response</span><span class="p">(</span><span class="n">conn</span><span class="p">);</span>
+  <span class="o">...</span><span class="n">content</span> <span class="ow">is</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">response</span><span class="o">-</span><span class="n">content</span><span class="o">...</span>
+
+  <span class="n">send</span><span class="o">-</span><span class="n">request</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="s2">&quot;/blah&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">);</span>
+  <span class="n">let</span> <span class="n">response</span> <span class="p">::</span> <span class="o">&lt;</span><span class="n">http</span><span class="o">-</span><span class="n">response</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">read</span><span class="o">-</span><span class="n">response</span><span class="p">(</span><span class="n">conn</span><span class="p">);</span>
+  <span class="o">...</span>
+<span class="n">end</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Note that the port and outgoing-chunk-size specified above are the default
+values.  It is also possible to supply a <code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;uri&gt;</span></code> instead of a
+hostname and port number:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span><span class="o">-</span><span class="n">http</span><span class="o">-</span><span class="n">connection</span> <span class="p">(</span><span class="n">conn</span> <span class="o">=</span> <span class="n">uri</span><span class="p">)</span> <span class="o">...</span> <span class="n">end</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="dylan class">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:[http-connection]">
+<span class="sig-name descname"><span class="pre">&lt;http-connection&gt;</span></span> <em class="property"><span class="pre">Open</span> <span class="pre">Class</span></em><a class="headerlink" href="#http-client:http-client:[http-connection]" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Superclasses<span class="colon">:</span></dt>
+<dd class="field-odd"><p>&lt;basic-stream&gt;:streams:io</p>
+</dd>
+<dt class="field-even">Init-Keywords<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>host</strong></p></li>
+<li><p><strong>outgoing-chunk-size</strong></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="dylan generic-function">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:connection-host">
+<span class="sig-name descname"><span class="pre">connection-host</span></span> <em class="property"><span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#http-client:http-client:connection-host" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Signature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>connection-host (object) =&gt; (#rest results)</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>object</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Values<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>#rest results</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="dylan generic-function">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:connection-port">
+<span class="sig-name descname"><span class="pre">connection-port</span></span> <em class="property"><span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#http-client:http-client:connection-port" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Signature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>connection-port (conn) =&gt; (#rest results)</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>conn</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Values<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>#rest results</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="dylan function">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:make-http-connection">
+<span class="sig-name descname"><span class="pre">make-http-connection</span></span> <em class="property"><span class="pre">Function</span></em><a class="headerlink" href="#http-client:http-client:make-http-connection" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Signature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>make-http-connection (host-or-url #rest initargs #key port #all-keys) =&gt; (#rest results)</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>host-or-url</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+<li><p><strong>initargs</strong> (<em>#rest</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+<li><p><strong>port</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Values<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>#rest results</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="dylan generic-function">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:note-bytes-sent">
+<span class="sig-name descname"><span class="pre">note-bytes-sent</span></span> <em class="property"><span class="pre">Open</span> <span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#http-client:http-client:note-bytes-sent" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Signature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>note-bytes-sent (conn byte-count) =&gt; (#rest results)</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>conn</strong> – An instance of <a class="reference internal" href="#http-client:http-client:[http-connection]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;http-connection&gt;</span></code></a>.</p></li>
+<li><p><strong>byte-count</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Values<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>#rest results</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="dylan generic-function">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:outgoing-chunk-size">
+<span class="sig-name descname"><span class="pre">outgoing-chunk-size</span></span> <em class="property"><span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#http-client:http-client:outgoing-chunk-size" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Signature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>outgoing-chunk-size (object) =&gt; (#rest results)</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>object</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Values<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>#rest results</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="dylan generic-function">
+<dt class="sig sig-object dylan-api dylan" id="http-client:http-client:outgoing-chunk-size-setter">
+<span class="sig-name descname"><span class="pre">outgoing-chunk-size-setter</span></span> <em class="property"><span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#http-client:http-client:outgoing-chunk-size-setter" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Signature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>outgoing-chunk-size-setter (value object) =&gt; (#rest results)</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>value</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+<li><p><strong>object</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Values<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>#rest results</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../copyright.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Copyright</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="dsp.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">The DSP library</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                <a href="../copyright.html">Copyright</a> &#169; 2012, Dylan Hackers
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">The HTTP-CLIENT library</a><ul>
+<li><a class="reference internal" href="#the-http-client-module">The HTTP-CLIENT module</a><ul>
+<li><a class="reference internal" href="#requests">Requests</a></li>
+<li><a class="reference internal" href="#responses">Responses</a></li>
+<li><a class="reference internal" href="#errors">Errors</a></li>
+<li><a class="reference internal" href="#connections">Connections</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=4e2eecee"></script>
+    </body>
+</html>

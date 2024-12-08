@@ -1,0 +1,2540 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="copyright" title="Copyright" href="copyright.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 --><title>API Index - HTTP Libraries 1.0 documentation</title>
+<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">HTTP Libraries 1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">HTTP Libraries 1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="server/index.html">HTTP Server</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of HTTP Server</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="server/quickstart/index.html">Dylan Web in 60 Seconds</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Dylan Web in 60 Seconds</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="server/quickstart/static-content.html">Serving Static Content</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server/quickstart/dynamic-content.html">Serving Dynamic Content</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server/quickstart/static-routing.html">Static URL Routing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="server/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server/routing.html">URL Routing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server/dylan-server-pages.html">Dylan Server Pages (DSP)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server/stand-alone-server-app.html">Stand-Alone Server App</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="client/index.html">HTTP Client</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/server.html">The HTTP-SERVER library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/common.html">The HTTP-COMMON library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/dsp.html">The DSP library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/client.html">The HTTP-CLIENT library</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">Copyright</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          
+<section class="domainindex-section">
+  <h1>API Index</h1>
+  <div class="domainindex-jumpbox"><a href="#cap-A"><strong>A</strong></a> | <a href="#cap-B"><strong>B</strong></a> | <a href="#cap-C"><strong>C</strong></a> | <a href="#cap-D"><strong>D</strong></a> | <a href="#cap-E"><strong>E</strong></a> | <a href="#cap-F"><strong>F</strong></a> | <a href="#cap-G"><strong>G</strong></a> | <a href="#cap-H"><strong>H</strong></a> | <a href="#cap-I"><strong>I</strong></a> | <a href="#cap-L"><strong>L</strong></a> | <a href="#cap-M"><strong>M</strong></a> | <a href="#cap-N"><strong>N</strong></a> | <a href="#cap-O"><strong>O</strong></a> | <a href="#cap-P"><strong>P</strong></a> | <a href="#cap-Q"><strong>Q</strong></a> | <a href="#cap-R"><strong>R</strong></a> | <a href="#cap-S"><strong>S</strong></a> | <a href="#cap-T"><strong>T</strong></a> | <a href="#cap-U"><strong>U</strong></a> | <a href="#cap-V"><strong>V</strong></a> | <a href="#cap-W"><strong>W</strong></a></div>
+</section>
+<table class="domainindex-table">
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-A">
+    <td></td><td><strong>A</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$application-error"><code class="xref">$application-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[abstract-resource]"><code class="xref">&lt;abstract-resource&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[abstract-rewrite-rule]"><code class="xref">&lt;abstract-rewrite-rule&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[abstract-router]"><code class="xref">&lt;abstract-router&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[application-error]"><code class="xref">&lt;application-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[attributes-mixin]"><code class="xref">&lt;attributes-mixin&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[avalue]"><code class="xref">&lt;avalue&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:add-cookie"><code class="xref">add-cookie</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:add-field-error"><code class="xref">add-field-error</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:add-page-error"><code class="xref">add-page-error</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:add-page-note"><code class="xref">add-page-note</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:add-resource"><code class="xref">add-resource</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:add-resource-name"><code class="xref">add-resource-name</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:add-virtual-host"><code class="xref">add-virtual-host</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:application-error"><code class="xref">application-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:avalue-alist"><code class="xref">avalue-alist</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:avalue-value"><code class="xref">avalue-value</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-B">
+    <td></td><td><strong>B</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$bad-gateway-error"><code class="xref">$bad-gateway-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$bad-header-error"><code class="xref">$bad-header-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$bad-request-error"><code class="xref">$bad-request-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[bad-gateway-error]"><code class="xref">&lt;bad-gateway-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[bad-header-error]"><code class="xref">&lt;bad-header-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[bad-request-error]"><code class="xref">&lt;bad-request-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[base-http-request]"><code class="xref">&lt;base-http-request&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[base-http-response]"><code class="xref">&lt;base-http-response&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:bad-gateway-error"><code class="xref">bad-gateway-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:bad-header-error"><code class="xref">bad-header-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:bad-request-error"><code class="xref">bad-request-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-C">
+    <td></td><td><strong>C</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$conflict-error"><code class="xref">$conflict-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$content-length-required-error"><code class="xref">$content-length-required-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:*command-line-parser*"><code class="xref">*command-line-parser*</code></a> <em>(variable)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[chunking-input-stream]"><code class="xref">&lt;chunking-input-stream&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[configuration-error]"><code class="xref">&lt;configuration-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[conflict-error]"><code class="xref">&lt;conflict-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[content-length-required-error]"><code class="xref">&lt;content-length-required-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:chunked-transfer-encoding?"><code class="xref">chunked-transfer-encoding?</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:clear-session"><code class="xref">clear-session</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:condition-class-for-status-code"><code class="xref">condition-class-for-status-code</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:configure-server"><code class="xref">configure-server</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:conflict-error"><code class="xref">conflict-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:connection-host"><code class="xref">connection-host</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:connection-port"><code class="xref">connection-port</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:content-length"><code class="xref">content-length</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:content-length-required-error"><code class="xref">content-length-required-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:cookie-comment"><code class="xref">cookie-comment</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:cookie-domain"><code class="xref">cookie-domain</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:cookie-max-age"><code class="xref">cookie-max-age</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:cookie-name"><code class="xref">cookie-name</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:cookie-path"><code class="xref">cookie-path</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:cookie-value"><code class="xref">cookie-value</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:cookie-version"><code class="xref">cookie-version</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:count-query-values"><code class="xref">count-query-values</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:current-page-number"><code class="xref">current-page-number</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:current-page-number-setter"><code class="xref">current-page-number-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:current-request"><code class="xref">current-request</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:current-response"><code class="xref">current-response</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:current-row"><code class="xref">current-row</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:current-row-number"><code class="xref">current-row-number</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:current-server"><code class="xref">current-server</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-D">
+    <td></td><td><strong>D</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$default-cookie-version"><code class="xref">$default-cookie-version</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[directory-resource]"><code class="xref">&lt;directory-resource&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:[dylan-server-page]"><code class="xref">&lt;dylan-server-page&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:date-modified"><code class="xref">date-modified</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:date-modified-setter"><code class="xref">date-modified-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:debugging-enabled?"><code class="xref">debugging-enabled?</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:debugging-enabled?-setter"><code class="xref">debugging-enabled?-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:default-content-type"><code class="xref">default-content-type</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:default-documents"><code class="xref">default-documents</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:default-virtual-host"><code class="xref">default-virtual-host</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:default-virtual-host-setter"><code class="xref">default-virtual-host-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:do-query-values"><code class="xref">do-query-values</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:do-resources"><code class="xref">do-resources</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-E">
+    <td></td><td><strong>E</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$expectation-failed-error"><code class="xref">$expectation-failed-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[expectation-failed-error]"><code class="xref">&lt;expectation-failed-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[expiring-mixin]"><code class="xref">&lt;expiring-mixin&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:ensure-session"><code class="xref">ensure-session</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:expectation-failed-error"><code class="xref">expectation-failed-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:expired?"><code class="xref">expired?</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-F">
+    <td></td><td><strong>F</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$forbidden-error"><code class="xref">$forbidden-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$found-redirect"><code class="xref">$found-redirect</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[forbidden-error]"><code class="xref">&lt;forbidden-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[found-redirect]"><code class="xref">&lt;found-redirect&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[function-resource]"><code class="xref">&lt;function-resource&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:file-contents"><code class="xref">file-contents</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:find-resource"><code class="xref">find-resource</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:find-virtual-host"><code class="xref">find-virtual-host</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:finish-request"><code class="xref">finish-request</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:forbidden-error"><code class="xref">forbidden-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:found-redirect"><code class="xref">found-redirect</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:function-resource"><code class="xref">function-resource</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-G">
+    <td></td><td><strong>G</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$gateway-timeout-error"><code class="xref">$gateway-timeout-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$gone-error"><code class="xref">$gone-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[gateway-timeout-error]"><code class="xref">&lt;gateway-timeout-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[gone-error]"><code class="xref">&lt;gone-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:gateway-timeout-error"><code class="xref">gateway-timeout-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:generate-url"><code class="xref">generate-url</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:get-attr"><code class="xref">get-attr</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:get-attribute"><code class="xref">get-attribute</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:get-field-errors"><code class="xref">get-field-errors</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:get-header"><code class="xref">get-header</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:get-named-method"><code class="xref">get-named-method</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:get-query-value"><code class="xref">get-query-value</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:get-query-values"><code class="xref">get-query-values</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:get-session"><code class="xref">get-session</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:get-tag-call-attribute"><code class="xref">get-tag-call-attribute</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:gone-error"><code class="xref">gone-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:grow-header-buffer"><code class="xref">grow-header-buffer</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-H">
+    <td></td><td><strong>H</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$header-too-large-error"><code class="xref">$header-too-large-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$http-version-not-supported-error"><code class="xref">$http-version-not-supported-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[header-table]"><code class="xref">&lt;header-table&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[header-too-large-error]"><code class="xref">&lt;header-too-large-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[http-client-protocol-error]"><code class="xref">&lt;http-client-protocol-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:[http-connection]"><code class="xref">&lt;http-connection&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[http-error]"><code class="xref">&lt;http-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[http-parse-error]"><code class="xref">&lt;http-parse-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[http-protocol-condition]"><code class="xref">&lt;http-protocol-condition&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[http-redirect-condition]"><code class="xref">&lt;http-redirect-condition&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:[http-response]"><code class="xref">&lt;http-response&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[http-server-api-error]"><code class="xref">&lt;http-server-api-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[http-server-protocol-error]"><code class="xref">&lt;http-server-protocol-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[http-server]"><code class="xref">&lt;http-server&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[http-version-not-supported-error]"><code class="xref">&lt;http-version-not-supported-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:has-attribute?"><code class="xref">has-attribute?</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:header-too-large-error"><code class="xref">header-too-large-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:http-delete"><code class="xref">http-delete</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:http-error-headers"><code class="xref">http-error-headers</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:http-error-message-no-code"><code class="xref">http-error-message-no-code</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:http-get"><code class="xref">http-get</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:http-head"><code class="xref">http-head</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:http-options"><code class="xref">http-options</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:http-post"><code class="xref">http-post</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:http-put"><code class="xref">http-put</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:http-request"><code class="xref">http-request</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:http-server-main"><code class="xref">http-server-main</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:http-status-code"><code class="xref">http-status-code</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:http-version-not-supported-error"><code class="xref">http-version-not-supported-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-I">
+    <td></td><td><strong>I</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$internal-server-error"><code class="xref">$internal-server-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[internal-server-error]"><code class="xref">&lt;internal-server-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:internal-server-error"><code class="xref">internal-server-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-L">
+    <td></td><td><strong>L</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:loop-index"><code class="xref">loop-index</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:loop-value"><code class="xref">loop-value</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-M">
+    <td></td><td><strong>M</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$method-not-allowed-error"><code class="xref">$method-not-allowed-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$mime-wild"><code class="xref">$mime-wild</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$moved-permanently-redirect"><code class="xref">$moved-permanently-redirect</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$moved-temporarily-redirect"><code class="xref">$moved-temporarily-redirect</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:[maximum-redirects-exceeded]"><code class="xref">&lt;maximum-redirects-exceeded&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[media-type]"><code class="xref">&lt;media-type&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[method-not-allowed-error]"><code class="xref">&lt;method-not-allowed-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[moved-permanently-redirect]"><code class="xref">&lt;moved-permanently-redirect&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[moved-temporarily-redirect]"><code class="xref">&lt;moved-temporarily-redirect&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:make-http-connection"><code class="xref">make-http-connection</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:map-tag-call-attributes"><code class="xref">map-tag-call-attributes</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:match-media-types"><code class="xref">match-media-types</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:media-type-exact?"><code class="xref">media-type-exact?</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:media-type-level"><code class="xref">media-type-level</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:media-type-more-specific?"><code class="xref">media-type-more-specific?</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:media-type-quality"><code class="xref">media-type-quality</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:method-not-allowed-error"><code class="xref">method-not-allowed-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:moved-permanently-redirect"><code class="xref">moved-permanently-redirect</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:moved-temporarily-redirect"><code class="xref">moved-temporarily-redirect</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-N">
+    <td></td><td><strong>N</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$not-acceptable-error"><code class="xref">$not-acceptable-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$not-implemented-error"><code class="xref">$not-implemented-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$not-modified-redirect"><code class="xref">$not-modified-redirect</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[not-acceptable-error]"><code class="xref">&lt;not-acceptable-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[not-implemented-error]"><code class="xref">&lt;not-implemented-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[not-modified-redirect]"><code class="xref">&lt;not-modified-redirect&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:named-method-definer"><code class="xref">named-method-definer</code></a> <em>(macro)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:next-page-number"><code class="xref">next-page-number</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:not-acceptable-error"><code class="xref">not-acceptable-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:not-implemented-error"><code class="xref">not-implemented-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:not-modified-redirect"><code class="xref">not-modified-redirect</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:note-bytes-received"><code class="xref">note-bytes-received</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:note-bytes-sent"><code class="xref">note-bytes-sent</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-O">
+    <td></td><td><strong>O</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:outgoing-chunk-size"><code class="xref">outgoing-chunk-size</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:outgoing-chunk-size-setter"><code class="xref">outgoing-chunk-size-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:output"><code class="xref">output</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-P">
+    <td></td><td><strong>P</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$payment-required-error"><code class="xref">$payment-required-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$precondition-failed-error"><code class="xref">$precondition-failed-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$proxy-authentication-required-error"><code class="xref">$proxy-authentication-required-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[page-context]"><code class="xref">&lt;page-context&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:[page-link]"><code class="xref">&lt;page-link&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:[paginator]"><code class="xref">&lt;paginator&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[payment-required-error]"><code class="xref">&lt;payment-required-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[precondition-failed-error]"><code class="xref">&lt;precondition-failed-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[proxy-authentication-required-error]"><code class="xref">&lt;proxy-authentication-required-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:page-context"><code class="xref">page-context</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:page-count"><code class="xref">page-count</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:page-has-errors?"><code class="xref">page-has-errors?</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:page-link-label"><code class="xref">page-link-label</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:page-link-page-number"><code class="xref">page-link-page-number</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:page-links"><code class="xref">page-links</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:page-size"><code class="xref">page-size</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:page-source"><code class="xref">page-source</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:page-template"><code class="xref">page-template</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:page-template-setter"><code class="xref">page-template-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:paginator-sequence"><code class="xref">paginator-sequence</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:parse-header-value"><code class="xref">parse-header-value</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:parse-http-date"><code class="xref">parse-http-date</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:parsed-headers"><code class="xref">parsed-headers</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:payment-required-error"><code class="xref">payment-required-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:precondition-failed-error"><code class="xref">precondition-failed-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:previous-page-number"><code class="xref">previous-page-number</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:process-config-element"><code class="xref">process-config-element</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:process-request-content"><code class="xref">process-request-content</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:process-template"><code class="xref">process-template</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:proxy-authentication-required-error"><code class="xref">proxy-authentication-required-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-Q">
+    <td></td><td><strong>Q</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:quote-html"><code class="xref">quote-html</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-R">
+    <td></td><td><strong>R</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$request-entity-too-large-error"><code class="xref">$request-entity-too-large-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$request-timeout-error"><code class="xref">$request-timeout-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$request-uri-too-long-error"><code class="xref">$request-uri-too-long-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$requested-range-not-satisfiable-error"><code class="xref">$requested-range-not-satisfiable-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$resource-not-found-error"><code class="xref">$resource-not-found-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:[redirect-loop-detected]"><code class="xref">&lt;redirect-loop-detected&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[redirecting-resource]"><code class="xref">&lt;redirecting-resource&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[request-entity-too-large-error]"><code class="xref">&lt;request-entity-too-large-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[request-timeout-error]"><code class="xref">&lt;request-timeout-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[request-uri-too-long-error]"><code class="xref">&lt;request-uri-too-long-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[request]"><code class="xref">&lt;request&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[requested-range-not-satisfiable-error]"><code class="xref">&lt;requested-range-not-satisfiable-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[resource-not-found-error]"><code class="xref">&lt;resource-not-found-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[resource]"><code class="xref">&lt;resource&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[response]"><code class="xref">&lt;response&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[rewrite-rule]"><code class="xref">&lt;rewrite-rule&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:raw-headers"><code class="xref">raw-headers</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:read-header-line"><code class="xref">read-header-line</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:read-http-line"><code class="xref">read-http-line</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:read-message-headers"><code class="xref">read-message-headers</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:read-response"><code class="xref">read-response</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:redirect-temporarily-to"><code class="xref">redirect-temporarily-to</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:redirect-to"><code class="xref">redirect-to</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:register-tag"><code class="xref">register-tag</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:remove-attribute"><code class="xref">remove-attribute</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:request-absolute-url"><code class="xref">request-absolute-url</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-content"><code class="xref">request-content</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-content-setter"><code class="xref">request-content-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:request-content-type"><code class="xref">request-content-type</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-entity-too-large-error"><code class="xref">request-entity-too-large-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:request-host"><code class="xref">request-host</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-method"><code class="xref">request-method</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-method-setter"><code class="xref">request-method-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:request-query-values"><code class="xref">request-query-values</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-raw-url-string"><code class="xref">request-raw-url-string</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-raw-url-string-setter"><code class="xref">request-raw-url-string-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-timeout-error"><code class="xref">request-timeout-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-uri-too-long-error"><code class="xref">request-uri-too-long-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-url"><code class="xref">request-url</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:request-url-path-prefix"><code class="xref">request-url-path-prefix</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:request-url-path-suffix"><code class="xref">request-url-path-suffix</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-url-setter"><code class="xref">request-url-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-version"><code class="xref">request-version</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:request-version-setter"><code class="xref">request-version-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:requested-range-not-satisfiable-error"><code class="xref">requested-range-not-satisfiable-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:resource-not-found-error"><code class="xref">resource-not-found-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:respond"><code class="xref">respond</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:respond-to-connect"><code class="xref">respond-to-connect</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:respond-to-delete"><code class="xref">respond-to-delete</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:respond-to-get"><code class="xref">respond-to-get</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:respond-to-head"><code class="xref">respond-to-head</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:respond-to-options"><code class="xref">respond-to-options</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:respond-to-post"><code class="xref">respond-to-post</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:respond-to-put"><code class="xref">respond-to-put</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:respond-to-trace"><code class="xref">respond-to-trace</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:response-chunked?"><code class="xref">response-chunked?</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:response-chunked?-setter"><code class="xref">response-chunked?-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:response-code"><code class="xref">response-code</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:response-code-setter"><code class="xref">response-code-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:response-content"><code class="xref">response-content</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:response-reason-phrase"><code class="xref">response-reason-phrase</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:response-reason-phrase-setter"><code class="xref">response-reason-phrase-setter</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:response-request"><code class="xref">response-request</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:rewrite-url"><code class="xref">rewrite-url</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:route-request"><code class="xref">route-request</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-S">
+    <td></td><td><strong>S</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$see-other-redirect"><code class="xref">$see-other-redirect</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$service-unavailable-error"><code class="xref">$service-unavailable-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-accepted"><code class="xref">$status-accepted</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-application-error"><code class="xref">$status-application-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-bad-gateway"><code class="xref">$status-bad-gateway</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-bad-request"><code class="xref">$status-bad-request</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-conflict"><code class="xref">$status-conflict</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-continue"><code class="xref">$status-continue</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-created"><code class="xref">$status-created</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-expectation-failed"><code class="xref">$status-expectation-failed</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-forbidden"><code class="xref">$status-forbidden</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-found"><code class="xref">$status-found</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-gateway-timeout"><code class="xref">$status-gateway-timeout</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-gone"><code class="xref">$status-gone</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-http-version-not-supported"><code class="xref">$status-http-version-not-supported</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-internal-server-error"><code class="xref">$status-internal-server-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-length-required"><code class="xref">$status-length-required</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-method-not-allowed"><code class="xref">$status-method-not-allowed</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-moved-permanently"><code class="xref">$status-moved-permanently</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-multiple-choices"><code class="xref">$status-multiple-choices</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-no-content"><code class="xref">$status-no-content</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-non-authoritative-information"><code class="xref">$status-non-authoritative-information</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-not-acceptable"><code class="xref">$status-not-acceptable</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-not-found"><code class="xref">$status-not-found</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-not-implemented"><code class="xref">$status-not-implemented</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-not-modified"><code class="xref">$status-not-modified</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-ok"><code class="xref">$status-ok</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-partial-content"><code class="xref">$status-partial-content</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-payment-required"><code class="xref">$status-payment-required</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-precondition-failed"><code class="xref">$status-precondition-failed</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-proxy-authentication-required"><code class="xref">$status-proxy-authentication-required</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-request-entity-too-large"><code class="xref">$status-request-entity-too-large</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-request-timeout"><code class="xref">$status-request-timeout</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-request-uri-too-long"><code class="xref">$status-request-uri-too-long</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-requested-range-not-satisfiable"><code class="xref">$status-requested-range-not-satisfiable</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-reset-content"><code class="xref">$status-reset-content</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-see-other"><code class="xref">$status-see-other</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-service-unavailable"><code class="xref">$status-service-unavailable</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-switching-protocols"><code class="xref">$status-switching-protocols</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-temporary-redirect"><code class="xref">$status-temporary-redirect</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-unauthorized"><code class="xref">$status-unauthorized</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-unsupported-media-type"><code class="xref">$status-unsupported-media-type</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$status-use-proxy"><code class="xref">$status-use-proxy</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[see-other-redirect]"><code class="xref">&lt;see-other-redirect&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[service-unavailable-error]"><code class="xref">&lt;service-unavailable-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[session]"><code class="xref">&lt;session&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:see-other-redirect"><code class="xref">see-other-redirect</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:send-request"><code class="xref">send-request</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:serve-static-file"><code class="xref">serve-static-file</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:server-root"><code class="xref">server-root</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:service-unavailable-error"><code class="xref">service-unavailable-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:set-attribute"><code class="xref">set-attribute</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:set-header"><code class="xref">set-header</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:show-tag-call-attributes"><code class="xref">show-tag-call-attributes</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:start-request"><code class="xref">start-request</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:start-server"><code class="xref">start-server</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:stop-server"><code class="xref">stop-server</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-T">
+    <td></td><td><strong>T</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:[taglib]"><code class="xref">&lt;taglib&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:tag-definer"><code class="xref">tag-definer</code></a> <em>(macro)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:taglib-definer"><code class="xref">taglib-definer</code></a> <em>(macro)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:token-end-position"><code class="xref">token-end-position</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-U">
+    <td></td><td><strong>U</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$unauthorized-error"><code class="xref">$unauthorized-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$unsupported-media-type-error"><code class="xref">$unsupported-media-type-error</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:$use-proxy-redirect"><code class="xref">$use-proxy-redirect</code></a> <em>(constant)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[unauthorized-error]"><code class="xref">&lt;unauthorized-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[unsupported-media-type-error]"><code class="xref">&lt;unsupported-media-type-error&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:[use-proxy-redirect]"><code class="xref">&lt;use-proxy-redirect&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:unauthorized-error"><code class="xref">unauthorized-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:unmatched-url-suffix"><code class="xref">unmatched-url-suffix</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:unsupported-media-type-error"><code class="xref">unsupported-media-type-error</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:use-default-virtual-host?"><code class="xref">use-default-virtual-host?</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:use-proxy-redirect"><code class="xref">use-proxy-redirect</code></a> <em>(function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-V">
+    <td></td><td><strong>V</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:[virtual-host]"><code class="xref">&lt;virtual-host&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/dsp.html#dsp:dsp:validate-form-field"><code class="xref">validate-form-field</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:validate-http-status-code"><code class="xref">validate-http-status-code</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/common.html#http-common:http-common:validate-http-version"><code class="xref">validate-http-version</code></a> <em>(generic function)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="pcap">
+    <td></td><td>&#160;</td><td></td>
+  </tr>
+  <tr class="cap" id="cap-W">
+    <td></td><td><strong>W</strong></td><td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/client.html#http-client:http-client:with-http-connection"><code class="xref">with-http-connection</code></a> <em>(macro)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="reference/server.html#http-server:http-server:with-query-values"><code class="xref">with-query-values</code></a> <em>(macro)</em></td><td>
+    <em></em></td>
+  </tr>
+</table>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                <a href="copyright.html">Copyright</a> &#169; 2012, Dylan Hackers
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=4e2eecee"></script>
+    
+    <script>DOCUMENTATION_OPTIONS.COLLAPSE_INDEX = true</script></body>
+</html>

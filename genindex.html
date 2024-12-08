@@ -1,0 +1,1227 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" /><link rel="copyright" title="Copyright" href="copyright.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 --><title>Index - HTTP Libraries 1.0 documentation</title>
+<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">HTTP Libraries 1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">HTTP Libraries 1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="server/index.html">HTTP Server</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of HTTP Server</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="server/quickstart/index.html">Dylan Web in 60 Seconds</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Dylan Web in 60 Seconds</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="server/quickstart/static-content.html">Serving Static Content</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server/quickstart/dynamic-content.html">Serving Dynamic Content</a></li>
+<li class="toctree-l3"><a class="reference internal" href="server/quickstart/static-routing.html">Static URL Routing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="server/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server/routing.html">URL Routing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server/dylan-server-pages.html">Dylan Server Pages (DSP)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="server/stand-alone-server-app.html">Stand-Alone Server App</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="client/index.html">HTTP Client</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/server.html">The HTTP-SERVER library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/common.html">The HTTP-COMMON library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/dsp.html">The DSP library</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/client.html">The HTTP-CLIENT library</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">Copyright</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          
+<section class="genindex-section">
+  <h1 id="index">Index</h1>
+  <div class="genindex-jumpbox"><a href="#Symbols"><strong>Symbols</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#Q"><strong>Q</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a></div>
+</section>
+<section id="Symbols" class="genindex-section">
+  <h2>Symbols</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:$application-error">$application-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$bad-gateway-error">$bad-gateway-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$bad-header-error">$bad-header-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$bad-request-error">$bad-request-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$conflict-error">$conflict-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$content-length-required-error">$content-length-required-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$default-cookie-version">$default-cookie-version</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$expectation-failed-error">$expectation-failed-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$forbidden-error">$forbidden-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$found-redirect">$found-redirect</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$gateway-timeout-error">$gateway-timeout-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$gone-error">$gone-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$header-too-large-error">$header-too-large-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$http-version-not-supported-error">$http-version-not-supported-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$internal-server-error">$internal-server-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$method-not-allowed-error">$method-not-allowed-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$mime-wild">$mime-wild</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$moved-permanently-redirect">$moved-permanently-redirect</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$moved-temporarily-redirect">$moved-temporarily-redirect</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$not-acceptable-error">$not-acceptable-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$not-implemented-error">$not-implemented-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$not-modified-redirect">$not-modified-redirect</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$payment-required-error">$payment-required-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$precondition-failed-error">$precondition-failed-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$proxy-authentication-required-error">$proxy-authentication-required-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$request-entity-too-large-error">$request-entity-too-large-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$request-timeout-error">$request-timeout-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$request-uri-too-long-error">$request-uri-too-long-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$requested-range-not-satisfiable-error">$requested-range-not-satisfiable-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$resource-not-found-error">$resource-not-found-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$see-other-redirect">$see-other-redirect</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$service-unavailable-error">$service-unavailable-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-accepted">$status-accepted</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-application-error">$status-application-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-bad-gateway">$status-bad-gateway</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-bad-request">$status-bad-request</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-conflict">$status-conflict</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-continue">$status-continue</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-created">$status-created</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-expectation-failed">$status-expectation-failed</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-forbidden">$status-forbidden</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-found">$status-found</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-gateway-timeout">$status-gateway-timeout</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-gone">$status-gone</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-http-version-not-supported">$status-http-version-not-supported</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-internal-server-error">$status-internal-server-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-length-required">$status-length-required</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-method-not-allowed">$status-method-not-allowed</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-moved-permanently">$status-moved-permanently</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-multiple-choices">$status-multiple-choices</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-no-content">$status-no-content</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-non-authoritative-information">$status-non-authoritative-information</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-not-acceptable">$status-not-acceptable</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-not-found">$status-not-found</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-not-implemented">$status-not-implemented</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-not-modified">$status-not-modified</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-ok">$status-ok</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-partial-content">$status-partial-content</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-payment-required">$status-payment-required</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-precondition-failed">$status-precondition-failed</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-proxy-authentication-required">$status-proxy-authentication-required</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-request-entity-too-large">$status-request-entity-too-large</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-request-timeout">$status-request-timeout</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-request-uri-too-long">$status-request-uri-too-long</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-requested-range-not-satisfiable">$status-requested-range-not-satisfiable</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-reset-content">$status-reset-content</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-see-other">$status-see-other</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-service-unavailable">$status-service-unavailable</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-switching-protocols">$status-switching-protocols</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-temporary-redirect">$status-temporary-redirect</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-unauthorized">$status-unauthorized</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-unsupported-media-type">$status-unsupported-media-type</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$status-use-proxy">$status-use-proxy</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$unauthorized-error">$unauthorized-error</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:$unsupported-media-type-error">$unsupported-media-type-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:$use-proxy-redirect">$use-proxy-redirect</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:*command-line-parser*">*command-line-parser*</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[abstract-resource]">&lt;abstract-resource&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[abstract-rewrite-rule]">&lt;abstract-rewrite-rule&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[abstract-router]">&lt;abstract-router&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[application-error]">&lt;application-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[attributes-mixin]">&lt;attributes-mixin&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[avalue]">&lt;avalue&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[bad-gateway-error]">&lt;bad-gateway-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[bad-header-error]">&lt;bad-header-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[bad-request-error]">&lt;bad-request-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[base-http-request]">&lt;base-http-request&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[base-http-response]">&lt;base-http-response&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[chunking-input-stream]">&lt;chunking-input-stream&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[configuration-error]">&lt;configuration-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[conflict-error]">&lt;conflict-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[content-length-required-error]">&lt;content-length-required-error&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[directory-resource]">&lt;directory-resource&gt;</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:[dylan-server-page]">&lt;dylan-server-page&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[expectation-failed-error]">&lt;expectation-failed-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[expiring-mixin]">&lt;expiring-mixin&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[forbidden-error]">&lt;forbidden-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[found-redirect]">&lt;found-redirect&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[function-resource]">&lt;function-resource&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[gateway-timeout-error]">&lt;gateway-timeout-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[gone-error]">&lt;gone-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[header-table]">&lt;header-table&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[header-too-large-error]">&lt;header-too-large-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[http-client-protocol-error]">&lt;http-client-protocol-error&gt;</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:[http-connection]">&lt;http-connection&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[http-error]">&lt;http-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[http-parse-error]">&lt;http-parse-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[http-protocol-condition]">&lt;http-protocol-condition&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[http-redirect-condition]">&lt;http-redirect-condition&gt;</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:[http-response]">&lt;http-response&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[http-server-api-error]">&lt;http-server-api-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[http-server-protocol-error]">&lt;http-server-protocol-error&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[http-server]">&lt;http-server&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[http-version-not-supported-error]">&lt;http-version-not-supported-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[internal-server-error]">&lt;internal-server-error&gt;</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:[maximum-redirects-exceeded]">&lt;maximum-redirects-exceeded&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[media-type]">&lt;media-type&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[method-not-allowed-error]">&lt;method-not-allowed-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[moved-permanently-redirect]">&lt;moved-permanently-redirect&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[moved-temporarily-redirect]">&lt;moved-temporarily-redirect&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[not-acceptable-error]">&lt;not-acceptable-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[not-implemented-error]">&lt;not-implemented-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[not-modified-redirect]">&lt;not-modified-redirect&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[page-context]">&lt;page-context&gt;</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:[page-link]">&lt;page-link&gt;</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:[paginator]">&lt;paginator&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[payment-required-error]">&lt;payment-required-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[precondition-failed-error]">&lt;precondition-failed-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[proxy-authentication-required-error]">&lt;proxy-authentication-required-error&gt;</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:[redirect-loop-detected]">&lt;redirect-loop-detected&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[redirecting-resource]">&lt;redirecting-resource&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[request-entity-too-large-error]">&lt;request-entity-too-large-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[request-timeout-error]">&lt;request-timeout-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[request-uri-too-long-error]">&lt;request-uri-too-long-error&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[request]">&lt;request&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[requested-range-not-satisfiable-error]">&lt;requested-range-not-satisfiable-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[resource-not-found-error]">&lt;resource-not-found-error&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[resource]">&lt;resource&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[response]">&lt;response&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[rewrite-rule]">&lt;rewrite-rule&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[see-other-redirect]">&lt;see-other-redirect&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[service-unavailable-error]">&lt;service-unavailable-error&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[session]">&lt;session&gt;</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:[taglib]">&lt;taglib&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[unauthorized-error]">&lt;unauthorized-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[unsupported-media-type-error]">&lt;unsupported-media-type-error&gt;</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:[use-proxy-redirect]">&lt;use-proxy-redirect&gt;</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:[virtual-host]">&lt;virtual-host&gt;</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="A" class="genindex-section">
+  <h2>A</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/server.html#http-server:http-server:add-cookie">add-cookie</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:add-field-error">add-field-error</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:add-page-error">add-page-error</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:add-page-note">add-page-note</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:add-resource">add-resource</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/server.html#http-server:http-server:add-resource-name">add-resource-name</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:add-virtual-host">add-virtual-host</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:application-error">application-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:avalue-alist">avalue-alist</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:avalue-value">avalue-value</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="B" class="genindex-section">
+  <h2>B</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:bad-gateway-error">bad-gateway-error</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:bad-header-error">bad-header-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:bad-request-error">bad-request-error</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="C" class="genindex-section">
+  <h2>C</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:chunked-transfer-encoding?">chunked-transfer-encoding?</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:clear-session">clear-session</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:condition-class-for-status-code">condition-class-for-status-code</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:configure-server">configure-server</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:conflict-error">conflict-error</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:connection-host">connection-host</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:connection-port">connection-port</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:content-length">content-length</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:content-length-required-error">content-length-required-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:cookie-comment">cookie-comment</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:cookie-domain">cookie-domain</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:cookie-max-age">cookie-max-age</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:cookie-name">cookie-name</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:cookie-path">cookie-path</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:cookie-value">cookie-value</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:cookie-version">cookie-version</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:count-query-values">count-query-values</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:current-page-number">current-page-number</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:current-page-number-setter">current-page-number-setter</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:current-request">current-request</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:current-response">current-response</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:current-row">current-row</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:current-row-number">current-row-number</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:current-server">current-server</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="D" class="genindex-section">
+  <h2>D</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:date-modified">date-modified</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:date-modified-setter">date-modified-setter</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:debugging-enabled?">debugging-enabled?</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:debugging-enabled?-setter">debugging-enabled?-setter</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:default-content-type">default-content-type</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/server.html#http-server:http-server:default-documents">default-documents</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:default-virtual-host">default-virtual-host</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:default-virtual-host-setter">default-virtual-host-setter</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:do-query-values">do-query-values</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:do-resources">do-resources</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="E" class="genindex-section">
+  <h2>E</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/server.html#http-server:http-server:ensure-session">ensure-session</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:expectation-failed-error">expectation-failed-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:expired?">expired?</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/server.html#http-server:http-server:file-contents">file-contents</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:find-resource">find-resource</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:find-virtual-host">find-virtual-host</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/client.html#http-client:http-client:finish-request">finish-request</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:forbidden-error">forbidden-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:found-redirect">found-redirect</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:function-resource">function-resource</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="G" class="genindex-section">
+  <h2>G</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:gateway-timeout-error">gateway-timeout-error</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:generate-url">generate-url</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:get-attr">get-attr</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:get-attribute">get-attribute</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:get-field-errors">get-field-errors</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:get-header">get-header</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/dsp.html#dsp:dsp:get-named-method">get-named-method</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:get-query-value">get-query-value</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:get-query-values">get-query-values</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:get-session">get-session</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:get-tag-call-attribute">get-tag-call-attribute</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:gone-error">gone-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:grow-header-buffer">grow-header-buffer</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="H" class="genindex-section">
+  <h2>H</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:has-attribute?">has-attribute?</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:header-too-large-error">header-too-large-error</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:http-delete">http-delete</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:http-error-headers">http-error-headers</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:http-error-message-no-code">http-error-message-no-code</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:http-get">http-get</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:http-head">http-head</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/client.html#http-client:http-client:http-options">http-options</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:http-post">http-post</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:http-put">http-put</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:http-request">http-request</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:http-server-main">http-server-main</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:http-status-code">http-status-code</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:http-version-not-supported-error">http-version-not-supported-error</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:internal-server-error">internal-server-error</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/dsp.html#dsp:dsp:loop-index">loop-index</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/dsp.html#dsp:dsp:loop-value">loop-value</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="M" class="genindex-section">
+  <h2>M</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/client.html#http-client:http-client:make-http-connection">make-http-connection</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:map-tag-call-attributes">map-tag-call-attributes</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:match-media-types">match-media-types</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:media-type-exact?">media-type-exact?</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:media-type-level">media-type-level</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:media-type-more-specific?">media-type-more-specific?</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:media-type-quality">media-type-quality</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:method-not-allowed-error">method-not-allowed-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:moved-permanently-redirect">moved-permanently-redirect</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:moved-temporarily-redirect">moved-temporarily-redirect</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="N" class="genindex-section">
+  <h2>N</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/dsp.html#dsp:dsp:named-method-definer">named-method-definer</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:next-page-number">next-page-number</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:not-acceptable-error">not-acceptable-error</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:not-implemented-error">not-implemented-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:not-modified-redirect">not-modified-redirect</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:note-bytes-received">note-bytes-received</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:note-bytes-sent">note-bytes-sent</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/client.html#http-client:http-client:outgoing-chunk-size">outgoing-chunk-size</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/client.html#http-client:http-client:outgoing-chunk-size-setter">outgoing-chunk-size-setter</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:output">output</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/server.html#http-server:http-server:page-context">page-context</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:page-count">page-count</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:page-has-errors?">page-has-errors?</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:page-link-label">page-link-label</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:page-link-page-number">page-link-page-number</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:page-links">page-links</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:page-size">page-size</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:page-source">page-source</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:page-template">page-template</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:page-template-setter">page-template-setter</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/dsp.html#dsp:dsp:paginator-sequence">paginator-sequence</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:parse-header-value">parse-header-value</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:parse-http-date">parse-http-date</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:parsed-headers">parsed-headers</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:payment-required-error">payment-required-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:precondition-failed-error">precondition-failed-error</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:previous-page-number">previous-page-number</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:process-config-element">process-config-element</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:process-request-content">process-request-content</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:process-template">process-template</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:proxy-authentication-required-error">proxy-authentication-required-error</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Q" class="genindex-section">
+  <h2>Q</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:quote-html">quote-html</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:raw-headers">raw-headers</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:read-header-line">read-header-line</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:read-http-line">read-http-line</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:read-message-headers">read-message-headers</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:read-response">read-response</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:redirect-temporarily-to">redirect-temporarily-to</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:redirect-to">redirect-to</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:register-tag">register-tag</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:remove-attribute">remove-attribute</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:request-absolute-url">request-absolute-url</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-content">request-content</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-content-setter">request-content-setter</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:request-content-type">request-content-type</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-entity-too-large-error">request-entity-too-large-error</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:request-host">request-host</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-method">request-method</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-method-setter">request-method-setter</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:request-query-values">request-query-values</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-raw-url-string">request-raw-url-string</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-raw-url-string-setter">request-raw-url-string-setter</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-timeout-error">request-timeout-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-uri-too-long-error">request-uri-too-long-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-url">request-url</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:request-url-path-prefix">request-url-path-prefix</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/server.html#http-server:http-server:request-url-path-suffix">request-url-path-suffix</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-url-setter">request-url-setter</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-version">request-version</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:request-version-setter">request-version-setter</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:requested-range-not-satisfiable-error">requested-range-not-satisfiable-error</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:resource-not-found-error">resource-not-found-error</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:respond">respond</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:respond-to-connect">respond-to-connect</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:respond-to-delete">respond-to-delete</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:respond-to-get">respond-to-get</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:respond-to-head">respond-to-head</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:respond-to-options">respond-to-options</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:respond-to-post">respond-to-post</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:respond-to-put">respond-to-put</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:respond-to-trace">respond-to-trace</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:response-chunked?">response-chunked?</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:response-chunked?-setter">response-chunked?-setter</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:response-code">response-code</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:response-code-setter">response-code-setter</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:response-content">response-content</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:response-reason-phrase">response-reason-phrase</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:response-reason-phrase-setter">response-reason-phrase-setter</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:response-request">response-request</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:rewrite-url">rewrite-url</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:route-request">route-request</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:see-other-redirect">see-other-redirect</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:send-request">send-request</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:serve-static-file">serve-static-file</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:server-root">server-root</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:service-unavailable-error">service-unavailable-error</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:set-attribute">set-attribute</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:set-header">set-header</a>
+</li>
+        <li><a href="reference/dsp.html#dsp:dsp:show-tag-call-attributes">show-tag-call-attributes</a>
+</li>
+        <li><a href="reference/client.html#http-client:http-client:start-request">start-request</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:start-server">start-server</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:stop-server">stop-server</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="T" class="genindex-section">
+  <h2>T</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/dsp.html#dsp:dsp:tag-definer">tag-definer</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/dsp.html#dsp:dsp:taglib-definer">taglib-definer</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:token-end-position">token-end-position</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="U" class="genindex-section">
+  <h2>U</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:unauthorized-error">unauthorized-error</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:unmatched-url-suffix">unmatched-url-suffix</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:unsupported-media-type-error">unsupported-media-type-error</a>
+</li>
+        <li><a href="reference/server.html#http-server:http-server:use-default-virtual-host?">use-default-virtual-host?</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:use-proxy-redirect">use-proxy-redirect</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="V" class="genindex-section">
+  <h2>V</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/dsp.html#dsp:dsp:validate-form-field">validate-form-field</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/common.html#http-common:http-common:validate-http-status-code">validate-http-status-code</a>
+</li>
+        <li><a href="reference/common.html#http-common:http-common:validate-http-version">validate-http-version</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="W" class="genindex-section">
+  <h2>W</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/client.html#http-client:http-client:with-http-connection">with-http-connection</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/server.html#http-server:http-server:with-query-values">with-query-values</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                <a href="copyright.html">Copyright</a> &#169; 2012, Dylan Hackers
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=4e2eecee"></script>
+    </body>
+</html>
