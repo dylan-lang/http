@@ -1,9 +1,9 @@
-# The impetus for this Makefile was to include Git version info in the
-# generated executable and to install http-server-app as a static executable
-# named simply "http-server".
-#
-# The expectation is that during development people will use `dylan build
-# --all` or similar to build libraries.
+# The impetus for this Makefile was to include Git version info in the generated
+# executable and to install http-server-app as a static executable named simply
+# "http-server". The expectation is that during development people will use `deft build`
+# or `deft test`.
+
+# TODO: use the .gitattributes filtering that Deft uses instead of this version hack.
 
 DYLAN		?= $${HOME}/dylan
 
