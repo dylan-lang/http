@@ -1,7 +1,7 @@
-# For now this just does a clean build because the test suites hang.
-# https://github.com/dylan-lang/http/issues/90
+# For now this just does a clean build and start/stop the server because the test suites
+# hang.  https://github.com/dylan-lang/http/issues/90
 
-name: test-suite
+name: tests
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dylan-lang/install-dylan-tool@v3
+      - uses: dylan-lang/install-opendylan@v3
 
       - name: make install
         env:
@@ -33,4 +33,8 @@ jobs:
       - name: Run http-server --help
         env:
           DYLAN: dylan-root
-        run: dylan-root/bin/http-server --help
+          LD_LIBRARY_PATH: _od/opendylan-2024.1/lib
+        run: |
+          ls -l dylan-root/bin/
+          find . -name '*unwind*'
+          dylan-root/bin/http-server --help
