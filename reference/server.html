@@ -1727,7 +1727,85 @@ and <a class="reference internal" href="#http-server:http-server:get-query-value
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">The HTTP-SERVER library</a><ul>
-<li><a class="reference internal" href="#the-http-server-module">The HTTP-SERVER module</a></li>
+<li><a class="reference internal" href="#the-http-server-module">The HTTP-SERVER module</a><ul>
+<li><a class="reference internal" href="#http-server:http-server:*command-line-parser*"><code class="docutils literal notranslate"><span class="pre">*command-line-parser*</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[abstract-resource]"><code class="docutils literal notranslate"><span class="pre">&lt;abstract-resource&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[abstract-rewrite-rule]"><code class="docutils literal notranslate"><span class="pre">&lt;abstract-rewrite-rule&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[abstract-router]"><code class="docutils literal notranslate"><span class="pre">&lt;abstract-router&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[configuration-error]"><code class="docutils literal notranslate"><span class="pre">&lt;configuration-error&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[directory-resource]"><code class="docutils literal notranslate"><span class="pre">&lt;directory-resource&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[function-resource]"><code class="docutils literal notranslate"><span class="pre">&lt;function-resource&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[http-server]"><code class="docutils literal notranslate"><span class="pre">&lt;http-server&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[http-server-api-error]"><code class="docutils literal notranslate"><span class="pre">&lt;http-server-api-error&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[page-context]"><code class="docutils literal notranslate"><span class="pre">&lt;page-context&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[redirecting-resource]"><code class="docutils literal notranslate"><span class="pre">&lt;redirecting-resource&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[request]"><code class="docutils literal notranslate"><span class="pre">&lt;request&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[resource]"><code class="docutils literal notranslate"><span class="pre">&lt;resource&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[response]"><code class="docutils literal notranslate"><span class="pre">&lt;response&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[rewrite-rule]"><code class="docutils literal notranslate"><span class="pre">&lt;rewrite-rule&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[session]"><code class="docutils literal notranslate"><span class="pre">&lt;session&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:[virtual-host]"><code class="docutils literal notranslate"><span class="pre">&lt;virtual-host&gt;</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:add-cookie"><code class="docutils literal notranslate"><span class="pre">add-cookie</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:add-resource"><code class="docutils literal notranslate"><span class="pre">add-resource</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:add-resource-name"><code class="docutils literal notranslate"><span class="pre">add-resource-name</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:add-virtual-host"><code class="docutils literal notranslate"><span class="pre">add-virtual-host</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:clear-session"><code class="docutils literal notranslate"><span class="pre">clear-session</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:configure-server"><code class="docutils literal notranslate"><span class="pre">configure-server</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:count-query-values"><code class="docutils literal notranslate"><span class="pre">count-query-values</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:current-request"><code class="docutils literal notranslate"><span class="pre">current-request</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:current-response"><code class="docutils literal notranslate"><span class="pre">current-response</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:current-server"><code class="docutils literal notranslate"><span class="pre">current-server</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:debugging-enabled?"><code class="docutils literal notranslate"><span class="pre">debugging-enabled?</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:debugging-enabled?-setter"><code class="docutils literal notranslate"><span class="pre">debugging-enabled?-setter</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:default-content-type"><code class="docutils literal notranslate"><span class="pre">default-content-type</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:default-documents"><code class="docutils literal notranslate"><span class="pre">default-documents</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:default-virtual-host"><code class="docutils literal notranslate"><span class="pre">default-virtual-host</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:default-virtual-host-setter"><code class="docutils literal notranslate"><span class="pre">default-virtual-host-setter</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:do-query-values"><code class="docutils literal notranslate"><span class="pre">do-query-values</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:do-resources"><code class="docutils literal notranslate"><span class="pre">do-resources</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:ensure-session"><code class="docutils literal notranslate"><span class="pre">ensure-session</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:file-contents"><code class="docutils literal notranslate"><span class="pre">file-contents</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:find-resource"><code class="docutils literal notranslate"><span class="pre">find-resource</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:find-virtual-host"><code class="docutils literal notranslate"><span class="pre">find-virtual-host</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:function-resource"><code class="docutils literal notranslate"><span class="pre">function-resource</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:generate-url"><code class="docutils literal notranslate"><span class="pre">generate-url</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:get-attr"><code class="docutils literal notranslate"><span class="pre">get-attr</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:get-query-value"><code class="docutils literal notranslate"><span class="pre">get-query-value</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:get-query-values"><code class="docutils literal notranslate"><span class="pre">get-query-values</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:get-session"><code class="docutils literal notranslate"><span class="pre">get-session</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:http-server-main"><code class="docutils literal notranslate"><span class="pre">http-server-main</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:output"><code class="docutils literal notranslate"><span class="pre">output</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:page-context"><code class="docutils literal notranslate"><span class="pre">page-context</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:process-config-element"><code class="docutils literal notranslate"><span class="pre">process-config-element</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:process-request-content"><code class="docutils literal notranslate"><span class="pre">process-request-content</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:redirect-temporarily-to"><code class="docutils literal notranslate"><span class="pre">redirect-temporarily-to</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:redirect-to"><code class="docutils literal notranslate"><span class="pre">redirect-to</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:request-absolute-url"><code class="docutils literal notranslate"><span class="pre">request-absolute-url</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:request-content-type"><code class="docutils literal notranslate"><span class="pre">request-content-type</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:request-host"><code class="docutils literal notranslate"><span class="pre">request-host</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:request-query-values"><code class="docutils literal notranslate"><span class="pre">request-query-values</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:request-url-path-prefix"><code class="docutils literal notranslate"><span class="pre">request-url-path-prefix</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:request-url-path-suffix"><code class="docutils literal notranslate"><span class="pre">request-url-path-suffix</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:respond"><code class="docutils literal notranslate"><span class="pre">respond</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:respond-to-connect"><code class="docutils literal notranslate"><span class="pre">respond-to-connect</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:respond-to-delete"><code class="docutils literal notranslate"><span class="pre">respond-to-delete</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:respond-to-get"><code class="docutils literal notranslate"><span class="pre">respond-to-get</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:respond-to-head"><code class="docutils literal notranslate"><span class="pre">respond-to-head</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:respond-to-options"><code class="docutils literal notranslate"><span class="pre">respond-to-options</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:respond-to-post"><code class="docutils literal notranslate"><span class="pre">respond-to-post</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:respond-to-put"><code class="docutils literal notranslate"><span class="pre">respond-to-put</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:respond-to-trace"><code class="docutils literal notranslate"><span class="pre">respond-to-trace</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:rewrite-url"><code class="docutils literal notranslate"><span class="pre">rewrite-url</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:route-request"><code class="docutils literal notranslate"><span class="pre">route-request</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:serve-static-file"><code class="docutils literal notranslate"><span class="pre">serve-static-file</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:server-root"><code class="docutils literal notranslate"><span class="pre">server-root</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:start-server"><code class="docutils literal notranslate"><span class="pre">start-server</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:stop-server"><code class="docutils literal notranslate"><span class="pre">stop-server</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:unmatched-url-suffix"><code class="docutils literal notranslate"><span class="pre">unmatched-url-suffix</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:use-default-virtual-host?"><code class="docutils literal notranslate"><span class="pre">use-default-virtual-host?</span></code></a></li>
+<li><a class="reference internal" href="#http-server:http-server:with-query-values"><code class="docutils literal notranslate"><span class="pre">with-query-values</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
