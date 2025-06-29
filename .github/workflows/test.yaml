@@ -28,13 +28,10 @@ jobs:
       - name: make install
         env:
           DYLAN: dylan-root
-        run: make install
+        run: |
+          deft update
+          make install
 
       - name: Run http-server --help
-        env:
-          DYLAN: dylan-root
-          LD_LIBRARY_PATH: _od/opendylan-2024.1/lib
         run: |
-          ls -l dylan-root/bin/
-          find . -name '*unwind*'
           dylan-root/bin/http-server --help
