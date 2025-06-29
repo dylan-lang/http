@@ -3,26 +3,31 @@
 # "http-server". The expectation is that during development people will use `deft build`
 # or `deft test`.
 
-# TODO: use the .gitattributes filtering that Deft uses instead of this version hack.
-
 DYLAN		?= $${HOME}/dylan
 
 .PHONY: build clean install
 
-build:
+git_version := $(shell git describe --tags --always --match 'v*')
+
+# We assume `deft update` is invoked manually before running make.
+
+build: common/*.dylan common/*.lid server/*/*.dylan server/*/*.lid
 	file="server/core/server.dylan"; \
-	backup=$$(mktemp); \
-	temp=$$(mktemp); \
-	cp -p $${file} $${backup}; \
-	cat $${file} | sed "s,/.__./.*/.__./,/*__*/ \"$$(git describe --always --tags)\" /*__*/,g" > $${temp}; \
-	mv $${temp} $${file}; \
-	dylan update; \
-	dylan build --unify http-server-app; \
-	cp -p $${backup} $${file}
+	  orig=$$(mktemp); \
+	  temp=$$(mktemp); \
+	  cp -p $${file} $${orig}; \
+	  cat $${file} | sed "s|_NO_VERSION_SET_|${git_version} built on $$(date -Iseconds)|g" > $${temp}; \
+	  mv $${temp} $${file}; \
+	  deft build http-server-app; \
+	  cp -p $${orig} $${file}
 
 install: build
 	mkdir -p $(DYLAN)/bin
-	cp _build/sbin/http-server-app $(DYLAN)/bin/http-server
+	mkdir -p $(DYLAN)/install/http/bin
+	mkdir -p $(DYLAN)/install/http/lib
+	cp _build/bin/http-server-app $(DYLAN)/install/http/bin/http-server
+	cp -r _build/lib/lib* $(DYLAN)/install/http/lib/
+	ln -s -f $$(realpath $(DYLAN)/install/http/bin/http-server) $(DYLAN)/bin/http-server
 
 clean:
-	rm -rf _build registry
+	rm -rf _build _packages registry

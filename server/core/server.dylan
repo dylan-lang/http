@@ -8,12 +8,8 @@ Copyright: See LICENSE in this distribution for details.
 // sort of connotes slowness (?) so I stopped using it.
 define constant $server-name = "Dylan HTTP Server";
 
-// The Makefile replaces EVERYTHING BETWEEN THE /*__*/ MARKERS with the actual
-// tagged version before building, so don't move them.  Using the comment
-// markers enables recovery if someone commits a string other than "HEAD" by
-// accident. git's `ident` attribute doesn't use tag names and `filter` looks
-// more complex than it's worth.
-define constant $server-version :: <string> = /*__*/ "HEAD" /*__*/;
+// The Makefile replaces this string with Git version info before building.
+define constant $server-version :: <string> = "_NO_VERSION_SET_";
 
 // This is needed to handle sockets shutdown.
 define variable *exiting-application* = #f;
