@@ -42,7 +42,7 @@ jobs:
           run: make html
 
       - name: Upload html artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: anaphora-doc-html
           path: documentation/build/html/
