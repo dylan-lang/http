@@ -3,7 +3,7 @@ HTTP Client
 ***********
 
 This doc is just some simple examples for now.  See :func:`http-request`
-for additional arguments such as `headers:` and `follow-redirects:`.
+for additional arguments such as ``headers:`` and ``follow-redirects:``.
 
 
 Fetch the content of a web page and display it on ``*standard-output*``.

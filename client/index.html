@@ -264,7 +264,7 @@
           <section id="http-client">
 <h1>HTTP Client<a class="headerlink" href="#http-client" title="Link to this heading">¶</a></h1>
 <p>This doc is just some simple examples for now.  See <a class="reference internal" href="../reference/client.html#http-client:http-client:http-request"><code class="xref dylan dylan-func docutils literal notranslate"><span class="pre">http-request</span></code></a>
-for additional arguments such as <cite>headers:</cite> and <cite>follow-redirects:</cite>.</p>
+for additional arguments such as <code class="docutils literal notranslate"><span class="pre">headers:</span></code> and <code class="docutils literal notranslate"><span class="pre">follow-redirects:</span></code>.</p>
 <p>Fetch the content of a web page and display it on <code class="docutils literal notranslate"><span class="pre">*standard-output*</span></code>.</p>
 <div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="k">let</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;http-response&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">http-get</span><span class="p">(</span><span class="s">&quot;http://opendylan.org&quot;</span><span class="p">);</span>
 <span class="n">write</span><span class="p">(</span><span class="vg">*standard-output*</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">response-content</span><span class="p">);</span>
